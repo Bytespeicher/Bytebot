@@ -1,0 +1,4 @@
+bytebot_config.py
+*.swp
+__pycache__
+

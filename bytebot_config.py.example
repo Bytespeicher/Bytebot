@@ -1,0 +1,22 @@
+#!/usr/bin/env python2
+
+BYTEBOT_SERVER   = ""
+BYTEBOT_NICK     = ""
+BYTEBOT_PASSWORD = ""
+BYTEBOT_CHANNEL  = ""
+
+BYTEBOT_DICT_COMMANDS = {
+    'location':             'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
+    'preise':               'http://technikkultur-erfurt.de/hackerspace:preisliste',
+    'dates':                'http://technikkultur-erfurt.de/hackerspace:veranstaltungen',
+    'versorgung':           'http://technikkultur-erfurt.de/hackerspace:versorgung',
+}
+
+# Self references
+# Template:
+#BYTEBOT_DICT_COMMANDS[''] = BYTEBOT_DICT_COMMANDS['']
+BYTEBOT_DICT_COMMANDS['preis'] = BYTEBOT_DICT_COMMANDS['preise']
+BYTEBOT_DICT_COMMANDS['kosten'] = BYTEBOT_DICT_COMMANDS['preise']
+#BYTEBOT_DICT_COMMANDS[''] = BYTEBOT_DICT_COMMANDS['']
+BYTEBOT_DICT_COMMANDS['hunger'] = BYTEBOT_DICT_COMMANDS['versorgung']
+BYTEBOT_DICT_COMMANDS['essen']  = BYTEBOT_DICT_COMMANDS['versorgung']
