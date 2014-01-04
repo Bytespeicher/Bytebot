@@ -1,23 +1,39 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 
-import socket
 import sys
 import re
 import inspect
 import json
+import resource
 
+from socket         import socket, AF_INET, SOCK_STREAM
 from urllib         import urlopen
 from bytebot_config import *
+from time           import time
 
 class Bytebot:
     def __init__(self):
-        print("ByteBot loaded")
+        print("ByteBot")
+        self.debug    = BYTEBOT_DEBUG
+        self._warm_up = True
+        self._last_status_check = 0
+
+        self._print("connecting to:" + BYTEBOT_SERVER)
+        self._irc = socket(AF_INET, SOCK_STREAM)
+        self._irc.connect((BYTEBOT_SERVER, 6667))
+
+        self._login()
 
     def _send(self, message):
-        irc.send('PRIVMSG ' + BYTEBOT_CHANNEL + ' :' + message + '\r\n')
+        self._irc.send('PRIVMSG ' + BYTEBOT_CHANNEL + ' :' + message + '\r\n')
+
+    def _print(self, msg):
+        if self.debug == True:
+            print(msg)
 
     def _lookup_dict_command(self, dict):
-	print("lookup dict command: " + dict)
+        self._print("DEBUG: lookup dict command: " + dict)
         return BYTEBOT_DICT_COMMANDS[dict]
 
     def _list_dict_commands(self):
@@ -27,13 +43,68 @@ class Bytebot:
 
         self._send("Available dictionary commands: " + commands)
 
+    def _login(self):
+        self._irc.send("USER "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" :bytespeicher bot\n")
+        self._irc.send("NICK "+ BYTEBOT_NICK +"\n")
+        self._irc.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
+        self._irc.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
+
+    def _parse_msg(self, text):
+        try:
+            self._print('DEBUG: _parse_msg')
+            self._print(text)
+            text_tmp = text.split()
+            text_tmp.pop(0)
+            text_tmp.pop(0)
+            message = " ".join(text_tmp)
+        except IndexError, e:
+            self._print("WARNING: Got IndexError. Message was: " + text)
+            return
+
+        for method in dir(self):
+            attr = getattr(self, method)
+            if inspect.ismethod(attr) and not attr.__name__.startswith("_"):
+                attr(message)
+
+    def _run_loop(self):
+        while 1:
+            text = self._irc.recv(2040)
+
+            if text:
+                self._print(text)
+
+                if text.find(':You are now identified for'):
+                    self._warm_up = False
+
+                if self._warm_up == True:
+                    continue
+
+                if int(time()) - 10 > self._last_status_check:
+                    self._print('DEBUG2: status check')
+                    self._last_status_check = int(time())
+                    self._check_status_changed()
+
+                if text.find('PING') != -1:
+                    self._print("PING REQUEST:\r\n")
+                    self._print(text)
+                    self._print('Reply will be: "PONG ' + text.split() [1] + '"\r\n')
+
+                    self._irc.send('PONG ' + text.split() [1] + '\r\n')
+                
+                else:
+                    self._parse_msg(text)
+
+    def ident(self, message):
+        if message.find(':Register first') != -1:
+            self._login()
+
     def ping(self, message):
-        if text.find('ping') != -1:
-            self._send('pong ' + text.split() [0])
+        if message.find('ping') != -1:
+            self._send('pong ' + message.split() [1])
 
     def dict_commands(self, message):
         dict = re.search('^.*[: ]!([^ ].[^ $]*)', message)
-        if dict and dict.group(1) and dict.group(1) != 'help':
+        if dict and dict.group(1) and dict.group(1) not in ['help', 'status']:
             try:
                 answer = self._lookup_dict_command(dict.group(1))
                 if answer:
@@ -45,7 +116,7 @@ class Bytebot:
 
     def dict_commands_list(self, message):
         if message.find('!help') != -1:
-            print('Sending help..')
+            self._print('DEBUG: Sending help..')
             self._list_dict_commands()
 
     def status(self,message):
@@ -59,49 +130,77 @@ class Bytebot:
                     self._send('    Space is currently open: ' + data['state']['message'])
                 else:
                     self._send('    Space is currently closed ' + data['state']['message'])
-
             except Exception, e:
                 self._send('Error retrieving Space status')
-                print e
+                self._print('ERROR: ' + str(e))
+
+    def _set_topic(self):
+        try:
+            topic = BYTEBOT_TOPIC
+            response = urlopen(BYTEBOT_STATUS_URL)
+            data = json.loads(response.read())
+            if data['state']['open']:
+                topic += u' | Space is open (' + unicode(data['state']['message']) + ')'
+            else:
+                topic += u' | Space is closed'
 
 
-
-def parse_msg(bot, text):
-    text = text.split()
-    text.pop(0)
-    text.pop(0)
-    message = " ".join(text)
-
-    for method in dir(bot):
-        attr = getattr(bot, method)
-        if inspect.ismethod(attr) and not attr.__name__.startswith("_"):
-#            print("Executing " + attr.__name__ + " for " + message)
-            attr(message)
+            self._irc.send(unicode('TOPIC ' + BYTEBOT_CHANNEL + ' :' + topic + '\r\n').encode('utf-8', errors='replace'))
+        except Exception, e:
+            self._send('API Error - topic::status')
+            self._print('ERROR: ' + str(e))
+            self._print('topic: ' + topic)
 
 
+    def _get_topic(self):
+        self._topic = ''
+        self._print('DEBUG: Getting topic for channel ' + BYTEBOT_CHANNEL)
+        self._print('DEBUG: self._irc.send("TOPIC ' + BYTEBOT_CHANNEL + '")')
+        self._irc.send('TOPIC ' + BYTEBOT_CHANNEL + '\r\n')
+        while self._topic.find('332 ' + BYTEBOT_NICK + ' ' + BYTEBOT_CHANNEL) == -1:
+            self._topic = self._irc.recv(2040)
+            self._topic = self._topic.split('\r\n')[0]
 
+        self._topic = self._topic.split(' :')[1]
 
-irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print "connecting to:" + BYTEBOT_SERVER
-irc.connect((BYTEBOT_SERVER, 6667))
-irc.send("USER "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" :bytespeicher bot\n")
-irc.send("NICK "+ BYTEBOT_NICK +"\n")
-irc.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
-irc.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
+        self._print('DEBUG: Topic is: "' + self._topic + '"')
 
+    def _check_status_changed(self):
+        self._print('DEBUG2: _check_status_changed')
+        if self._warm_up != False:
+            self._print('WARNING: _check_status_changed called while warm up phase')
+            return
 
-bot = Bytebot()
+        try:
+            response = urlopen(BYTEBOT_STATUS_URL)
+            data     = json.loads(response.read())
+            
+            self._get_topic()
+            try:
+                old_status = re.search('Space is (open|closed)', self._topic)
+                old_status = old_status.group(1)
+            except Exception, e:
+                old_status = 'closed'
 
-while 1:
-    text=irc.recv(2040)
-    print text
+            self._print('DEBUG: ' + old_status)
 
-    if text.find('PING') != -1:
-        print("PING REQUEST:\r\n")
-        print(text)
-        
-        print('Reply will be: "PONG ' + text.split() [1] + '"\r\n')
-        irc.send('PONG ' + text.split() [1] + '\r\n')
+            if old_status == 'open' and data['state']['open'] == False:
+                self._set_topic()
+                self._send('Space is now closed!')
+                self._print('Status changed to closed')
+            elif old_status == 'closed' and data['state']['open'] == True:
+                self._set_topic()
+                self._send('Space is now open!')
+                self._print('Status changed to closed')
+            else:
+                self._print('No change in status')
 
-    parse_msg(bot, text)
+        except Exception, e:
+            self._send('API Error')
+            self._print('ERROR: ' + str(e))
 
+    def _check_user_count(self):
+        self._print("WARNING: Not implemented")
+
+    def check_memory_usage(self, message):
+        self._print('DEBUG2: MEMORY USAGE - ' + str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))
