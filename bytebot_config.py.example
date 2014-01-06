@@ -9,6 +9,8 @@ BYTEBOT_CHANNEL  = ""
 BYTEBOT_DEBUG = True
 BYTEBOT_TOPIC = u''
 
+BYTEBOT_STATUS_URL = 'http://status.bytespeicher.org/status.json'
+
 BYTEBOT_DICT_COMMANDS = {
     'location':             'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
     'preise':               'http://technikkultur-erfurt.de/hackerspace:preisliste',
