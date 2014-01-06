@@ -32,7 +32,7 @@ class BytebotIrc:
 
         self.register_hook('ping', self.ping)
 
-    def print(self, message, debug_level=BYTEBOT_DEBUG_WARN):
+    def log(self, message, debug_level=BYTEBOT_DEBUG_WARN):
         if self.debug & debug_level == self.debug:
             print(message)
 
