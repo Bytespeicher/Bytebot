@@ -19,7 +19,7 @@ BYTEBOT_DEBUG_ERROR = 0b01000
 BYTEBOT_DEBUG_EMERG = 0b10000
 
 class BytebotIrc:
-    def __init__(self, server, port=6667, nick, password, channel, debug=BYTEBOT_DEBUG_WARN):
+    def __init__(self, server, port=6667, nick='Bytebot', password='', channel='', debug=BYTEBOT_DEBUG_WARN):
         self.server   = server
         self.port     = port
         self.nick     = nick
@@ -42,8 +42,11 @@ class BytebotIrc:
     def login(self):
         self.socket.send("USER "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" :bytespeicher bot\n")
         self.socket.send("NICK "+ BYTEBOT_NICK +"\n")
-        self.socket.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
-        self.socket.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
+        if self.password:
+            self.socket.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
+
+        if.self.channel:
+            self.socket.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
     
     def send_message(self, message):
         self.log('send_message: ' + message, BYTEBOT_DEBUG_DEBUG)
