@@ -152,10 +152,6 @@ class Bytebot:
         if message.find(':Register first') != -1:
             self._login()
 
-    def ping(self, message):
-        if message.find('ping') != -1:
-            self._send('pong ' + message.split() [1])
-
     def dict_commands(self, message):
         dict = re.search('^.*[: ]!([^ ].[^ $]*)', message)
         if dict and dict.group(1) and dict.group(1) not in ['help', 'status']:
