@@ -12,6 +12,66 @@ from urllib         import urlopen
 from bytebot_config import *
 from time           import time
 
+BYTEBOT_DEBUG_DEBUG = 0b00001
+BYTEBOT_DEBUG_INFO  = 0b00010
+BYTEBOT_DEBUG_WARN  = 0b00100
+BYTEBOT_DEBUG_ERROR = 0b01000
+BYTEBOT_DEBUG_EMERG = 0b10000
+
+class BytebotIrc:
+    def __init__(self, server, port=6667, nick, password, channel, debug=BYTEBOT_DEBUG_WARN):
+        self.server   = server
+        self.port     = port
+        self.nick     = nick
+        self.password = password
+        self.channel  = channel
+
+        self.debug    = debug
+        self.warm_up  = True
+        self.socket   = socket(AF_INET, SOCK_STREAM)
+
+        self.register_hook('ping', self.ping)
+
+    def print(self, message, debug_level=BYTEBOT_DEBUG_WARN):
+        if self.debug & debug_level == self.debug:
+            print(message)
+
+    def connect(self):
+        self.socket.connect(self.server, self.port)
+
+    def login(self):
+        self.socket.send("USER "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" :bytespeicher bot\n")
+        self.socket.send("NICK "+ BYTEBOT_NICK +"\n")
+        self.socket.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
+        self.socket.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
+    
+    def send_message(self, message):
+        self.print('send_message: ' + message, BYTEBOT_DEBUG_DEBUG)
+        self.socket.send("PRIVMSG" + BYTEBOT_CHANNEL + " :" + message + "\r\n")
+
+    def run_commands(self, message):
+        for cmd in self.hooks:
+            cmd(message)
+
+    def register_hook(self, name, function):
+        if not self.hooks[name]:
+            self.print('Registering hook ' + name, BYTEBOT_DEBUG_INFO)
+            self.hooks[name] = function
+        else:
+            self.print('Hook ' + name + ' already registered', BYTEBOT_DEBUG_WARN)
+
+    def unregister_hook(self, name):
+        self.print('Unregistering hook ' + name, BYTEBOT_DEBUG_INFO)
+        del self.hooks[name]
+
+    def ping(self, message):
+        if message.find('PING') != -1:
+            self.print("PING REQUEST:\r\n", BYTEBOT_DEBUG_DEBUG)
+            self.print(text, BYTEBOT_DEBUG_DEBUG)
+            self.print('Reply will be: "PONG ' + text.split() [1] + '"\r\n', BYTEBOT_DEBUG_DEBUG)
+
+            self.socket.send('PONG ' + text.split() [1] + '\r\n')
+
 class Bytebot:
     def __init__(self):
         print("ByteBot")
@@ -84,12 +144,6 @@ class Bytebot:
                     self._last_status_check = int(time())
                     self._check_status_changed()
 
-                if text.find('PING') != -1:
-                    self._print("PING REQUEST:\r\n")
-                    self._print(text)
-                    self._print('Reply will be: "PONG ' + text.split() [1] + '"\r\n')
-
-                    self._irc.send('PONG ' + text.split() [1] + '\r\n')
                 
                 else:
                     self._parse_msg(text)
