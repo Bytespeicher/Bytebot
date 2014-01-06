@@ -147,9 +147,7 @@ class Bytebot:
                     self._last_status_check = int(time())
                     self._check_status_changed()
 
-                
-                else:
-                    self._parse_msg(text)
+                self._parse_msg(text)
 
     def ident(self, message):
         if message.find(':Register first') != -1:
