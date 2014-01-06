@@ -1,9 +1,13 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 
 BYTEBOT_SERVER   = ""
 BYTEBOT_NICK     = ""
 BYTEBOT_PASSWORD = ""
 BYTEBOT_CHANNEL  = ""
+
+BYTEBOT_DEBUG = True
+BYTEBOT_TOPIC = u''
 
 BYTEBOT_DICT_COMMANDS = {
     'location':             'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
