@@ -46,7 +46,7 @@ class BytebotIrc:
         self.socket.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
     
     def send_message(self, message):
-        self.print('send_message: ' + message, BYTEBOT_DEBUG_DEBUG)
+        self.log('send_message: ' + message, BYTEBOT_DEBUG_DEBUG)
         self.socket.send("PRIVMSG" + BYTEBOT_CHANNEL + " :" + message + "\r\n")
 
     def run_commands(self, message):
@@ -55,20 +55,20 @@ class BytebotIrc:
 
     def register_hook(self, name, function):
         if not self.hooks[name]:
-            self.print('Registering hook ' + name, BYTEBOT_DEBUG_INFO)
+            self.log('Registering hook ' + name, BYTEBOT_DEBUG_INFO)
             self.hooks[name] = function
         else:
-            self.print('Hook ' + name + ' already registered', BYTEBOT_DEBUG_WARN)
+            self.log('Hook ' + name + ' already registered', BYTEBOT_DEBUG_WARN)
 
     def unregister_hook(self, name):
-        self.print('Unregistering hook ' + name, BYTEBOT_DEBUG_INFO)
+        self.log('Unregistering hook ' + name, BYTEBOT_DEBUG_INFO)
         del self.hooks[name]
 
     def ping(self, message):
         if message.find('PING') != -1:
-            self.print("PING REQUEST:\r\n", BYTEBOT_DEBUG_DEBUG)
-            self.print(text, BYTEBOT_DEBUG_DEBUG)
-            self.print('Reply will be: "PONG ' + text.split() [1] + '"\r\n', BYTEBOT_DEBUG_DEBUG)
+            self.log("PING REQUEST:\r\n", BYTEBOT_DEBUG_DEBUG)
+            self.log(text, BYTEBOT_DEBUG_DEBUG)
+            self.log('Reply will be: "PONG ' + text.split() [1] + '"\r\n', BYTEBOT_DEBUG_DEBUG)
 
             self.socket.send('PONG ' + text.split() [1] + '\r\n')
 
