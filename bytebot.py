@@ -6,6 +6,7 @@ import re
 import inspect
 import json
 import resource
+import ssl
 
 from socket         import socket, AF_INET, SOCK_STREAM
 from urllib         import urlopen
@@ -45,7 +46,7 @@ class BytebotIrc:
         if self.password:
             self.socket.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
 
-        if.self.channel:
+        if self.channel:
             self.socket.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
     
     def send_message(self, message):
@@ -83,12 +84,27 @@ class Bytebot:
         self._last_status_check = 0
 
         self._print("connecting to:" + BYTEBOT_SERVER)
-        self._irc = socket(AF_INET, SOCK_STREAM)
-        self._irc.connect((BYTEBOT_SERVER, 6667))
+
+        port = 6667
+	sock = socket(AF_INET, SOCK_STREAM)
+
+        try:
+            self._print("DEBUG: Trying SSL")
+            import ssl
+            sock = ssl.wrap_socket(sock)
+            port = 9999
+        except Exception, e:
+            self._print("WARNING: Error with SSL: " + e)
+	    sock = socket(AF_INET, SOCK_STREAM)
+            pass
+
+        self._irc = sock
+        self._irc.connect((BYTEBOT_SERVER, port))
 
         self._login()
 
     def _send(self, message):
+        self._print('DEBUG: Sending MSG - ' + message)
         self._irc.send('PRIVMSG ' + BYTEBOT_CHANNEL + ' :' + message + '\r\n')
 
     def _print(self, msg):
