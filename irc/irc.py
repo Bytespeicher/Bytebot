@@ -68,6 +68,19 @@ class BytebotIrc:
         self.log('Unregistering hook ' + name, IrcErrorLevel.INFO)
         del self.hooks[name]
 
+    def register_timed_hook(self, name, function):
+        if not self.timed_hooks[name]:
+            self.log('Registering timed hook ' + name, IrcErrorLevel.INFO)
+            self.timed_hooks[name] = function
+        else:
+            self.log('Timed Hook ' + name + ' already registered', IrcErrorLevel.WARN)
+
+    def unregister_timed_hook(self, name):
+        self.log('Unregistering hook ' + name, IrcErrorLevel.INFO)
+        del self.timed_hooks[name]
+
+
+
     def ping(self, message):
         if message.find('PING') != -1:
             self.log("PING REQUEST:\r\n", IrcErrorLevel.DEBUG)
