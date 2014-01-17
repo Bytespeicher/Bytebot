@@ -25,6 +25,8 @@ class BytebotIrc:
         if self.debug & debug_level == self.debug:
             print(message)
 
+
+
     def connect(self):
         try:
             self.socket.connect(self.server, self.port)
@@ -50,6 +52,8 @@ class BytebotIrc:
     def run_commands(self, message):
         for cmd in self.hooks:
             cmd(message)
+
+
 
     def register_hook(self, name, function):
         if not self.hooks[name]:
