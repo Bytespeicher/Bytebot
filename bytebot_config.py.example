@@ -1,15 +1,18 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-BYTEBOT_SERVER   = ""
-BYTEBOT_NICK     = ""
-BYTEBOT_PASSWORD = ""
-BYTEBOT_CHANNEL  = ""
+BYTEBOT_SERVER      = ""
+BYTEBOT_PORT        = 6667
+BYTEBOT_SSL         = True
+BYTEBOT_NICK        = ""
+BYTEBOT_PASSWORD    = ""
+BYTEBOT_CHANNEL     = ""
+BYTEBOT_DESCRIPTION = ""
 
-BYTEBOT_DEBUG = True
-BYTEBOT_TOPIC = u''
+BYTEBOT_DEBUG       = True
+BYTEBOT_TOPIC       = u''
 
-BYTEBOT_STATUS_URL = 'http://status.bytespeicher.org/status.json'
+BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'
 
 BYTEBOT_DICT_COMMANDS = {
     'location':             'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
