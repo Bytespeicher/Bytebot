@@ -6,9 +6,10 @@ from socket         import socket, AF_INET, SOCK_STREAM
 
 
 class BytebotIrc:
-    def __init__(self, server, port=6667, nick='Bytebot', password='', description='', channel='', debug=IrcErrorLevel.WARN):
+    def __init__(self, server, port=6667, ssl=False, nick='Bytebot', password='', description='', channel='', debug=IrcErrorLevel.WARN):
         self.server      = server
         self.port        = port
+        self.ssl         = ssl 
         self.nick        = nick
         self.description = description
         self.password    = password
