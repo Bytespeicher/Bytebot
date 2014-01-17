@@ -45,9 +45,11 @@ class BytebotIrc:
         if self.channel:
             self.socket.send("JOIN "+ self.channel +"\n")
     
-    def send_message(self, message):
-        self.log('send_message: ' + message, IrcErrorLevel.DEBUG)
-        self.socket.send("PRIVMSG" + self.channel + " :" + message + "\r\n")
+    def send_message(self, message, destination=self.channel):
+        self.log('send_message to ' + destination + ': ' + message, IrcErrorLevel.DEBUG)
+        self.socket.send("PRIVMSG" + destination + " :" + message + "\r\n")
+
+
 
     def run_commands(self, message):
         for cmd in self.hooks:
