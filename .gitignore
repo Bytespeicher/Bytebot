@@ -1,4 +1,5 @@
 bytebot_config.py
 *.swp
+*.swo
 __pycache__
 *.pyc
