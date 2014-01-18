@@ -12,6 +12,8 @@ from urllib         import urlopen
 from bytebot_config import *
 from time           import time
 
+from irc.irc        import BytebotIrc
+
 class Bytebot:
     def __init__(self):
         print("ByteBot")
@@ -21,27 +23,29 @@ class Bytebot:
 
         self._print("connecting to:" + BYTEBOT_SERVER)
 
-        port = 6667
-	sock = socket(AF_INET, SOCK_STREAM)
-
         try:
-            self._print("DEBUG: Trying SSL")
-            import ssl
-            sock = ssl.wrap_socket(sock)
-            port = 9999
+            self.irc = new BytebotIrc(
+                server=BYTEBOT_SERVER,
+                port=BYTEBOT_PORT,
+                ssl=BYTEBOT_SSL,
+                nick=BYTEBOT_NICK,
+                password=BYTEBOT_PASSWORD,
+                channel=BYTEBOT_CHANNEL,
+                description=BYTEBOT_DESCRIPTION,
+                debug=BYTEBOT_DEBUG
+            )
+
+            self.irc.connect()
+
+            for method in dir(self):
+                attr = getattr(self, method)
+                if inspect.ismethod(attr):
+                    if attr.__name__.startswith("hook"):
+                        self.irc.register_hook(attr)
+                    elif attr.__name__.startswith("timed")
+                        self.register_timed_hook(attr)
         except Exception, e:
-            self._print("WARNING: Error with SSL: " + e)
-	    sock = socket(AF_INET, SOCK_STREAM)
-            pass
-
-        self._irc = sock
-        self._irc.connect((BYTEBOT_SERVER, port))
-
-        self._login()
-
-    def _send(self, message):
-        self._print('DEBUG: Sending MSG - ' + message)
-        self._irc.send('PRIVMSG ' + BYTEBOT_CHANNEL + ' :' + message + '\r\n')
+            self._print("EMERG: IRC init failed: " + e)
 
     def _print(self, msg):
         if self.debug == True:
@@ -58,48 +62,11 @@ class Bytebot:
 
         self._send("Available dictionary commands: " + commands)
 
-    def _login(self):
-        self._irc.send("USER "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" "+ BYTEBOT_NICK +" :bytespeicher bot\n")
-        self._irc.send("NICK "+ BYTEBOT_NICK +"\n")
-        self._irc.send("PRIVMSG NICKSERV :IDENTIFY " + BYTEBOT_PASSWORD+ "\r\n")
-        self._irc.send("JOIN "+ BYTEBOT_CHANNEL +"\n")
-
-    def _parse_msg(self, text):
-        try:
-            self._print('DEBUG: _parse_msg')
-            self._print(text)
-            text_tmp = text.split()
-            text_tmp.pop(0)
-            text_tmp.pop(0)
-            message = " ".join(text_tmp)
-        except IndexError, e:
-            self._print("WARNING: Got IndexError. Message was: " + text)
-            return
-
-        for method in dir(self):
-            attr = getattr(self, method)
-            if inspect.ismethod(attr) and not attr.__name__.startswith("_"):
-                attr(message)
-
-    def _run_loop(self):
-        while 1:
-            text = self._irc.recv(2040)
-
-            if text:
-                self._print(text)
-
-                if text.find(':You are now identified for'):
-                    self._warm_up = False
-
-                if self._warm_up == True:
-                    continue
-
-                if int(time()) - 10 > self._last_status_check:
-                    self._print('DEBUG2: status check')
-                    self._last_status_check = int(time())
-                    self._check_status_changed()
-
-                self._parse_msg(text)
+    def timed_check_status(self, message):
+        if int(time()) - 10 > self._last_status_check:
+            self._print('DEBUG2: status check')
+            self._last_status_check = int(time())
+            self._check_status_changed()
 
     def ident(self, message):
         if message.find(':Register first') != -1:
