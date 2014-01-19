@@ -22,6 +22,10 @@ class BytebotIrc:
 
         self.register_hook('ping', self.ping)
 
+    def __del__(self):
+        self.socket.shutdown()
+        self.socket.close()
+
     def log(self, message, debug_level=IrcErrorLevel.WARN):
         if self.debug & debug_level == self.debug:
             print(message)
