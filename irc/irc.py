@@ -56,7 +56,7 @@ class BytebotIrc:
             for part in message.split("", num=max_len):
                 self.send_message(message=message, destination=destination)
         self.log('send_message to ' + destination + ': ' + message, IrcErrorLevel.DEBUG)
-        self.socket.send("PRIVMSG" + destination + " :" + message + "\r\n")
+        self.socket.send("PRIVMSG " + destination + " :" + message + "\r\n")
 
 
 
