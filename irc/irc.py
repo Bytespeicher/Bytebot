@@ -51,6 +51,10 @@ class BytebotIrc:
             self.socket.send("JOIN "+ self.channel +"\n")
     
     def send_message(self, message, destination=self.channel):
+        max_len = (500 - destination.__len__())
+        if message.__len() > max_len):
+            for part in message.split("", num=max_len):
+                self.send_message(message=message, destination=destination)
         self.log('send_message to ' + destination + ': ' + message, IrcErrorLevel.DEBUG)
         self.socket.send("PRIVMSG" + destination + " :" + message + "\r\n")
 
