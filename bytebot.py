@@ -139,8 +139,5 @@ class Bytebot:
         except Exception, e:
             self._send('API Error')
 
-    def _check_user_count(self):
-        print("WARNING: Not implemented")
-
     def check_memory_usage(self, message):
         print('DEBUG2: MEMORY USAGE - ' + str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))
