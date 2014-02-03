@@ -46,7 +46,7 @@ class ByteBot(irc.IRCClient):
             return
 
         if msg.startswith(self.nickname + ":"):
-            msg = "%S: Ich bin nur ein Bot. Meine Intelligenz ist limitierter als deine." % user
+            msg = "%S: Ich bin ein Bot. Meine Intelligenz ist limitiert" % user
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
