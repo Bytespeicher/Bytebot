@@ -29,3 +29,19 @@ BYTEBOT_DICT_COMMANDS['kosten'] = BYTEBOT_DICT_COMMANDS['preise']
 #BYTEBOT_DICT_COMMANDS[''] = BYTEBOT_DICT_COMMANDS['']
 BYTEBOT_DICT_COMMANDS['hunger'] = BYTEBOT_DICT_COMMANDS['versorgung']
 BYTEBOT_DICT_COMMANDS['essen']  = BYTEBOT_DICT_COMMANDS['versorgung']
+
+"""
+Enable plugins by writing their lowercase name here
+"""
+BYTEBOT_PLUGINS= [
+    'usercount',
+    'messagelogger'
+]
+
+BYTEBOT_PLUGIN_CONFIG['messagelogger'] = {
+    'file':     '/tmp/irc.log'
+}
+
+BYTEBOT_PLUGIN_CONFIG['usercount'] = {
+    'file':     '/tmp/irc_user.log'
+}
