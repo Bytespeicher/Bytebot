@@ -16,17 +16,7 @@ from twisted.words.protocols import irc
 from twisted.internet        import reactor, protocol, ssl
 from twisted.python          import log
 
-class MessageLogger:
-    def __init__(self, file):
-        self.file = file
-
-    def log(self, message):
-        timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
-        self.file.write('%s %s\n' % (timestamp, message))
-        self.file.flush()
-
-    def close(self):
-        self.file.close()
+from plugins.messagelogger   import MessageLogger
 
 class ByteBot(irc.IRCClient):
     
