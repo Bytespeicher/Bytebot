@@ -12,31 +12,97 @@ from urllib         import urlopen
 from bytebot_config import *
 from time           import time
 
-from irc.irc        import BytebotIrc
+from twisted.words.protocols import irc
+from twisted.internet        import reactor, protocol, ssl
+from twisted.python          import log
+
+class MessageLogger:
+    def __init__(self, file):
+        self.file = file
+
+    def log(self, message):
+        timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
+        self.file.write('%s %s\n' % (timestamp, message))
+        self.file.flush()
+
+    def close(self):
+        self.file.close()
+
+class ByteBot(irc.IRCClient):
+    
+    def connectionMade(self):
+        irc.IRCClient.connectionMade(self)
+        self.logger = MessageLogger(open(self.factory.filename, "a"))
+        self.logger.log("[connected at %s]" %
+                        time.asctime(time.localtime(time.time())))
+
+    def connectionLost(self, reason):
+        irc.IRCClient.connectionLost(self, reason)
+        self.logger.log("[disconnected at %s]", %
+                        time.asctime(time.localtime(time.time())))
+
+    def signedOn(self):
+        self.join(self.factory.channel)
+
+    def joined(self, channel):
+        self.logger.log("[joined channel %s]" % channel)
+
+    def privmsg(self, user, channel, msg):
+        user = user.split("!", 1)[0]
+        self.logger.log("<%s> %s" % (user, msg))
+
+        if channel == self.nickname:
+            """ User whispering to the bot"""
+            return
+
+        if msg.startswith(self.nickname + ":"):
+            msg = "%S: Ich bin nur ein Bot. Meine Intelligenz ist limitierter als deine." % user
+            self.msg(channel, msg)
+            self.logger.log("<%s> %s" % (self.nickname, msg))
+
+    def action(self, user, channel, msg):
+        user = user.split("!", 1)[0]
+        self.logger.log("* %s %s" % (user, msg))
+
+    def irc_NICK(self, prefix, params):
+        old_nick = prefix.split("!")[0]
+        new_nick = params[0]
+        self.logger.log("%s is now know as %s" % (old_nick, new_nick))
+
+    def alterCollidedNickk(self, nickname):
+        return nickname + "^"
+
+class LogBotFactory(protocol.ClientFactory):
+    def __init__(self, nickname, password, channel, filename):
+        self.nickname = nickname
+        self.password = password
+        self.channel  = channel
+        self.filename = filename
+
+    def buildProtocol(self, addr):
+        p         = ByteBot()
+        p.factory = self
+        return p
+
+    def clientConnectionLost(self, connector, reason):
+        connector.connect()
+
+    def clientConnectionFailed(self, connector, reason):
+        print("FATAL: connection failed: ", reason)
+        reactor.stop()
+
+if __name__ = '__main__':
+    log.startLogging(sys.stdout)
+    f = LogBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL, BYTEBOT_LOG)
+    if BYTEBOT_SSL == True:
+        reactor.connectSSL(BYTEBOT_SERVER, BYTEBOT_PORT, f, ssl.ClientContextFactory())
+    else:
+        reactor.connectSSL(BYTEBOT_SERVER, BYTEBOT_PORT, f)
+    reactor.run()
+
 
 class Bytebot:
     def __init__(self):
-        print("ByteBot")
-        self.debug    = BYTEBOT_DEBUG
-        self._warm_up = True
-        self._last_status_check = 0
-
-        self._print("connecting to:" + BYTEBOT_SERVER)
-
-        try:
-            self.irc = new BytebotIrc(
-                server=BYTEBOT_SERVER,
-                port=BYTEBOT_PORT,
-                ssl=BYTEBOT_SSL,
-                nick=BYTEBOT_NICK,
-                password=BYTEBOT_PASSWORD,
-                channel=BYTEBOT_CHANNEL,
-                description=BYTEBOT_DESCRIPTION,
-                debug=BYTEBOT_DEBUG
-            )
-
-            self.irc.connect()
-
             for method in dir(self):
                 attr = getattr(self, method)
                 if inspect.ismethod(attr):
@@ -45,14 +111,9 @@ class Bytebot:
                     elif attr.__name__.startswith("timed")
                         self.register_timed_hook(attr)
         except Exception, e:
-            self._print("EMERG: IRC init failed: " + e)
-
-    def _print(self, msg):
-        if self.debug == True:
-            print(msg)
+            print("EMERG: IRC init failed: " + e)
 
     def _lookup_dict_command(self, dict):
-        self._print("DEBUG: lookup dict command: " + dict)
         return BYTEBOT_DICT_COMMANDS[dict]
 
     def _list_dict_commands(self):
@@ -64,7 +125,6 @@ class Bytebot:
 
     def timed_check_status(self, message):
         if int(time()) - 10 > self._last_status_check:
-            self._print('DEBUG2: status check')
             self._last_status_check = int(time())
             self._check_status_changed()
 
@@ -86,7 +146,6 @@ class Bytebot:
 
     def dict_commands_list(self, message):
         if message.find('!help') != -1:
-            self._print('DEBUG: Sending help..')
             self._list_dict_commands()
 
     def status(self,message):
@@ -102,7 +161,6 @@ class Bytebot:
                     self._send('    Space is currently closed ' + data['state']['message'])
             except Exception, e:
                 self._send('Error retrieving Space status')
-                self._print('ERROR: ' + str(e))
 
     def _set_topic(self):
         try:
@@ -118,14 +176,10 @@ class Bytebot:
             self._irc.send(unicode('TOPIC ' + BYTEBOT_CHANNEL + ' :' + topic + '\r\n').encode('utf-8', errors='replace'))
         except Exception, e:
             self._send('API Error - topic::status')
-            self._print('ERROR: ' + str(e))
-            self._print('topic: ' + topic)
 
 
     def _get_topic(self):
         self._topic = ''
-        self._print('DEBUG: Getting topic for channel ' + BYTEBOT_CHANNEL)
-        self._print('DEBUG: self._irc.send("TOPIC ' + BYTEBOT_CHANNEL + '")')
         self._irc.send('TOPIC ' + BYTEBOT_CHANNEL + '\r\n')
         while self._topic.find('332 ' + BYTEBOT_NICK + ' ' + BYTEBOT_CHANNEL) == -1:
             self._topic = self._irc.recv(2040)
@@ -133,12 +187,8 @@ class Bytebot:
 
         self._topic = self._topic.split(' :')[1]
 
-        self._print('DEBUG: Topic is: "' + self._topic + '"')
-
     def _check_status_changed(self):
-        self._print('DEBUG2: _check_status_changed')
         if self._warm_up != False:
-            self._print('WARNING: _check_status_changed called while warm up phase')
             return
 
         try:
@@ -152,25 +202,19 @@ class Bytebot:
             except Exception, e:
                 old_status = 'closed'
 
-            self._print('DEBUG: ' + old_status)
-
             if old_status == 'open' and data['state']['open'] == False:
                 self._set_topic()
                 self._send('Space is now closed!')
-                self._print('Status changed to closed')
             elif old_status == 'closed' and data['state']['open'] == True:
                 self._set_topic()
                 self._send('Space is now open!')
-                self._print('Status changed to closed')
             else:
-                self._print('No change in status')
 
         except Exception, e:
             self._send('API Error')
-            self._print('ERROR: ' + str(e))
 
     def _check_user_count(self):
-        self._print("WARNING: Not implemented")
+        print("WARNING: Not implemented")
 
     def check_memory_usage(self, message):
-        self._print('DEBUG2: MEMORY USAGE - ' + str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))
+        print('DEBUG2: MEMORY USAGE - ' + str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))
