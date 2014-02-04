@@ -50,6 +50,14 @@ class ByteBot(irc.IRCClient):
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
+    def noticed(self, user, channel, message):
+        """
+        This function is called if a NOTICE is received. According to the RFC 
+        one MUST NOT send automatic replies in response to a NOTICE to avoid 
+        loops between clients.
+        """
+        pass
+
     def action(self, user, channel, msg):
         user = user.split("!", 1)[0]
         self.logger.log("* %s %s" % (user, msg))
