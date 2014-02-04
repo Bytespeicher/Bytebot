@@ -8,15 +8,16 @@ import json
 import resource
 import ssl
 
-from urllib         import urlopen
-from bytebot_config import *
-from time           import time
+from urllib                     import urlopen
+from bytebot_config             import *
+from bytebotpluginloader        import BytebotPluginLoader
+from time                       import time
 
-from twisted.words.protocols import irc
-from twisted.internet        import reactor, protocol, ssl
-from twisted.python          import log
+from twisted.words.protocols    import irc
+from twisted.internet           import reactor, protocol, ssl
+from twisted.python             import log
 
-from plugins.messagelogger   import MessageLogger
+from plugins.messagelogger      import MessageLogger
 
 class ByteBot(irc.IRCClient):
     
@@ -40,6 +41,11 @@ class ByteBot(irc.IRCClient):
     def privmsg(self, user, channel, msg):
         user = user.split("!", 1)[0]
         self.logger.log("<%s> %s" % (user, msg))
+
+        """
+        Load all plugins for onMessage
+        """
+        # TODO: add plugin loader functions
 
         if channel == self.nickname:
             """ User whispering to the bot"""
