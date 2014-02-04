@@ -59,7 +59,7 @@ class ByteBot(irc.IRCClient):
         new_nick = params[0]
         self.logger.log("%s is now know as %s" % (old_nick, new_nick))
 
-    def alterCollidedNickk(self, nickname):
+    def alterCollidedNick(self, nickname):
         return nickname + "^"
 
 class LogBotFactory(protocol.ClientFactory):
