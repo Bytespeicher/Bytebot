@@ -20,9 +20,9 @@ class ByteBotPluginLoader:
                     plugin.title()
                 )
             except Exception, e:
-                print("FATAL: Could not import plugin %s" % plugin)
-                print(e)
-                #exit(255)
+                print("FATAL: Could not import plugin %s.%s" %
+                      (path, plugin))
+                exit(255)
 
     def runCommands(self, fn, args={}):
         for plugin in self.PLUGINS:
