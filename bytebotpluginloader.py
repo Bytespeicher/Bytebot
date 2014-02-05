@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from imp import find_module, load_module
-from sys import exit
+from sys                import exit
 
 class ByteBotPluginLoader:
     PLUGINS = {} 
@@ -26,4 +25,10 @@ class ByteBotPluginLoader:
                 #exit(255)
 
     def runCommands(self, fn, args={}):
-        pass
+        for plugin in self.PLUGINS:
+            try:
+                method = getattr(plugin, fn)
+                method(**args)
+            except Exception:
+                print("WARNING: An error occured while executing %s in %s with %s" %
+                     (fn, plugin, args))
