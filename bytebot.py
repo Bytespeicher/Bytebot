@@ -17,20 +17,13 @@ from twisted.words.protocols    import irc
 from twisted.internet           import reactor, protocol, ssl
 from twisted.python             import log
 
-from plugins.messagelogger      import MessageLogger
-
 class ByteBot(irc.IRCClient):
     
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
-        self.logger = MessageLogger(open(self.factory.filename, "a"))
-        self.logger.log("[connected at %s]" %
-                        time.asctime(time.localtime(time.time())))
 
     def connectionLost(self, reason):
         irc.IRCClient.connectionLost(self, reason)
-        self.logger.log("[disconnected at %s]", %
-                        time.asctime(time.localtime(time.time())))
 
     def signedOn(self):
         self.join(self.factory.channel)
@@ -40,12 +33,6 @@ class ByteBot(irc.IRCClient):
 
     def privmsg(self, user, channel, msg):
         user = user.split("!", 1)[0]
-        self.logger.log("<%s> %s" % (user, msg))
-
-        """
-        Load all plugins for onMessage
-        """
-        # TODO: add plugin loader functions
 
         if channel == self.nickname:
             """ User whispering to the bot"""
@@ -66,12 +53,10 @@ class ByteBot(irc.IRCClient):
 
     def action(self, user, channel, msg):
         user = user.split("!", 1)[0]
-        self.logger.log("* %s %s" % (user, msg))
 
     def irc_NICK(self, prefix, params):
         old_nick = prefix.split("!")[0]
         new_nick = params[0]
-        self.logger.log("%s is now know as %s" % (old_nick, new_nick))
 
     def alterCollidedNick(self, nickname):
         return nickname + "^"
