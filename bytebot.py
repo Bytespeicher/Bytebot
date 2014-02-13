@@ -22,6 +22,12 @@ from twisted.internet           import reactor, protocol, ssl, task
 from twisted.python             import log
 
 class ByteBot(irc.IRCClient):
+
+    nickname = BYTEBOT_NICK
+    password = BYTEBOT_PASSWORD
+    realname = BYTEBOT_NICK
+    username = BYTEBOT_NICK
+    channel  = BYTEBOT_CHANNEL
     
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
