@@ -43,6 +43,8 @@ class ByteBot(irc.IRCClient):
         #self.logger.log("[joined channel %s]" % channel)
         #TODO: plugins.run.onJoin(self, channel)
         print("[joined channel %s]" % channel)
+        print("[starting cron]")
+        self.startCron()
 
     def privmsg(self, user, channel, msg):
         user = user.split("!", 1)[0]
@@ -77,12 +79,19 @@ class ByteBot(irc.IRCClient):
 
     def startCron(self):
         def runPerMinute():
-            print("test")
+            print("[cron every 60s]")
+            self.msg(self.channel, "Minute test")
+
         self.minuteCron = task.LoopingCall(runPerMinute)
         self.minuteCron.start(60.0)
-        reactor.run()
+
+
+
+        print("[startCron: cron started]")
+
 
 class ByteBotFactory(protocol.ClientFactory):
+
     def __init__(self, nickname, password, channel):
         self.nickname = nickname
         self.password = password
