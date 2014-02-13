@@ -19,7 +19,7 @@ class ByteBotPluginLoader:
                     __import__("%s.%s" % (path, plugin)).__dict__[plugin],
                     plugin.title()
                 )
-            except Exception, e:
+            except Exception as e:
                 print("FATAL: Could not import plugin %s.%s" %
                       (path, plugin))
                 exit(255)

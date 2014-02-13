@@ -8,13 +8,17 @@ import json
 import resource
 import ssl
 
-from urllib                     import urlopen
+try:
+    from urllib.request         import urlopen
+except ImportError:
+    from urllib                 import urlopen
+
 from bytebot_config             import *
-from bytebotpluginloader        import BytebotPluginLoader
+from bytebotpluginloader        import ByteBotPluginLoader
 from time                       import time
 
 from twisted.words.protocols    import irc
-from twisted.internet           import reactor, protocol, ssl
+from twisted.internet           import reactor, protocol, ssl, task
 from twisted.python             import log
 
 class ByteBot(irc.IRCClient):
@@ -27,9 +31,12 @@ class ByteBot(irc.IRCClient):
 
     def signedOn(self):
         self.join(self.factory.channel)
+        print("[sign on]")
 
     def joined(self, channel):
-        self.logger.log("[joined channel %s]" % channel)
+        #self.logger.log("[joined channel %s]" % channel)
+        #TODO: plugins.run.onJoin(self, channel)
+        print("[joined channel %s]" % channel)
 
     def privmsg(self, user, channel, msg):
         user = user.split("!", 1)[0]
@@ -41,7 +48,8 @@ class ByteBot(irc.IRCClient):
         if msg.startswith(self.nickname + ":"):
             msg = "%S: Ich bin ein Bot. Meine Intelligenz ist limitiert" % user
             self.msg(channel, msg)
-            self.logger.log("<%s> %s" % (self.nickname, msg))
+            #self.logger.log("<%s> %s" % (self.nickname, msg))
+            print("<%s> %s" % (self.nickname, msg))
 
     def noticed(self, user, channel, message):
         """
@@ -61,12 +69,18 @@ class ByteBot(irc.IRCClient):
     def alterCollidedNick(self, nickname):
         return nickname + "^"
 
-class LogBotFactory(protocol.ClientFactory):
-    def __init__(self, nickname, password, channel, filename):
+    def startCron(self):
+        def runPerMinute():
+            print("test")
+        self.minuteCron = task.LoopingCall(runPerMinute)
+        self.minuteCron.start(60.0)
+        reactor.run()
+
+class ByteBotFactory(protocol.ClientFactory):
+    def __init__(self, nickname, password, channel):
         self.nickname = nickname
         self.password = password
         self.channel  = channel
-        self.filename = filename
 
     def buildProtocol(self, addr):
         p         = ByteBot()
@@ -80,63 +94,13 @@ class LogBotFactory(protocol.ClientFactory):
         print("FATAL: connection failed: ", reason)
         reactor.stop()
 
-if __name__ = '__main__':
+
+if __name__ == '__main__':
     log.startLogging(sys.stdout)
-    f = LogBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL, BYTEBOT_LOG)
+    f = ByteBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL)
     if BYTEBOT_SSL == True:
-        reactor.connectSSL(BYTEBOT_SERVER, BYTEBOT_PORT, f, ssl.ClientContextFactory())
+        reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f, ssl.ClientContextFactory())
     else:
-        reactor.connectSSL(BYTEBOT_SERVER, BYTEBOT_PORT, f)
+        reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f)
     reactor.run()
 
-
-class Bytebot:
-    def __init__(self):
-            for method in dir(self):
-                attr = getattr(self, method)
-                if inspect.ismethod(attr):
-                    if attr.__name__.startswith("hook"):
-                        self.irc.register_hook(attr)
-                    elif attr.__name__.startswith("timed")
-                        self.register_timed_hook(attr)
-        except Exception, e:
-            print("EMERG: IRC init failed: " + e)
-
-
-    def timed_check_status(self, message):
-        if int(time()) - 10 > self._last_status_check:
-            self._last_status_check = int(time())
-            self._check_status_changed()
-
-    def ident(self, message):
-        if message.find(':Register first') != -1:
-            self._login()
-
-    def _check_status_changed(self):
-        if self._warm_up != False:
-            return
-
-        try:
-            response = urlopen(BYTEBOT_STATUS_URL)
-            data     = json.loads(response.read())
-            
-            self._get_topic()
-            try:
-                old_status = re.search('Space is (open|closed)', self._topic)
-                old_status = old_status.group(1)
-            except Exception, e:
-                old_status = 'closed'
-
-            if old_status == 'open' and data['state']['open'] == False:
-                self._set_topic()
-                self._send('Space is now closed!')
-            elif old_status == 'closed' and data['state']['open'] == True:
-                self._set_topic()
-                self._send('Space is now open!')
-            else:
-
-        except Exception, e:
-            self._send('API Error')
-
-    def check_memory_usage(self, message):
-        print('DEBUG2: MEMORY USAGE - ' + str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))

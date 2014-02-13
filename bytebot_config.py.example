@@ -38,10 +38,11 @@ BYTEBOT_PLUGINS= [
     'messagelogger'
 ]
 
-BYTEBOT_PLUGIN_CONFIG['messagelogger'] = {
-    'file':     '/tmp/irc.log'
-}
-
-BYTEBOT_PLUGIN_CONFIG['usercount'] = {
-    'file':     '/tmp/irc_user.log'
+BYTEBOT_PLUGIN_CONFIG = {
+    'messagelogger': {
+        'file':     '/tmp/irc.log'
+    },
+    'usercount': {
+        'file':     '/tmp/irc_user.log'
+    },
 }

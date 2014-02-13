@@ -7,7 +7,7 @@ class Plugin:
     plugins can be attached.
     """
     def onSignOn(self, channel):
-        pass
+       pass
 
     def onJoin(self, channel):
         pass
