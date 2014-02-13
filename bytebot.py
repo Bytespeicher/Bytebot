@@ -81,7 +81,6 @@ class ByteBot(irc.IRCClient):
     def startCron(self):
         def runPerMinute():
             print("[cron every 60s]")
-            self.msg(self.channel, "Minute test")
 
         self.minuteCron = task.LoopingCall(runPerMinute)
         self.minuteCron.start(60.0)
