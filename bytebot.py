@@ -90,15 +90,27 @@ class ByteBot(irc.IRCClient):
 
     def startCron(self):
         def runPerMinute():
-            print("[cron every 60s]")
+            print("[running cron - every 60s]")
+            self.factory.plugins.run('minuteCron', {'irc': self})
+
+        def runPerHour():
+            print("[running cron - every 60m]")
+            self.factory.plugins.run('hourCron', {'irc': self})
+
+
+        def runPerDay():
+            print("[running cron - every 24h]")
+            self.factory.plugins.run('dayCron', {'irc': self})
+
 
         self.minuteCron = task.LoopingCall(runPerMinute)
         self.minuteCron.start(60.0)
 
+        self.hourCron = task.LoopingCall(runPerHour)
+        self.hourCron.start(3600.0)
 
-
-        print("[startCron: cron started]")
-
+        self.dayCron = task.LoopingCall(runPerDay)
+        self.dayCron.start(86400.0)
 
 class ByteBotFactory(protocol.ClientFactory):
 
