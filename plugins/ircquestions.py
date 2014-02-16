@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from bytebot_config import BYTEBOT_DICT_COMMANDS
+from plugins.plugin import Plugin
 
-class Ircquestions:
+class Ircquestions(Plugin):
     def __init__(self):
         pass
 

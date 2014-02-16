@@ -6,26 +6,38 @@ class Plugin:
     This class is a skeleton plugin class defining event hooks on which 
     plugins can be attached.
     """
-    def onSignOn(self, channel):
-       pass
-
-    def onJoin(self, channel):
+    def minuteCron(self, irc):
         pass
 
-    def onConnect(self, server):
+    def hourCron(self, irc):
         pass
 
-    def onDisconnect(self, server, reason):
+    def dayCron(self, irc):
         pass
 
-    def onMessage(self, message, channel):
+    def onSignOn(self, irc, channel):
         pass
 
-    def onNotice(self, message, channel):
+    def onJoin(self, irc, channel):
         pass
 
-    def onAction(self, user, channel, message):
+    def onConnect(self, irc, server):
         pass
 
-    def onAlterCollidedNick(self, nickname):
+    def onDisconnect(self, irc, server, reason):
+        pass
+
+    def onMessage(self, irc, message, channel):
+        pass
+
+    def onPrivmsg(self, irc, user, channel, msg):
+        pass
+
+    def onNotice(self, irc, message, channel):
+        pass
+
+    def onAction(self, irc, user, channel, message):
+        pass
+
+    def onAlterCollidedNick(self, irc, nickname):
         pass

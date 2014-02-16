@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-class AutoTopic:
+from plugins.plugin import Plugin
+
+class AutoTopic(Plugin):
 
     def __init__(self):
         pass
@@ -43,3 +45,6 @@ class AutoTopic:
             self.topic = self._topic.split('\r\n')[0]
 
         self.topic = self._topic.split(' :')[1]
+
+    def everyMinute(self, irc):
+        print(self.irc.topic(self.irc.channel))
