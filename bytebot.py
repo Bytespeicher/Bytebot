@@ -41,9 +41,22 @@ class ByteBot(irc.IRCClient):
 
     def joined(self, channel):
         print("[joined channel %s]" % channel)
+        self.factory.plugins.run('onJoined', 
+                                 {
+                                     'irc': self,
+                                     'channel': channel
+                                 })
         self.startCron()
 
     def privmsg(self, user, channel, msg):
+        self.factory.plugins.run('onPrivmsg',
+                                 {
+                                     'irc':       self,
+                                     'user':      user,
+                                     'channel':   channel,
+                                     'msg':       msg
+                                 })
+
         user = user.split("!", 1)[0]
 
         if channel == self.nickname:
@@ -93,6 +106,7 @@ class ByteBotFactory(protocol.ClientFactory):
         self.nickname = nickname
         self.password = password
         self.channel  = channel
+        self.plugins  = ByteBotPluginLoader(BYTEBOT_PLUGINS)
 
     def buildProtocol(self, addr):
         p         = ByteBot()
