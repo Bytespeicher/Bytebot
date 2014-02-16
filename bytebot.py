@@ -40,8 +40,6 @@ class ByteBot(irc.IRCClient):
         print("[sign on]")
 
     def joined(self, channel):
-        #self.logger.log("[joined channel %s]" % channel)
-        #TODO: plugins.run.onJoin(self, channel)
         print("[joined channel %s]" % channel)
         self.startCron()
 
