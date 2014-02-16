@@ -17,18 +17,18 @@ class ByteBotPluginLoader:
             try:
                 self.PLUGINS[plugin] = getattr(
                     __import__("%s.%s" % (path, plugin)).__dict__[plugin],
-                    plugin.title()
-                )
+                    plugin
+                )()
             except Exception as e:
                 print("FATAL: Could not import plugin %s.%s" %
                       (path, plugin))
                 exit(255)
 
-    def runCommands(self, fn, args={}):
-        for plugin in self.PLUGINS:
+    def run(self, fn, args={}):
+        for key, plugin in self.PLUGINS.iteritems():
             try:
                 method = getattr(plugin, fn)
                 method(**args)
-            except Exception:
+            except Exception as e:
                 print("WARNING: An error occured while executing %s in %s with %s" %
                      (fn, plugin, args))
