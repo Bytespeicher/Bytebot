@@ -85,6 +85,9 @@ class ByteBot(irc.IRCClient):
         old_nick = prefix.split("!")[0]
         new_nick = params[0]
 
+    def irc_RPL_TOPIC(self, prefix, params):
+        self.current_topic = params
+
     def alterCollidedNick(self, nickname):
         return nickname + "^"
 
