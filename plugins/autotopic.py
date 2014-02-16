@@ -11,6 +11,9 @@ class autotopic(Plugin):
 
     def minuteCron(self, irc):
         try:
+            irc.topic(BYTEBOT_CHANNEL)
+            old_topic = irc.current_topic
+
             topic = BYTEBOT_TOPIC
             response = urlopen(BYTEBOT_STATUS_URL)
             data = json.loads(response.read())
@@ -19,6 +22,7 @@ class autotopic(Plugin):
             else:
                 topic += u' | Space is closed'
 
-            irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
+            if old_topic[2] != unicode(topic).encode('utf-8', errors='replace'):
+                irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
         except Exception as e:
             print("Error while setting topic")
