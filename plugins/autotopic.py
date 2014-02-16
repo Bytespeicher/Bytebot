@@ -2,27 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from plugins.plugin import Plugin
+from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
+from urllib         import urlopen
 
-class AutoTopic(Plugin):
+import json
 
-    def __init__(self):
-        pass
+class autotopic(Plugin):
 
-    def status(self,message):
-        if message.find('!status') != -1:
-            try:
-                response = urlopen(BYTEBOT_STATUS_URL)
-                data = json.loads(response.read())
-
-                self._send('Space status:')
-                if data['state']['open']:
-                    self._send('    Space is currently open: ' + data['state']['message'])
-                else:
-                    self._send('    Space is currently closed ' + data['state']['message'])
-            except Exception, e:
-                self._send('Error retrieving Space status')
-
-    def set_topic(self):
+    def minuteCron(self, irc):
         try:
             topic = BYTEBOT_TOPIC
             response = urlopen(BYTEBOT_STATUS_URL)
@@ -32,19 +19,6 @@ class AutoTopic(Plugin):
             else:
                 topic += u' | Space is closed'
 
-
-            self._irc.send(unicode('TOPIC ' + BYTEBOT_CHANNEL + ' :' + topic + '\r\n').encode('utf-8', errors='replace'))
-        except Exception, e:
-            self._send('API Error - topic::status')
-
-    def get_topic(self):
-        self.topic = ''
-        self._irc.send('TOPIC ' + BYTEBOT_CHANNEL + '\r\n')
-        while self._topic.find('332 ' + BYTEBOT_NICK + ' ' + BYTEBOT_CHANNEL) == -1:
-            self.topic = self._irc.recv(2040)
-            self.topic = self._topic.split('\r\n')[0]
-
-        self.topic = self._topic.split(' :')[1]
-
-    def everyMinute(self, irc):
-        print(self.irc.topic(self.irc.channel))
+            irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
+        except Exception as e:
+            print("Error while setting topic")
