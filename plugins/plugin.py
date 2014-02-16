@@ -18,7 +18,7 @@ class Plugin:
     def onSignOn(self, irc, channel):
         pass
 
-    def onJoin(self, irc, channel):
+    def onJoined(self, irc, channel):
         pass
 
     def onConnect(self, irc, server):
