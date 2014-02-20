@@ -35,7 +35,9 @@ Enable plugins by writing their lowercase name here
 """
 BYTEBOT_PLUGINS= [
     'usercount',
-    'messagelogger'
+    'messagelogger',
+    'autoop',
+    'spacestatus'
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
@@ -49,5 +51,8 @@ BYTEBOT_PLUGIN_CONFIG = {
         '#channelname': [
             'username'
         ]
+    },
+    'spacestatus': {
+        'url': 'http://status.bytespeicher.org/status.json'
     }
 }

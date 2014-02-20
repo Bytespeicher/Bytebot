@@ -20,9 +20,9 @@ class Ircquestions(Plugin):
 
     def onMessage(self, message, channel):
         if message.find('!help') != -1:
-            self._list_dict_commands()
+            self.list_dict_commands()
 
-        dict = re.search('^.*[: ]!([^ ].[^ $]*)', message)
+        dict = re.search('^!([^ ].[^ $]*)', message)
         if dict and dict.group(1) and dict.group(1) not in ['help', 'status']:
             try:
                 answer = self.lookup_dict_command(dict.group(1))
