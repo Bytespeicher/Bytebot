@@ -45,4 +45,9 @@ BYTEBOT_PLUGIN_CONFIG = {
     'usercount': {
         'file':     '/tmp/irc_user.log'
     },
+    'autoop': {
+        '#channelname': [
+            'username'
+        ]
+    }
 }
