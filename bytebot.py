@@ -70,6 +70,14 @@ class ByteBot(irc.IRCClient):
             #self.logger.log("<%s> %s" % (self.nickname, msg))
             print("<%s> %s" % (self.nickname, msg))
 
+    def userJoined(self, user, channel):
+        self.factory.plugins.run('onUserJoined',
+                                 {
+                                     'irc':     self,
+                                     'user':    user,
+                                     'channel': channel
+                                 })
+
     def noticed(self, user, channel, message):
         """
         This function is called if a NOTICE is received. According to the RFC 
