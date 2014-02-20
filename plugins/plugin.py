@@ -41,3 +41,6 @@ class Plugin:
 
     def onAlterCollidedNick(self, irc, nickname):
         pass
+
+    def onUserJoined(self, irc, user, channel):
+        pass
