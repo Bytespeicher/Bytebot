@@ -15,10 +15,6 @@ BYTEBOT_TOPIC       = u''
 BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'
 
 BYTEBOT_DICT_COMMANDS = {
-    'location':             'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
-    'preise':               'http://technikkultur-erfurt.de/hackerspace:preisliste',
-    'dates':                'http://technikkultur-erfurt.de/hackerspace:veranstaltungen',
-    'versorgung':           'http://technikkultur-erfurt.de/hackerspace:versorgung',
 }
 
 # Self references
@@ -37,7 +33,8 @@ BYTEBOT_PLUGINS= [
     'usercount',
     'messagelogger',
     'autoop',
-    'spacestatus'
+    'spacestatus',
+    'ircquestions'
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
@@ -54,5 +51,11 @@ BYTEBOT_PLUGIN_CONFIG = {
     },
     'spacestatus': {
         'url': 'http://status.bytespeicher.org/status.json'
+    },
+    'ircquestions': {
+        'location':   'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
+        'dates':      'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
+        'versorgung': 'http://technikkultur-erfurt.de/bytespeicher:versorgung',
+        
     }
 }
