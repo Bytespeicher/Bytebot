@@ -16,18 +16,25 @@ class Ircquestions(Plugin):
         for name in sorted(BYTEBOT_DICT_COMMANDS.keys()):
             commands += name + ', '
 
-        self._send("Available dictionary commands: " + commands)
+        self.irc.msg(self.irc.channel, 
+                     "Use !help with the following commands: " + commands)
 
-    def onMessage(self, message, channel):
-        if message.find('!help') != -1:
+    def onPrivmsg(self, irc, msg, channel, user):
+        self.irc     = irc
+        self.channel = channel
+
+        if msg.find('!help') == -1:
+            return
+
+        if len(msg.split(' ')) == 1:
             self.list_dict_commands()
+            return
 
-        dict = re.search('^!([^ ].[^ $]*)', message)
-        if dict and dict.group(1) and dict.group(1) not in ['help', 'status']:
-            try:
-                answer = self.lookup_dict_command(dict.group(1))
-                if answer:
-                    self.irc.sendMessage(answer)
-            except Exception, e:
-                self._send("Unknown command '" + dict.group(1) + "'")
+        try:
+            question = msg.split(' ')[1]
+        except IndexError as e:
+            irc.msg(channel, "Sorry, das habe ich nicht verstanden. Versuch doch mal !help")
+            return
 
+        if question in BYTEBOT_CONFIG['ircquestions']:
+            irc.msg(channel, BYTEBOT_CONFIG['ircquestions'][question])
