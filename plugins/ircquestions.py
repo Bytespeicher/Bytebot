@@ -1,23 +1,25 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from bytebot_config import BYTEBOT_DICT_COMMANDS
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from plugins.plugin import Plugin
 
-class Ircquestions(Plugin):
+class ircquestions(Plugin):
     def __init__(self):
         pass
 
-    def lookup_dict_command(self, dict_name):
-        return BYTEBOT_DICT_COMMANDS[dict_name]
+    def registerCommand(self, irc):
+        irc.registerCommand('!help', 'Simple Q&A commands.')
 
     def list_dict_commands(self):
         commands = ''
-        for name in sorted(BYTEBOT_DICT_COMMANDS.keys()):
+        for name in sorted(BYTEBOT_PLUGIN_CONFIG['ircquestions'].keys()):
             commands += name + ', '
 
         self.irc.msg(self.irc.channel, 
                      "Use !help with the following commands: " + commands)
+        self.irc.msg(self.irc.channel,
+                     "Or try !commands for a list of all available commands")
 
     def onPrivmsg(self, irc, msg, channel, user):
         self.irc     = irc
@@ -36,5 +38,5 @@ class Ircquestions(Plugin):
             irc.msg(channel, "Sorry, das habe ich nicht verstanden. Versuch doch mal !help")
             return
 
-        if question in BYTEBOT_CONFIG['ircquestions']:
-            irc.msg(channel, BYTEBOT_CONFIG['ircquestions'][question])
+        if question in BYTEBOT_PLUGIN_CONFIG['ircquestions']:
+            irc.msg(channel, BYTEBOT_PLUGIN_CONFIG['ircquestions'][question])

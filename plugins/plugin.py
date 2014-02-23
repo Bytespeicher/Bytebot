@@ -6,6 +6,10 @@ class Plugin:
     This class is a skeleton plugin class defining event hooks on which 
     plugins can be attached.
     """
+
+    def registerCommand(self, irc):
+        pass
+
     def minuteCron(self, irc):
         pass
 

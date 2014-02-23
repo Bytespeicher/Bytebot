@@ -8,8 +8,11 @@ from urllib         import urlopen
 import json
 
 class spacestatus(Plugin):
+    def registerCommand(self, irc):
+        irc.registerCommand('!status', 'Returns the door status of the hackerspace rooms')
+
     def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find('!status') != -1:
+        if msg.startswith('!status'):
             try:
                 response = urlopen(BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
                 data = json.loads(response.read())

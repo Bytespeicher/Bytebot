@@ -28,16 +28,26 @@ class ByteBot(irc.IRCClient):
     realname = BYTEBOT_NICK
     username = BYTEBOT_NICK
     channel  = BYTEBOT_CHANNEL
-    
+
+    plugins  = {}
+
+    def registerCommand(self, name, description=''):
+        self.plugins[name] = description
+
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
+        self.factory.plugins.run('registerCommand',
+                                 {
+                                    'irc': self
+                                 }
+                                )
 
     def connectionLost(self, reason):
         irc.IRCClient.connectionLost(self, reason)
 
     def signedOn(self):
-        self.join(self.factory.channel)
         print("[sign on]")
+        self.join(self.factory.channel)
 
     def joined(self, channel):
         print("[joined channel %s]" % channel)
@@ -69,6 +79,11 @@ class ByteBot(irc.IRCClient):
             self.msg(channel, msg)
             #self.logger.log("<%s> %s" % (self.nickname, msg))
             print("<%s> %s" % (self.nickname, msg))
+
+        if msg.startswith('!commands'):
+            for pid, name in enumerate(self.plugins):
+                self.msg(channel, "%s. %s:" % (pid+1, name))
+                self.msg(channel, "\t%s" % self.plugins[name])
 
     def userJoined(self, user, channel):
         self.factory.plugins.run('onUserJoined',

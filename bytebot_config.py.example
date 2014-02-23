@@ -14,18 +14,6 @@ BYTEBOT_TOPIC       = u''
 
 BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'
 
-BYTEBOT_DICT_COMMANDS = {
-}
-
-# Self references
-# Template:
-#BYTEBOT_DICT_COMMANDS[''] = BYTEBOT_DICT_COMMANDS['']
-BYTEBOT_DICT_COMMANDS['preis'] = BYTEBOT_DICT_COMMANDS['preise']
-BYTEBOT_DICT_COMMANDS['kosten'] = BYTEBOT_DICT_COMMANDS['preise']
-#BYTEBOT_DICT_COMMANDS[''] = BYTEBOT_DICT_COMMANDS['']
-BYTEBOT_DICT_COMMANDS['hunger'] = BYTEBOT_DICT_COMMANDS['versorgung']
-BYTEBOT_DICT_COMMANDS['essen']  = BYTEBOT_DICT_COMMANDS['versorgung']
-
 """
 Enable plugins by writing their lowercase name here
 """
