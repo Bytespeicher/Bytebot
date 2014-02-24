@@ -46,8 +46,8 @@ class ByteBot(irc.IRCClient):
         irc.IRCClient.connectionLost(self, reason)
 
     def signedOn(self):
-        self.join(self.factory.channel)
         print("[sign on]")
+        self.join(self.factory.channel)
 
     def joined(self, channel):
         print("[joined channel %s]" % channel)
