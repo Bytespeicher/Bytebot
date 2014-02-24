@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from bytebot_config import BYTEBOT_DICT_COMMANDS
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from plugins.plugin import Plugin
 
-class Ircquestions(Plugin):
+class ircquestions(Plugin):
     def __init__(self):
         pass
 
@@ -13,7 +13,7 @@ class Ircquestions(Plugin):
 
     def list_dict_commands(self):
         commands = ''
-        for name in sorted(BYTEBOT_DICT_COMMANDS.keys()):
+        for name in sorted(BYTEBOT_PLUGIN_CONFIG['ircquestions'].keys()):
             commands += name + ', '
 
         self.irc.msg(self.irc.channel, 
@@ -38,5 +38,5 @@ class Ircquestions(Plugin):
             irc.msg(channel, "Sorry, das habe ich nicht verstanden. Versuch doch mal !help")
             return
 
-        if question in BYTEBOT_CONFIG['ircquestions']:
-            irc.msg(channel, BYTEBOT_CONFIG['ircquestions'][question])
+        if question in BYTEBOT_PLUGIN_CONFIG['ircquestions']:
+            irc.msg(channel, BYTEBOT_PLUGIN_CONFIG['ircquestions'][question])
