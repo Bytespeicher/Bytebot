@@ -8,8 +8,8 @@ class Ircquestions(Plugin):
     def __init__(self):
         pass
 
-    def lookup_dict_command(self, dict_name):
-        return BYTEBOT_DICT_COMMANDS[dict_name]
+    def registerCommand(self, irc):
+        irc.registerCommand('!help', 'Simple Q&A commands.')
 
     def list_dict_commands(self):
         commands = ''
@@ -18,6 +18,8 @@ class Ircquestions(Plugin):
 
         self.irc.msg(self.irc.channel, 
                      "Use !help with the following commands: " + commands)
+        self.irc.msg(self.irc.channel,
+                     "Or try !commands for a list of all available commands")
 
     def onPrivmsg(self, irc, msg, channel, user):
         self.irc     = irc

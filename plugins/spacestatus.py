@@ -8,6 +8,9 @@ from urllib         import urlopen
 import json
 
 class spacestatus(Plugin):
+    def registerCommand(self, irc):
+        irc.registerCommand('!status', 'Returns the door status of the hackerspace rooms')
+
     def onPrivmsg(self, irc, msg, channel, user):
         if msg.find('!status') != -1:
             try:
