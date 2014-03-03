@@ -22,7 +22,8 @@ BYTEBOT_PLUGINS= [
     'messagelogger',
     'autoop',
     'spacestatus',
-    'ircquestions'
+    'ircquestions',
+    'shorturl',
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
