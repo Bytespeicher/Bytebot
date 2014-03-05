@@ -6,6 +6,7 @@ from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
 from urllib         import urlopen
 
 import json
+import re
 
 class autotopic(Plugin):
 
@@ -17,12 +18,21 @@ class autotopic(Plugin):
             topic = BYTEBOT_TOPIC
             response = urlopen(BYTEBOT_STATUS_URL)
             data = json.loads(response.read())
-            if data['state']['open']:
-                topic += u' | Space is open (' + unicode(data['state']['message']) + ')'
+            if data['state']['open'] == True:
+                topic += u' | Space is open'
+                status = 'open'
             else:
                 topic += u' | Space is closed'
+                status = 'closed'
 
-            if old_topic[2] != unicode(topic).encode('utf-8', errors='replace'):
+            try:
+                old_status = re.search('Space is (open|closed)', old_topic[2])
+                old_status = old_status.group(1)
+            except Exception as e:
+                old_status = "closed"
+
+            if old_status != status:
                 irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
         except Exception as e:
+            print(e)
             print("Error while setting topic")
