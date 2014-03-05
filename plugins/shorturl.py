@@ -29,7 +29,7 @@ class shorturl(Plugin):
     def getTitle(self, url):
 	data = urllib2.urlopen(url)
         soup = BeautifulSoup(data)
-        return soup.title.string
+        return soup.title.string[:60]
 
     def onPrivmsg(self, irc, msg, channel, user):
 
