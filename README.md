@@ -8,6 +8,16 @@ commands via the registerCommand function.
 
 # Dependencies
 
+* Bytebot
+ * sys
+ * re
+ * inspect
+ * json
+ * resource
+ * ssl
+ * twisted
+ * urllib
+ * time
 * autotopic
  * urllib
  * json
