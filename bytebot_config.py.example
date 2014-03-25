@@ -34,9 +34,16 @@ BYTEBOT_PLUGIN_CONFIG = {
         'file':     '/tmp/irc_user.log'
     },
     'autoop': {
-        '#channelname': [
-            'username'
-        ]
+        'name': {
+            '#channelname': [
+                'username',
+            ],
+        },
+        'hostmask': {
+            '#channelname': [
+                'username!~user@example.com'
+            ],
+        }
     },
     'spacestatus': {
         'url': 'http://status.bytespeicher.org/status.json'
