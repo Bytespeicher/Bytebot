@@ -93,6 +93,14 @@ class ByteBot(irc.IRCClient):
                                      'channel': channel
                                  })
 
+    def irc_JOIN(self, prefix, params):
+        self.factory.plugins.run('onIrc_JOIN',
+                                 {
+                                     'irc':     self,
+                                     'prefix':  prefix,
+                                     'params':  params
+                                 })
+
     def noticed(self, user, channel, message):
         """
         This function is called if a NOTICE is received. According to the RFC 
