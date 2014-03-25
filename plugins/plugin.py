@@ -48,3 +48,6 @@ class Plugin:
 
     def onUserJoined(self, irc, user, channel):
         pass
+
+    def onIrc_JOIN(self, irc, prefix, params):
+        pass
