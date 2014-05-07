@@ -8,6 +8,12 @@ class Plugin:
     """
 
     def registerCommand(self, irc):
+        """Registers an irc command that will be listed when !commands is
+        called from a user. This command SHOULD be implemented in the same
+        class as it is registered in.
+
+        irc: An instance of the bytebot. Will be passed by the plugin loader
+        """
         pass
 
     def minuteCron(self, irc):
