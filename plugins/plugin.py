@@ -26,6 +26,12 @@ class Plugin:
         pass
 
     def hourCron(self, irc):
+        """Registers a function that will be called every hour. This
+        function must not exceed an execution time of more than 30 seconds to
+        ensure that, when sequentually executed, no ping timeouts occur.
+
+        irc: An instance of the bytebot. Will be passed by the plugin loader
+        """
         pass
 
     def dayCron(self, irc):
