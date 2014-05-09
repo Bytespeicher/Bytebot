@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sys                import exit
+from twisted.internet   import reactor
 
 class ByteBotPluginLoader:
     """This class enables automatic loading and method calling for plugin 
@@ -31,16 +32,20 @@ class ByteBotPluginLoader:
                       (path, plugin))
                 exit(255)
 
-    def run(self, fn, args={}):
+    def run(self, fn, args={}, threaded=True):
         """Runs a specific function on all registered plugins
 
         fn              plugin method name to execute
         args            dictionary with arguments to call the method with
+        threaded        if set to True, the functions will be run in a thread
         """
         for key, plugin in self.PLUGINS.iteritems():
             try:
                 method = getattr(plugin, fn)
-                method(**args)
+                if not threaded:
+                    method(**args)
+                else:
+                    reactor.callInThread(method, **args)
             except Exception as e:
                 print("WARNING: An error occured while executing %s in %s with %s" %
                      (fn, plugin, args))
