@@ -29,4 +29,4 @@ class penis(Plugin):
             irc.msg(channel, '( Y)')
             irc.last_penis = time()
         else:
-            irc.msg(channel, "Don't over it ;)")
+            irc.msg(channel, "Don't overdo it ;)")
