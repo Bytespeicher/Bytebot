@@ -23,13 +23,13 @@ class shorturl(Plugin):
             json.dumps(postdata),
             headers
         )
-        data = urllib2.urlopen(req, False, BYTEBOT_HTTP_TIMEOUT).read()
+        data = urllib2.urlopen(url=req, timeout=BYTEBOT_HTTP_TIMEOUT).read()
         ret = json.loads(data)[u'id'].encode('ascii','ignore')
 
         return ret
 
     def getTitle(self, url):
-	data = urllib2.urlopen(url)
+	data = urllib2.urlopen(url=url, timeout=BYTEBOT_HTTP_TIMEOUT)
         soup = BeautifulSoup(data)
         return soup.title.string[:60]
 
