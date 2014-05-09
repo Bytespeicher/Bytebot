@@ -8,6 +8,8 @@ import re
 from plugins.plugin import Plugin
 from bs4 import BeautifulSoup
 
+from bytebot_config import BYTEBOT_HTTP_TIMEOUT
+
 class shorturl(Plugin):
     def googl(self, url):
         print("Shortening URL %s" % url)
@@ -21,7 +23,7 @@ class shorturl(Plugin):
             json.dumps(postdata),
             headers
         )
-        data = urllib2.urlopen(req).read()
+        data = urllib2.urlopen(req, False, BYTEBOT_HTTP_TIMEOUT).read()
         ret = json.loads(data)[u'id'].encode('ascii','ignore')
 
         return ret
