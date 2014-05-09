@@ -8,7 +8,7 @@ import re
 from plugins.plugin import Plugin
 from bs4 import BeautifulSoup
 
-from bytebot_config import BYTEBOT_HTTP_TIMEOUT
+from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 
 class shorturl(Plugin):
     def googl(self, url):
@@ -23,7 +23,7 @@ class shorturl(Plugin):
             json.dumps(postdata),
             headers
         )
-        data = urllib2.urlopen(url=req, timeout=BYTEBOT_HTTP_TIMEOUT).read()
+        data = urllib2.urlopen(url=req, timeout=BYTEBOT_HTTP_TIMEOUT).read(BYTEBOT_HTTP_MAXSIZE)
         ret = json.loads(data)[u'id'].encode('ascii','ignore')
 
         return ret
