@@ -15,6 +15,7 @@ BYTEBOT_TOPIC       = u''
 BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'
 
 BYTEBOT_HTTP_TIMEOUT = 3
+BYTEBOT_HTTP_MAXSIZE = 1024 * 1024 * 10
 
 """
 Enable plugins by writing their lowercase name here
