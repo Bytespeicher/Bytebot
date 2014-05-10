@@ -3,3 +3,4 @@ bytebot_config.py
 *.swo
 __pycache__
 *.pyc
+bytebot_config.py
