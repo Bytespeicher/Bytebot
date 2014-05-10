@@ -14,7 +14,7 @@ commands via the registerCommand function.
  * inspect
  * json
  * resource
- * ssl
+ * ssl (for debian-based systems: this comes with python-openssl package, not as python-module)
  * twisted
  * urllib
  * time
