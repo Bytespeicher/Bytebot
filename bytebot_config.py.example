@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import log
+import bytebot_log
 
-BYTEBOT_LOGLEVEL    = LOG_ERROR | LOG_WARN
+BYTEBOT_LOGLEVEL    = bytebot_log.LOG_ERROR | bytebot_log.LOG_WARN
+BYTEBOT_LOGPATH     = '/var/log/bytebot/'
 
 BYTEBOT_SERVER      = ""
 BYTEBOT_PORT        = 6667
