@@ -164,12 +164,27 @@ class ByteBotFactory(protocol.ClientFactory):
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        print("FATAL: connection failed: ", reason)
+        log("FATAL: connection failed: %s" % reason, level=LOG_ERROR)
         reactor.stop()
 
 
 if __name__ == '__main__':
-    log.startLogging(sys.stdout)
+    # ERROR | WARNING
+    log_error = logfile.LogFile("error.log", BYTEBOT_LOGPATH,
+                                rotateLength=1000, maxRotatedFiles=500)
+
+    # INFO | DEBUG
+    log_info  = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
+                                rotateLength=1000, maxRotatedFiles=500)
+
+    logger_error = BytebotLogObserver(log_error,
+                            (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG))
+    logger_info  = BytebotLogObserver(log_info,
+                            (BYTEBOT_LOGLEVEL & ~LOG_ERROR & ~LOG_WARN))
+
+    log.addObserver(logger_error.emit)
+    log.addObserver(logger_error.emit)
+
     f = ByteBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL)
     if BYTEBOT_SSL == True:
         reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f, ssl.ClientContextFactory())

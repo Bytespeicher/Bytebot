@@ -22,3 +22,4 @@ class BytebotLogObserver(log.FileLogObserver):
             level = LOG_DEBUG
 
         if (self.level & level) > 0:
+            log.FileLogObserver.emit(self, eventDict)
