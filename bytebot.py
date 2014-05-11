@@ -16,10 +16,11 @@ except ImportError:
 from bytebot_config             import *
 from bytebotpluginloader        import ByteBotPluginLoader
 from time                       import time
+from bytebot_log                import *
 
 from twisted.words.protocols    import irc
 from twisted.internet           import reactor, protocol, ssl, task
-from twisted.python             import log
+from twisted.python             import logfile, log
 
 class ByteBot(irc.IRCClient):
 
