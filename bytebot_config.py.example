@@ -27,9 +27,13 @@ BYTEBOT_PLUGINS= [
     'spacestatus',
     'ircquestions',
     'shorturl',
+    'dates',
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
+    'dates': {
+        'url':      'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
+    },
     'messagelogger': {
         'file':     '/tmp/irc.log'
     },
