@@ -19,7 +19,7 @@ class BytebotLogObserver(log.FileLogObserver):
         elif 'level' in eventDict:
             level = eventDict['level']
         else:
-            level = LOG_DEBUG
+            level = LOG_INFO
 
         if (self.level & level) > 0:
             log.FileLogObserver.emit(self, eventDict)
