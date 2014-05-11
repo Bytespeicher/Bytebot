@@ -22,6 +22,11 @@ commands via the registerCommand function.
  * urllib
  * json
  * re
+* dates
+ * icalendar
+ * datetime
+ * pytz
+ * urllib
 * messagelogger
  * time
 * shorturl
