@@ -178,9 +178,9 @@ if __name__ == '__main__':
                                 rotateLength=1000, maxRotatedFiles=500)
 
     logger_error = BytebotLogObserver(log_error,
-                            (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG))
+                            (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN))
     logger_info  = BytebotLogObserver(log_info,
-                            (BYTEBOT_LOGLEVEL & ~LOG_ERROR & ~LOG_WARN))
+                            (BYTEBOT_LOGLEVEL & ~LOG_ERROR))
 
     log.addObserver(logger_error.emit)
     log.addObserver(logger_error.emit)
