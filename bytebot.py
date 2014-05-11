@@ -183,7 +183,7 @@ if __name__ == '__main__':
                             (BYTEBOT_LOGLEVEL & ~LOG_ERROR))
 
     log.addObserver(logger_error.emit)
-    log.addObserver(logger_error.emit)
+    log.addObserver(logger_info.emit)
 
     f = ByteBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL)
     if BYTEBOT_SSL == True:
