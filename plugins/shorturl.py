@@ -29,9 +29,9 @@ class shorturl(Plugin):
         return ret
 
     def getTitle(self, url):
-	data = urllib2.urlopen(url=url, timeout=BYTEBOT_HTTP_TIMEOUT)
+        data = urllib2.urlopen(url=url, timeout=BYTEBOT_HTTP_TIMEOUT)
         soup = BeautifulSoup(data)
-        return soup.title.string[:60]
+        return soup.title.getText().encode('utf-8')[:60]
 
     def onPrivmsg(self, irc, msg, channel, user):
 
@@ -47,7 +47,7 @@ class shorturl(Plugin):
             title = ''
 
         if title != '':
-            irc.msg(channel, title.encode('ascii', 'ignore'))
+            irc.msg(channel, title)
             irc.msg(channel, '\tURL: %s' % shorturl)
         else:
             irc.msg(channel, "URL: %s" % shorturl)
