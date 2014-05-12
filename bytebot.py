@@ -170,11 +170,11 @@ class ByteBotFactory(protocol.ClientFactory):
 if __name__ == '__main__':
     # ERROR | WARNING
     log_error = logfile.LogFile("error.log", BYTEBOT_LOGPATH,
-                                rotateLength=1000, maxRotatedFiles=500)
+                                rotateLength=10000000, maxRotatedFiles=100)
 
     # INFO | DEBUG
     log_info  = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
-                                rotateLength=1000, maxRotatedFiles=500)
+                                rotateLength=10000000, maxRotatedFiles=100)
 
     logger_error = BytebotLogObserver(log_error,
                             (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN))
