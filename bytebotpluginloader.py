@@ -3,6 +3,8 @@
 
 from sys                import exit
 from twisted.internet   import reactor
+from bytebot_log        import *
+from twisted.python     import log
 
 class ByteBotPluginLoader:
     """This class enables automatic loading and method calling for plugin 
@@ -27,9 +29,12 @@ class ByteBotPluginLoader:
                     __import__("%s.%s" % (path, plugin)).__dict__[plugin],
                     plugin
                 )()
+
+                log.msg("Loaded plugin '%s'" % plugin)
             except Exception as e:
-                print("FATAL: Could not import plugin %s.%s" %
-                      (path, plugin))
+                log.msg("FATAL: Could not import plugin %s.%s" %
+                        (path, plugin),
+                        level=LOG_ERROR)
                 exit(255)
 
     def run(self, fn, args={}, threaded=True):
@@ -39,13 +44,23 @@ class ByteBotPluginLoader:
         args            dictionary with arguments to call the method with
         threaded        if set to True, the functions will be run in a thread
         """
+        log.msg("Executing function %s on all plugins with args %s" %
+                (fn, args),
+                level=LOG_DEBUG)
         for key, plugin in self.PLUGINS.iteritems():
             try:
                 method = getattr(plugin, fn)
                 if not threaded:
+                    log.msg("Execute | non-threaded | %s->%s" %
+                            (plugin, method.__name__),
+                            level=LOG_DEBUG)
                     method(**args)
                 else:
+                    log.msg("Execute | threaded | %s->%s" %
+                            (plugin, method.__name__),
+                            level=LOG_DEBUG)
                     reactor.callInThread(method, **args)
             except Exception as e:
-                print("WARNING: An error occured while executing %s in %s with %s" %
-                     (fn, plugin, args))
+                log.msg("WARNING: An error occured while executing %s in %s with %s" %
+                        (fn, plugin, args),
+                        level=LOG_WARN)

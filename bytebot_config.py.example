@@ -1,6 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import bytebot_log
+
+BYTEBOT_LOGLEVEL    = bytebot_log.LOG_ERROR | bytebot_log.LOG_WARN
+BYTEBOT_LOGPATH     = '/var/log/bytebot/'
+
 BYTEBOT_SERVER      = ""
 BYTEBOT_PORT        = 6667
 BYTEBOT_SSL         = True
@@ -9,7 +14,6 @@ BYTEBOT_PASSWORD    = ""
 BYTEBOT_CHANNEL     = ""
 BYTEBOT_DESCRIPTION = ""
 
-BYTEBOT_DEBUG       = True
 BYTEBOT_TOPIC       = u''
 
 BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'

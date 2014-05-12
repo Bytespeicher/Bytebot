@@ -16,10 +16,11 @@ except ImportError:
 from bytebot_config             import *
 from bytebotpluginloader        import ByteBotPluginLoader
 from time                       import time
+from bytebot_log                import *
 
 from twisted.words.protocols    import irc
 from twisted.internet           import reactor, protocol, ssl, task
-from twisted.python             import log
+from twisted.python             import logfile, log
 
 class ByteBot(irc.IRCClient):
 
@@ -46,11 +47,11 @@ class ByteBot(irc.IRCClient):
         irc.IRCClient.connectionLost(self, reason)
 
     def signedOn(self):
-        print("[sign on]")
+        log.msg("[sign on]")
         self.join(self.factory.channel)
 
     def joined(self, channel):
-        print("[joined channel %s]" % channel)
+        log.msg("[joined channel %s]" % channel)
         self.factory.plugins.run('onJoined', 
                                  {
                                      'irc': self,
@@ -77,8 +78,7 @@ class ByteBot(irc.IRCClient):
         if msg.startswith(self.nickname + ":"):
             msg = "%s: Ich bin ein Bot. Meine Intelligenz ist limitiert" % user
             self.msg(channel, msg)
-            #self.logger.log("<%s> %s" % (self.nickname, msg))
-            print("<%s> %s" % (self.nickname, msg))
+            log.msg("<%s> %s" % (self.nickname, msg))
 
         if msg.startswith('!commands'):
             for pid, name in enumerate(self.plugins):
@@ -124,16 +124,16 @@ class ByteBot(irc.IRCClient):
 
     def startCron(self):
         def runPerMinute():
-            print("[running cron - every 60s]")
+            log.msg("[running cron - every 60s]")
             self.factory.plugins.run('minuteCron', {'irc': self})
 
         def runPerHour():
-            print("[running cron - every 60m]")
+            log.msg("[running cron - every 60m]")
             self.factory.plugins.run('hourCron', {'irc': self})
 
 
         def runPerDay():
-            print("[running cron - every 24h]")
+            log.msg("[running cron - every 24h]")
             self.factory.plugins.run('dayCron', {'irc': self})
 
 
@@ -163,12 +163,27 @@ class ByteBotFactory(protocol.ClientFactory):
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        print("FATAL: connection failed: ", reason)
+        log("FATAL: connection failed: %s" % reason, level=LOG_ERROR)
         reactor.stop()
 
 
 if __name__ == '__main__':
-    log.startLogging(sys.stdout)
+    # ERROR | WARNING
+    log_error = logfile.LogFile("error.log", BYTEBOT_LOGPATH,
+                                rotateLength=10000000, maxRotatedFiles=100)
+
+    # INFO | DEBUG
+    log_info  = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
+                                rotateLength=10000000, maxRotatedFiles=100)
+
+    logger_error = BytebotLogObserver(log_error,
+                            (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN))
+    logger_info  = BytebotLogObserver(log_info,
+                            (BYTEBOT_LOGLEVEL & ~LOG_ERROR))
+
+    log.addObserver(logger_error.emit)
+    log.addObserver(logger_info.emit)
+
     f = ByteBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL)
     if BYTEBOT_SSL == True:
         reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f, ssl.ClientContextFactory())

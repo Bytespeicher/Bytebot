@@ -6,13 +6,14 @@ import json
 import re
 
 from plugins.plugin import Plugin
-from bs4 import BeautifulSoup
+from bs4            import BeautifulSoup
+from twisted.python import log
 
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 
 class shorturl(Plugin):
     def googl(self, url):
-        print("Shortening URL %s" % url)
+        log.msg("Shortening URL %s" % url)
 
         post_url = 'https://www.googleapis.com/urlshortener/v1/url'
         postdata = {'longUrl': url}
