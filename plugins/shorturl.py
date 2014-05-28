@@ -37,7 +37,7 @@ class shorturl(Plugin):
     def onPrivmsg(self, irc, msg, channel, user):
 
         try:
-            url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)[0]
+            url = re.findall('http[s]?://(?:[^\s]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)[0]
             shorturl = self.googl(url)
         except Exception as e:
             return
