@@ -6,7 +6,7 @@ from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from icalendar      import Calendar, Event
 from icalendar.prop import vDDDTypes
 from datetime       import datetime, timedelta
-from pytz           import utc
+from pytz           import utc, timezone
 from urllib         import urlopen
 
 class dates(Plugin):
@@ -58,9 +58,16 @@ class dates(Plugin):
 
             found += 1
 
+            fmt = "%d.%m.%Y %H:%M"
+            timezoneEF = timezone('Europe/Berlin')
+
+            dt_utc = ev.get('dtstart').dt
+            dt_local = dt_utc.astimezone(timezoneEF)
+            dt_str = dt_local.strftime(fmt)
+
             irc.msg(channel, "  %s - %s" % 
-                        (str(ev.get('dtstart').dt),
-                         str(ev.get('summary')))
+                        (dt_str,
+                        str(ev.get('summary')))
                    )
 
         if found == 0:
