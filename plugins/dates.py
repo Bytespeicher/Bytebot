@@ -61,13 +61,18 @@ class dates(Plugin):
             fmt = "%d.%m.%Y %H:%M"
             timezoneEF = timezone('Europe/Berlin')
 
+            #convert utc datetime to local timezone
             dt_utc = ev.get('dtstart').dt
             dt_local = dt_utc.astimezone(timezoneEF)
             dt_str = dt_local.strftime(fmt)
 
+            #encode unicode string in utf8
+            ucode_event_str = ev.get('summary')
+            utf8_event_str = ucode_event_str.encode("utf-8")
+
             irc.msg(channel, "  %s - %s" % 
                         (dt_str,
-                        str(ev.get('summary')))
+                        utf8_event_str)
                    )
 
         if found == 0:
