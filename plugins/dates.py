@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import time
+
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from icalendar      import Calendar, Event
@@ -44,11 +46,9 @@ class dates(Plugin):
         now   = datetime.now(utc).replace(hour=0, minute=0, second=0, microsecond=0)
         nweek = now + timedelta(weeks=1)
         found = 0
+        data  = []
 
-        for ev in cal.walk():
-            if ev.name != 'VEVENT':
-                continue
-
+        for ev in cal.walk('VEVENT'):
             if len(str(vDDDTypes.from_ical(ev.get('dtstart'))).split(' ')) > 1:
                 start = vDDDTypes.from_ical(ev.get('dtstart')).replace(tzinfo=utc)
                 if start < now or start > nweek: continue
@@ -70,9 +70,22 @@ class dates(Plugin):
             ucode_event_str = ev.get('summary')
             utf8_event_str = ucode_event_str.encode("utf-8")
 
+            data.append({
+                'datetime': dt_str,
+                'info': utf8_event_str,
+            })
+
+        data = sorted(data,
+                      key=lambda k: time.mktime(datetime.strptime(k['datetime'],
+                                                                  "%d.%m.%Y %H:%M").timetuple()
+                                               )
+                     )
+
+
+        for ev in data:
             irc.msg(channel, "  %s - %s" % 
-                        (dt_str,
-                        utf8_event_str)
+                        (ev['datetime'],
+                        ev['info'])
                    )
 
         if found == 0:
