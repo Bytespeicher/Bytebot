@@ -188,6 +188,6 @@ if __name__ == '__main__':
     if BYTEBOT_SSL == True:
         reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f, ssl.ClientContextFactory())
     else:
-        reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f)
+        reactor.connectTCP(BYTEBOT_SERVER, int(BYTEBOT_PORT), f)
     reactor.run()
 
