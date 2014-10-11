@@ -49,6 +49,7 @@ class ByteBot(irc.IRCClient):
     def signedOn(self):
         log.msg("[sign on]")
         self.join(self.factory.channel)
+        self.startCron()
 
     def joined(self, channel):
         log.msg("[joined channel %s]" % channel)
@@ -57,7 +58,6 @@ class ByteBot(irc.IRCClient):
                                      'irc': self,
                                      'channel': channel
                                  })
-        self.startCron()
 
     def privmsg(self, user, channel, msg):
         self.factory.plugins.run('onPrivmsg',
