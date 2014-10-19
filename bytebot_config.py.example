@@ -32,9 +32,22 @@ BYTEBOT_PLUGINS= [
     'ircquestions',
     'shorturl',
     'dates',
+    'rss',
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
+    'rss': [
+          { 'name': 'Wiki',
+            'url':  'http://www.technikkultur-erfurt.de/feed.php',
+            'cache':'/tmp/feed_wiki.cache',
+            'type': 'dokuwiki',
+          },
+          { 'name': 'Website',
+            'url':  'https://bytespeicher.org/feed/',
+            'cache':'/tmp/feed_website.cache',
+            'type': 'wordpress',
+          }
+    ],
     'dates': {
         'url':      'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
     },

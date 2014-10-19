@@ -29,6 +29,8 @@ commands via the registerCommand function.
  * urllib
 * messagelogger
  * time
+* rss
+ * feedparser
 * shorturl
  * beautifulsoup4
  * urllib2
