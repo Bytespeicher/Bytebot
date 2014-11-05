@@ -29,7 +29,7 @@ commands via the registerCommand function.
  * urllib
 * messagelogger
  * time
-* rss
+* rss (which also does atom)
  * feedparser
 * shorturl
  * beautifulsoup4
