@@ -35,6 +35,7 @@ class ByteBotPluginLoader:
                 log.msg("FATAL: Could not import plugin %s.%s" %
                         (path, plugin),
                         level=LOG_ERROR)
+                log.msg("FATAL: %s" % e, level=LOG_ERROR)
                 exit(255)
 
     def run(self, fn, args={}, threaded=True):
@@ -64,3 +65,4 @@ class ByteBotPluginLoader:
                 log.msg("WARNING: An error occured while executing %s in %s with %s" %
                         (fn, plugin, args),
                         level=LOG_WARN)
+                log.msg("WARNING: %s" % e, level=LOG_DEBUG)
