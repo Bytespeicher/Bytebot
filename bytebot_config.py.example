@@ -46,7 +46,12 @@ BYTEBOT_PLUGIN_CONFIG = {
             'url':  'https://bytespeicher.org/feed/',
             'cache':'/tmp/feed_website.cache',
             'type': 'wordpress',
-          }
+          },
+          { 'name': 'BytebotCommits',
+            'url':  'https://github.com/Bytespeicher/Bytebot/commits/master.atom',
+            'cache':'/tmp/feed_bytebot.cache',
+            'type': 'github',
+          },
     ],
     'dates': {
         'url':      'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',

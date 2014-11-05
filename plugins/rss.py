@@ -112,6 +112,8 @@ class rss(Plugin):
                 dt = parser.parse(entry.date)
             elif feed['type'] == 'wordpress':
                 dt = parser.parse(entry.published)
+            elif feed['type'] == 'github':
+                dt = parser.parse(entry.updated)
 
             dt.astimezone(timezoneEF)
             dt_timestamp = dt.strftime('%s')
@@ -129,6 +131,9 @@ class rss(Plugin):
             elif feed['type'] == 'wordpress':
                 message = "%s added \"%s\"" % (entry.author, entry.title_detail.value)
                 message2 = "(%s)" % entry.link
+            elif feed['type'] == 'github':
+                message  = "%s pushed a new commit:" % entry.author
+                message2 = entry.title
 
             # post messages with named prefix
             message = "%s | %s" % (feed['name'].upper(), message)
