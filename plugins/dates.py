@@ -7,7 +7,7 @@ from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from icalendar      import Calendar, Event
 from icalendar.prop import vDDDTypes
-from datetime       import datetime, timedelta
+from datetime       import date, datetime, timedelta
 from pytz           import utc, timezone
 from urllib         import urlopen
 
@@ -58,13 +58,21 @@ class dates(Plugin):
 
             found += 1
 
-            fmt = "%d.%m.%Y %H:%M"
             timezoneEF = timezone('Europe/Berlin')
 
             #convert utc datetime to local timezone
             dt_utc = ev.get('dtstart').dt
-            dt_local = dt_utc.astimezone(timezoneEF)
-            dt_str = dt_local.strftime(fmt)
+            if type(dt_utc) is datetime:
+                fmt = "%d.%m.%Y %H:%M"
+                dt_local = dt_utc.astimezone(timezoneEF)
+                dt_str = dt_local.strftime(fmt)
+                dt_str_sort = dt_str
+            elif type(dt_utc) is date:
+                fmt = "%d.%m.%Y"
+                dt_str = dt_utc.strftime(fmt)
+                dt_str_sort = dt_str + ' 00:00'
+            else:
+                raise TypeError('Calendar event is not a date or datetime')
 
             #encode unicode string in utf8
             ucode_event_str = ev.get('summary')
@@ -72,15 +80,13 @@ class dates(Plugin):
 
             data.append({
                 'datetime': dt_str,
+                'datetime_sort': dt_str_sort,
                 'info': utf8_event_str,
             })
 
         data = sorted(data,
-                      key=lambda k: time.mktime(datetime.strptime(k['datetime'],
-                                                                  "%d.%m.%Y %H:%M").timetuple()
-                                               )
-                     )
-
+                      key=lambda k: time.mktime(datetime.strptime(
+                          k['datetime_sort'], "%d.%m.%Y %H:%M").timetuple()))
 
         for ev in data:
             irc.msg(channel, "  %s - %s" % 
