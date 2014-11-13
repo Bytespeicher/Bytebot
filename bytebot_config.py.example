@@ -52,6 +52,11 @@ BYTEBOT_PLUGIN_CONFIG = {
             'cache':'/tmp/feed_bytebot.cache',
             'type': 'github',
           },
+          { 'name': 'Redmine',
+            'url':  'http://redmine.bytespeicher.org/issues.atom',
+            'cache':'/tmp/feed_rm_bytespeicher.cache',
+            'type': 'redmine',
+          },
     ],
     'dates': {
         'url':      'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
