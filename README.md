@@ -1,3 +1,6 @@
+[![GitHub issues](https://img.shields.io/github/issues/Bytespeicher/Bytebot.svg?style=flat)](https://github.com/Bytespeicher/Bytebot/issues) 
+[![Codacy](https://img.shields.io/codacy/de9188fbea554501b247e1fac75346c9.svg?style=flat)](https://www.codacy.com/public/info_4/Bytebot)
+
 # Plugins
 To work with the autoloader, for now all class names MUST be lowercase.
 
