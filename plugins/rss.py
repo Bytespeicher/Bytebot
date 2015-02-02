@@ -34,7 +34,7 @@ class rss(Plugin):
             self.channel =  BYTEBOT_CHANNEL
             for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
                 # process new feed entries
-                self.processFeed(feed)
+                self.process_feed(feed)
 
         except Exception as e:
             print(e)
@@ -67,9 +67,9 @@ class rss(Plugin):
         # Found source, show last feed entries
         for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
             if msg.split(' ', 1)[1] == feed['name'].lower():
-                self.processFeed(feed, 5)
+                self.process_feed(feed, 5)
 
-    def processFeed(self, feed, numberOfEntries = -1):
+    def process_feed(self, feed, numberOfEntries = -1):
         """Process a rss feed an post numberOfEntries
 
         feed:            Dictionary with feed informations
