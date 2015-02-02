@@ -3,9 +3,11 @@
 
 import time
 import feedparser
+import os
+import datetime
+import pytz
 
 from twisted.python import log
-from pytz           import timezone
 from dateutil       import parser
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG, BYTEBOT_CHANNEL
@@ -34,7 +36,7 @@ class rss(Plugin):
             self.channel =  BYTEBOT_CHANNEL
             for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
                 # process new feed entries
-                self.processFeed(feed)
+                self.process_feed(feed)
 
         except Exception as e:
             print(e)
@@ -67,18 +69,18 @@ class rss(Plugin):
         # Found source, show last feed entries
         for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
             if msg.split(' ', 1)[1] == feed['name'].lower():
-                self.processFeed(feed, 5)
+                self.process_feed(feed, 5)
 
-    def processFeed(self, feed, numberOfEntries = -1):
+    def process_feed(self, feed, numberOfEntries = -1):
         """Process a rss feed an post numberOfEntries
 
         feed:            Dictionary with feed informations
         numberOfEntries: Number of entries to post. -1 means to post only new entries based on cached informations
         """
 
-        if numberOfEntries == -1:
+        if numberOfEntries == -1 and os.path.isfile(feed['cache']):
             # try to read read cache information about last run
-            cache = open(feed['cache'], "ar+")
+            cache = open(feed['cache'], "r")
             line = cache.readline()
             cached_etag = ""
             last_entry_timestamp = 0
@@ -98,11 +100,30 @@ class rss(Plugin):
             log.msg("Unknown HTTP status retrieved for feed %s: %d" % (feed['name'], request.status), level=LOG_WARN)
 
         # local timezone
-        timezoneEF = timezone('Europe/Berlin')
+        timezoneEF = pytz.timezone('Europe/Berlin')
 
         # remove unneeded entries in feed
         if numberOfEntries != -1:
             request.entries = request.entries[0:numberOfEntries]
+
+        if not os.path.isfile(feed['cache']):
+            """
+            Save new file if none exists and don't post anything. Prevents
+            spamming of already posted entries if the cache file was removed.
+
+            See https://github.com/Bytespeicher/Bytebot/issues/46
+            """
+            request = feedparser.parse(feed['url'])
+
+            dt_now = datetime.datetime.utcnow()
+            dt_now = dt_now.replace(tzinfo=pytz.utc)
+            dt_now.astimezone(timezoneEF)
+            dt_now = time.mktime(dt_now.timetuple())
+
+            self.save_cache(filename=feed['cache'],
+                            etag=request.etag,
+                            last_entry=dt_now)
+            return
 
         # traverse feed entries in reversed order (post oldest first)
         for entry in reversed(request.entries):
@@ -144,11 +165,19 @@ class rss(Plugin):
             self.irc.say(self.channel, unicode(message).encode('utf-8', errors='replace'))
             self.irc.say(self.channel, unicode(message2).encode('utf-8', errors='replace'))
 
-            # note timestamp for cache
-            last_entry_timestamp = dt_timestamp
+            if numberOfEntries == -1:
+                self.save_cache(filename=feed['cache'],
+                                etag=request.etag,
+                                last_entry=dt_timestamp)
 
-        # save cache if we only process last entries
-        if numberOfEntries == -1:
-            cache.truncate(0)
-            cache.write('%s %s' % (request.etag, last_entry_timestamp))
-            cache.close()
+    def save_cache(self, filename='', etag = '', last_entry = ''):
+        """Save the cache tags to a file
+
+        Keyword arguments:
+        etag -- The etag header checksum
+        last_entry -- The timestamp when the latest entry was submitted
+        """
+        cache = open(filename, "w")
+        cache.truncate(0)
+        cache.write('%s %s' % (etag, last_entry))
+        cache.close()
