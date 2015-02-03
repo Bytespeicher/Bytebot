@@ -15,12 +15,12 @@ class penis(Plugin):
         if msg.find('!penis') == -1:
             return
 
-        self.irc     = irc
+        self.irc = irc
         self.channel = channel
 
         try:
             last_penis = irc.last_penis
-        except Exception as e: 
+        except Exception as e:
             last_penis = 0
 
         if last_penis < (time() - 300):

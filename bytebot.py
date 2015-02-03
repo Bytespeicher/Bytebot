@@ -28,9 +28,9 @@ class ByteBot(irc.IRCClient):
     password = BYTEBOT_PASSWORD
     realname = BYTEBOT_NICK
     username = BYTEBOT_NICK
-    channel  = BYTEBOT_CHANNEL
+    channel = BYTEBOT_CHANNEL
 
-    plugins  = {}
+    plugins = {}
 
     def registerCommand(self, name, description=''):
         self.plugins[name] = description
@@ -53,7 +53,7 @@ class ByteBot(irc.IRCClient):
 
     def joined(self, channel):
         log.msg("[joined channel %s]" % channel)
-        self.factory.plugins.run('onJoined', 
+        self.factory.plugins.run('onJoined',
                                  {
                                      'irc': self,
                                      'channel': channel
@@ -103,8 +103,8 @@ class ByteBot(irc.IRCClient):
 
     def noticed(self, user, channel, message):
         """
-        This function is called if a NOTICE is received. According to the RFC 
-        one MUST NOT send automatic replies in response to a NOTICE to avoid 
+        This function is called if a NOTICE is received. According to the RFC
+        one MUST NOT send automatic replies in response to a NOTICE to avoid
         loops between clients.
         """
         pass
@@ -156,11 +156,11 @@ class ByteBotFactory(protocol.ClientFactory):
     def __init__(self, nickname, password, channel):
         self.nickname = nickname
         self.password = password
-        self.channel  = channel
-        self.plugins  = ByteBotPluginLoader(BYTEBOT_PLUGINS)
+        self.channel = channel
+        self.plugins = ByteBotPluginLoader(BYTEBOT_PLUGINS)
 
     def buildProtocol(self, addr):
-        p         = ByteBot()
+        p = ByteBot()
         p.factory = self
         return p
 
@@ -178,12 +178,12 @@ if __name__ == '__main__':
                                 rotateLength=10000000, maxRotatedFiles=100)
 
     # INFO | DEBUG
-    log_info  = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
-                                rotateLength=10000000, maxRotatedFiles=100)
+    log_info = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
+                               rotateLength=10000000, maxRotatedFiles=100)
 
     logger_error = BytebotLogObserver(log_error,
                             (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN))
-    logger_info  = BytebotLogObserver(log_info,
+    logger_info = BytebotLogObserver(log_info,
                             (BYTEBOT_LOGLEVEL & ~LOG_ERROR))
 
     log.addObserver(logger_error.emit)
