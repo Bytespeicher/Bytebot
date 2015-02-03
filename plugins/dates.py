@@ -22,14 +22,14 @@ class dates(Plugin):
 
     def registerCommand(self, irc):
         """Registers the '!dates' command to the global command list
-        
+
         irc:        An instance of the bytebot. Will be passed by the plugin loader
         """
 
         irc.registerCommand('!dates', 'Shows the next planned dates')
 
     def onPrivmsg(self, irc, msg, channel, user):
-        """Looks for a '!dates' command in messages posted to the channel and 
+        """Looks for a '!dates' command in messages posted to the channel and
         returns a list of dates within the next week.
 
         irc:        An instance of the bytebot. Will be passed by the plugin loader
@@ -41,12 +41,12 @@ class dates(Plugin):
         if msg.find('!dates') == -1:
             return
 
-        f     = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
-        cal   = Calendar.from_ical(f.read())
-        now   = datetime.now(utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        f = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
+        cal = Calendar.from_ical(f.read())
+        now = datetime.now(utc).replace(hour=0, minute=0, second=0, microsecond=0)
         nweek = now + timedelta(weeks=1)
         found = 0
-        data  = []
+        data = []
 
         for ev in cal.walk('VEVENT'):
             if len(str(vDDDTypes.from_ical(ev.get('dtstart'))).split(' ')) > 1:
@@ -54,7 +54,8 @@ class dates(Plugin):
                 if start < now or start > nweek: continue
             else:
                 start = vDDDTypes.from_ical(ev.get('dtstart'))
-                if start < now.date() or start > nweek.date(): continue
+                if start < now.date() or start > nweek.date():
+                    continue
 
             found += 1
 

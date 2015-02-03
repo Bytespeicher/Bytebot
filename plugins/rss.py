@@ -19,7 +19,7 @@ class rss(Plugin):
 
     def registerCommand(self, irc):
         """Registers the '!rss' command to the global command list
-        
+
         irc:        An instance of the bytebot. Will be passed by the plugin loader
         """
 
@@ -32,8 +32,8 @@ class rss(Plugin):
         """
         try:
 
-            self.irc     = irc
-            self.channel =  BYTEBOT_CHANNEL
+            self.irc = irc
+            self.channel = BYTEBOT_CHANNEL
             for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
                 # process new feed entries
                 self.process_feed(feed)
@@ -44,7 +44,7 @@ class rss(Plugin):
 
 
     def onPrivmsg(self, irc, msg, channel, user):
-        """Looks for a '!rss' command in messages posted to the channel and 
+        """Looks for a '!rss' command in messages posted to the channel and
         returns a list of recent changes.
 
         irc:        An instance of the bytebot. Will be passed by the plugin loader
@@ -63,7 +63,7 @@ class rss(Plugin):
                 irc.msg(channel, "  %s (%s)" % (feed['name'].lower(), feed['url']))
             return
 
-        self.irc     = irc
+        self.irc = irc
         self.channel = channel
 
         # Found source, show last feed entries
@@ -71,7 +71,7 @@ class rss(Plugin):
             if msg.split(' ', 1)[1] == feed['name'].lower():
                 self.process_feed(feed, 5)
 
-    def process_feed(self, feed, numberOfEntries = -1):
+    def process_feed(self, feed, numberOfEntries=-1):
         """Process a rss feed an post numberOfEntries
 
         feed:            Dictionary with feed informations
@@ -153,10 +153,10 @@ class rss(Plugin):
                 message = "%s added \"%s\"" % (entry.author, entry.title_detail.value)
                 message2 = "(%s)" % entry.link
             elif feed['type'] == 'github':
-                message  = "%s pushed a new commit:" % entry.author
+                message = "%s pushed a new commit:" % entry.author
                 message2 = entry.title
             elif feed['type'] == 'redmine':
-                message  = "%s: %s" % (entry.author_detail.name, entry.title)
+                message = "%s: %s" % (entry.author_detail.name, entry.title)
                 message2 = entry.link
 
             # post messages with named prefix
@@ -170,7 +170,7 @@ class rss(Plugin):
                                 etag=request.etag,
                                 last_entry=dt_timestamp)
 
-    def save_cache(self, filename='', etag = '', last_entry = ''):
+    def save_cache(self, filename='', etag='', last_entry=''):
         """Save the cache tags to a file
 
         Keyword arguments:

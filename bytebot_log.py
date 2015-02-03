@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 LOG_DEBUG = 0b0001
-LOG_INFO  = 0b0010
-LOG_WARN  = 0b0100
+LOG_INFO = 0b0010
+LOG_WARN = 0b0100
 LOG_ERROR = 0b1000
 
 from twisted.python import log

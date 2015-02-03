@@ -16,13 +16,13 @@ class ircquestions(Plugin):
         for name in sorted(BYTEBOT_PLUGIN_CONFIG['ircquestions'].keys()):
             commands += name + ', '
 
-        self.irc.msg(self.irc.channel, 
+        self.irc.msg(self.irc.channel,
                      "Use !help with the following commands: " + commands)
         self.irc.msg(self.irc.channel,
                      "Or try !commands for a list of all available commands")
 
     def onPrivmsg(self, irc, msg, channel, user):
-        self.irc     = irc
+        self.irc = irc
         self.channel = channel
 
         if msg.find('!help') == -1:

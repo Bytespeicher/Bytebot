@@ -6,15 +6,15 @@ from twisted.internet   import reactor
 from bytebot_log        import *
 from twisted.python     import log
 
-class ByteBotPluginLoader:
+class ByteBotPluginLoader(object):
     """This class enables automatic loading and method calling for plugin 
-    classes. 
+    classes.
 
-    The class also catches faulty plugin code so if an exception is thrown 
-    that is not handled in the plugin code itself it will be handled here 
+    The class also catches faulty plugin code so if an exception is thrown
+    that is not handled in the plugin code itself it will be handled here
     without crashing the whole bot."""
 
-    PLUGINS = {} 
+    PLUGINS = {}
 
     def __init__(self, plugins, plugin_path='plugins'):
         """

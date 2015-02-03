@@ -25,7 +25,7 @@ class shorturl(Plugin):
             headers
         )
         data = urllib2.urlopen(url=req, timeout=BYTEBOT_HTTP_TIMEOUT).read(BYTEBOT_HTTP_MAXSIZE)
-        ret = json.loads(data)[u'id'].encode('ascii','ignore')
+        ret = json.loads(data)[u'id'].encode('ascii', 'ignore')
 
         return ret
 
