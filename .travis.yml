@@ -1,0 +1,20 @@
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+
+before_install:
+  - git submodule update --init --recursive
+
+install: true
+
+git:
+  submodules: false
+
+notifications:
+  irc:
+    channels:
+      - "irc.hackint.net#bytespeicher-testing"
+    template:
+      - "%{repository_slug} (%{commit}) : %{message}"
+      - "Mehr zum Test: %{build_url}"
