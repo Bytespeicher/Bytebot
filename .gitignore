@@ -4,3 +4,4 @@ bytebot_config.py
 __pycache__
 *.pyc
 bytebot_config.py
+env/
