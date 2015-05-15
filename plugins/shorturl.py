@@ -10,6 +10,7 @@ from bs4            import BeautifulSoup
 from twisted.python import log
 
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
 class shorturl(Plugin):
     def googl(self, url):
@@ -29,6 +30,26 @@ class shorturl(Plugin):
 
         return ret
 
+    def krzus(self, url):
+        log.msg("Shortening URL %s" % url)
+
+        post_url = 'http://krz.us/api/v1/short'
+        postdata = {
+            'url': url,
+            'key': BYTEBOT_PLUGIN_CONFIG['shorturl']['api_key']
+        }
+        headers = {'Content-Type':'application/json'}
+
+        req = urllib2.Request(
+            post_url,
+            json.dumps(postdata),
+            headers
+        )
+        data = urllib2.urlopen(url=req, timeout=BYTEBOT_HTTP_TIMEOUT).read(BYTEBOT_HTTP_MAXSIZE)
+        ret = json.loads(data)[u'url_short'].encode('ascii', 'ignore')
+
+        return ret
+
     def getTitle(self, url):
         data = urllib2.urlopen(url=url, timeout=BYTEBOT_HTTP_TIMEOUT)
         soup = BeautifulSoup(data)
@@ -38,8 +59,13 @@ class shorturl(Plugin):
 
         try:
             url = re.findall('http[s]?://(?:[^\s]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)[0]
-            shorturl = self.googl(url)
+            try:
+                short_function = getattr(self, BYTEBOT_PLUGIN_CONFIG['shorturl']['shortener'])
+                shorturl = short_function(url)
+            except NameError:
+                log.msg('Could not load shortener function ' + BYTEBOT_PLUGIN_CONFIG)
         except Exception as e:
+            log.msg(e)
             return
 
         try:
