@@ -33,6 +33,7 @@ BYTEBOT_PLUGINS= [
     'shorturl',
     'dates',
     'rss',
+    'parking'
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
@@ -91,5 +92,8 @@ BYTEBOT_PLUGIN_CONFIG = {
     'shorturl': {
         'shortener': 'krzus',
         'api_key': 'thiswoudbeyourapikey'
+    },
+    'parking': {
+        'url': 'http://parken.cjcj.de/erfurt/'
     },
 }
