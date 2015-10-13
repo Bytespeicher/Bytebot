@@ -33,6 +33,7 @@ BYTEBOT_PLUGINS= [
     'shorturl',
     'dates',
     'rss',
+    'parking'
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
@@ -87,6 +88,12 @@ BYTEBOT_PLUGIN_CONFIG = {
         'location':   'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
         'dates':      'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
         'versorgung': 'http://technikkultur-erfurt.de/bytespeicher:versorgung',
-        
-    }
+    },
+    'shorturl': {
+        'shortener': 'krzus',
+        'api_key': 'thiswoudbeyourapikey'
+    },
+    'parking': {
+        'url': 'http://parken.cjcj.de/erfurt/'
+    },
 }
