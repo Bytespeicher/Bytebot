@@ -9,6 +9,8 @@ from plugins.plugin import Plugin
 from bs4            import BeautifulSoup
 from twisted.python import log
 
+from clarifai.client import ClarifaiApi
+
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
@@ -54,6 +56,16 @@ class shorturl(Plugin):
         data = urllib2.urlopen(url=url, timeout=BYTEBOT_HTTP_TIMEOUT)
         soup = BeautifulSoup(data)
         return soup.title.getText().encode('utf-8')[:60]
+    
+    def getTags(self, url):
+        ret = ''
+        api = ClarifaiApi(BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_id'], BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_secret'])
+        tags = api.tag_image_urls(url)
+        
+        if(tags[u'status_code'] == "OK"):
+            ret = ', '.join(tags[u'results'][0][u'result'][u'tag'][u'classes'])
+
+print ret
 
     def onPrivmsg(self, irc, msg, channel, user):
 
@@ -68,13 +80,19 @@ class shorturl(Plugin):
             log.msg(e)
             return
 
-        try:
-            title = self.getTitle(url)
-        except Exception as e:
-            title = ''
+        if(url[-4:]=='.jpg'):
+            try:
+                desc = 'Tags : ' + self.getTags(url)
+            except Exception as e:
+                desc = ''
+        else
+            try:
+                desc = 'Title : ' + self.getTitle(url)
+            except Exception as e:
+                desc = ''
 
-        if title != '':
-            irc.msg(channel, title)
+        if desc != '':
+            irc.msg(channel, desc)
             irc.msg(channel, '\tURL: %s' % shorturl)
         else:
             irc.msg(channel, "URL: %s" % shorturl)
