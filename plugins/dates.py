@@ -10,7 +10,8 @@ from icalendar.prop import vDDDTypes
 from datetime import date, datetime, timedelta
 from pytz import utc, timezone
 from urllib import urlopen
-
+from dateutil.rrule import *
+from dateutil.parser import *
 
 class dates(Plugin):
     def __init__(self):
@@ -44,51 +45,66 @@ class dates(Plugin):
 
         f = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
         cal = Calendar.from_ical(f.read())
-        now = datetime.now(utc).replace(
+        now = datetime.now().replace(
             hour=0, minute=0, second=0, microsecond=0)
-        nweek = now + timedelta(
+        then = now + timedelta(
             days=BYTEBOT_PLUGIN_CONFIG['dates']['timedelta'])
         found = 0
+
         data = []
+        timezoneEF = timezone('Europe/Berlin')
+        fmt = "%d.%m.%Y %H:%M"
 
         for ev in cal.walk('VEVENT'):
-            if len(str(vDDDTypes.from_ical(ev.get('dtstart'))).split(' ')) > 1:
-                start = vDDDTypes.from_ical(ev.get('dtstart')).replace(
-                    tzinfo=utc)
-                if start < now or start > nweek:
-                    continue
-            else:
-                start = vDDDTypes.from_ical(ev.get('dtstart'))
-                if start < now.date() or start > nweek.date():
-                    continue
+            start = vDDDTypes.from_ical(ev["DTSTART"])
+            
+            if isinstance(start, datetime):
+                rset = rruleset()
+                info = ""
+                loc = ""
 
-            found += 1
+                if "SUMMARY" in ev:
+                    found += 1
+                    info =  ev["SUMMARY"].encode("utf-8")
+                else:
+                    continue # events ohne summary zeigen wir nicht an!
 
-            timezoneEF = timezone('Europe/Berlin')
+                #--------------------
+                # coming soon!
+                #if "LOCATION" in ev:
+                #    loc = ev["LOCATION"]
+                #else:
+                #    loc = "Liebknechtstrasse 8"
+                #--------------------
 
-            # convert utc datetime to local timezone
-            dt_utc = ev.get('dtstart').dt
-            if type(dt_utc) is datetime:
-                fmt = "%d.%m.%Y %H:%M"
-                dt_local = dt_utc.astimezone(timezoneEF)
-                dt_str = dt_local.strftime(fmt)
-                dt_str_sort = dt_str
-            elif type(dt_utc) is date:
-                fmt = "%d.%m.%Y"
-                dt_str = dt_utc.strftime(fmt)
-                dt_str_sort = dt_str + ' 00:00'
-            else:
-                raise TypeError('Calendar event is not a date or datetime')
+                if "RRULE" in ev: #recurrence
+                    ical_dtstart = (ev.get("DTSTART")).to_ical()
+                    ical_rrule = (ev.get('RRULE')).to_ical()
+                    rset.rrule(rrulestr(ical_rrule, dtstart=parse(ical_dtstart)))
 
-            # encode unicode string in utf8
-            ucode_event_str = ev.get('summary')
-            utf8_event_str = ucode_event_str.encode("utf-8")
+                    for e in rset.between(now, then):
+                        data.append({
+                            'datetime': e.strftime(fmt),
+                            'datetime_sort': e.strftime(fmt),
+                            'info': info,
+                            'loc' : loc,
+                        })
 
-            data.append({
-                'datetime': dt_str,
-                'datetime_sort': dt_str_sort,
-                'info': utf8_event_str,
-            })
+                    #TODO handling of EXDATE
+
+                else: #no recurrence
+                    if start < utc.localize(now) or start > utc.localize(then):
+                        continue
+
+                    data.append({
+                        'datetime': start.astimezone(timezoneEF).strftime(fmt),
+                        'datetime_sort': start.astimezone(timezoneEF).strftime(fmt),
+                        'info': info,
+                        'loc' : loc,
+                    })
+
+            #TODO handling of whole day events
+            #if isinstance(start, date):
 
         data = sorted(data,
                       key=lambda k: time.mktime(datetime.strptime(
