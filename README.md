@@ -42,3 +42,7 @@ commands via the registerCommand function.
 * spacestatus
  * urllib
  * json
+
+# Contributing
+See [CONTRIBUTING](CONTRIBUTING.md) for further information on seting things
+up and the general coding style.
