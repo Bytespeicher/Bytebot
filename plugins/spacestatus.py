@@ -3,13 +3,17 @@
 
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from plugins.plugin import Plugin
-from urllib         import urlopen
+from urllib import urlopen
 
 import json
 
+
 class spacestatus(Plugin):
     def registerCommand(self, irc):
-        irc.registerCommand('!status', 'Returns the door status of the hackerspace rooms')
+        irc.registerCommand(
+            '!status',
+            'Returns the door status of the hackerspace rooms'
+        )
 
     def onPrivmsg(self, irc, msg, channel, user):
         if msg.startswith('!status'):
@@ -22,5 +26,5 @@ class spacestatus(Plugin):
                     irc.msg(channel, '\tDer Space ist offen!')
                 else:
                     irc.msg(channel, '\tDer Space ist geschlossen!')
-            except Exception as e:
+            except Exception:
                 irc.msg(channel, '\tFehler beim Abrufen des Status')
