@@ -37,7 +37,7 @@ class spacestatus(Plugin):
             try:
                 response = urlopen(BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
                 data = json.loads(response.read())['sensors'][
-                    'people_now_present']
+                    'people_now_present'][0]
 
                 if data['value'] > 0:
                     irc.msg(channel, 'Space users: ' +
