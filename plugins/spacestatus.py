@@ -42,6 +42,11 @@ class spacestatus(Plugin):
                 if data['value'] > 0:
                     irc.msg(channel, 'Space users: ' +
                             str(', '.join(data['names'])))
+                elif data['value'] == 0:
+                    irc.msg(channel, 'Scheinbar ist niemand im Space :(')
+                else:
+                    irc.msg(channel,
+                            'Ich bin mir nicht sicher, ob jemand da ist')
             except Exception as e:
                 print(e)
                 irc.msg(channel, '\tFehler beim Abrufen der User')
