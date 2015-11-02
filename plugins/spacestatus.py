@@ -41,8 +41,8 @@ class spacestatus(Plugin):
                     'people_now_present'][0]
 
                 if data['value'] > 0:
-                    irc.msg(channel, 'Space users: ' +
-                            str(', '.join(data['names'])))
+                    irc.msg(channel,
+                            'Space users: ' + str(', '.join(data['names'])))
                 elif data['value'] == 0:
                     irc.msg(channel, 'Scheinbar ist niemand im Space :(')
                 else:
