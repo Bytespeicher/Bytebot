@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-from plugins.plugin import Plugin
+import json
+
 from urllib import urlopen
 
-import json
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+from plugins.plugin import Plugin
 
 
 class spacestatus(Plugin):
