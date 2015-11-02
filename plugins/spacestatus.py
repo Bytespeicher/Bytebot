@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-from plugins.plugin import Plugin
+import json
+
 from urllib import urlopen
 
-import json
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+from plugins.plugin import Plugin
 
 
 class spacestatus(Plugin):
@@ -40,13 +41,12 @@ class spacestatus(Plugin):
                     'people_now_present'][0]
 
                 if data['value'] > 0:
-                    irc.msg(channel, 'Space users: ' +
-                            str(', '.join(data['names'])))
+                    irc.msg(channel,
+                            'Space users: ' + str(', '.join(data['names'])))
                 elif data['value'] == 0:
                     irc.msg(channel, 'Scheinbar ist niemand im Space :(')
                 else:
                     irc.msg(channel,
                             'Ich bin mir nicht sicher, ob jemand da ist')
-            except Exception as e:
-                print(e)
+            except Exception:
                 irc.msg(channel, '\tFehler beim Abrufen der User')
