@@ -48,6 +48,5 @@ class spacestatus(Plugin):
                 else:
                     irc.msg(channel,
                             'Ich bin mir nicht sicher, ob jemand da ist')
-            except Exception as e:
-                print(e)
+            except Exception:
                 irc.msg(channel, '\tFehler beim Abrufen der User')
