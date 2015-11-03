@@ -95,7 +95,7 @@ class shorturl(Plugin):
                 desc = 'Tags : ' + self.getTags(url)
             except Exception as e:
                 desc = ''
-        else
+        else:
             try:
                 desc = 'Title : ' + self.getTitle(url)
             except Exception as e:
