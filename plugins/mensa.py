@@ -3,9 +3,9 @@
 
 import urllib2
 import json
+from time import time, strftime
 
 from plugins.plugin import Plugin
-import time
 
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
@@ -34,7 +34,7 @@ class mensa(Plugin):
         return ret
 
     def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find('!mensa') == -1:
+        if msg.find("!mensa") == -1:
             return
 
         self.irc = irc
