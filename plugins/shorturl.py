@@ -72,7 +72,7 @@ class shorturl(Plugin):
         if(tags[u'status_code'] == "OK"):
             ret = ', '.join(tags[u'results'][0][u'result'][u'tag'][u'classes'])
 
-print ret
+        return ret
 
     def onPrivmsg(self, irc, msg, channel, user):
 
