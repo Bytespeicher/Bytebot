@@ -27,11 +27,7 @@ class mensa(Plugin):
         data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
             BYTEBOT_HTTP_MAXSIZE)
 
-        data = unicode(data, errors='replace')
-
-        ret = json.loads(data)
-
-        return ret
+        return json.loads(data)
 
     def onPrivmsg(self, irc, msg, channel, user):
         if msg.find("!mensa") == -1:
@@ -45,35 +41,30 @@ class mensa(Plugin):
         except Exception as e:
             last_mensa = 0
 
-        if len(data) == 0:
-            irc.msg(channel, "'I'm sorry openmensa has no food data.")
-            return
-
         if last_mensa < (time() - 60):
             try:
                 data = self._get_mensa_food()
+            except Exception:
+                irc.msg(channel, "Error while fetching data.")
 
-                irc.msg(channel, 'Mensa Menu FH Erfurt:')
+            if len(data) == 0:
+                irc.msg(channel, "'I'm sorry openmensa has no food data.")
+                return
 
-                for x in range(len(data)):
+            messages = []
+            for x in range(len(data)):
+                name = data[x][u"name"]
+                price_student = data[x][u"prices"]["students"]
 
-                    name = data[x][u'name'].encode('ascii', 'ignore')
-                    price_student = data[x][u'prices']['students']
-                    # price_extern = data[x][u'prices']['pupils'].encode('ascii', 'ignore')
+                print_str = u"{:70}: ".format(name) + \
+                    u"{:3.2f}€ / student".format(price_student)
 
-                    print_str = '{:70}: '.format(name) + \
-                        '{:3.2f}€ / student'.format(price_student)  # + \
-                    #'{:3.0f} / extern'.format(price_extern)
-                    # irc.msg(channel, print_str)
+                messages.append(print_str)
 
-                    print print_str
+            irc.msg(channel, "Mensa Menu FH Erfurt:")
+            for m in messages:
+                irc.msg(channel, "  " + m.encode("utf-8", "ignore"))
 
-                    irc.msg(channel, print_str)
-
-                irc.last_mensa = time()
-
-            except Exception as e:
-                print(e)
-                irc.msg(channel, 'Error while fetching data.')
+            irc.last_mensa = time()
         else:
             irc.msg(channel, "Don't overdo it ;)")

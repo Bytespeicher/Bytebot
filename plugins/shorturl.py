@@ -63,9 +63,9 @@ class shorturl(Plugin):
     def getTags(self, url):
         ret = ''
         api = ClarifaiApi(
-                BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_id'],
-                BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_secret']
-            )
+            BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_id'],
+            BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_secret']
+        )
         tags = api.tag_image_urls(url)
 
         if(tags[u'status_code'] == "OK"):
