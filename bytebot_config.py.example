@@ -98,4 +98,7 @@ BYTEBOT_PLUGIN_CONFIG = {
     'parking': {
         'url': 'http://parken.cjcj.de/erfurt/'
     },
+    'mensa': {
+        'canteen': 148,
+    }
 }

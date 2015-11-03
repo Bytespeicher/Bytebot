@@ -20,10 +20,9 @@ class mensa(Plugin):
         irc.registerCommand('!mensa', 'Parken')
 
     def _get_mensa_food(self):
-        url_base = BYTEBOT_PLUGIN_CONFIG['mensa']['url']
-        # "http://openmensa.org/api/v2/canteens/148/days/2015-11-02/meals"
-        url = "http://openmensa.org/api/v2/canteens/148/days/" + \
-            time.strftime("%Y-%m-%d") + "/meals"
+        url = "http://openmensa.org/api/v2/canteens/" + \
+            str(BYTEBOT_PLUGIN_CONFIG["mensa"]["canteen"]) + "/days/" + \
+            strftime("%Y-%m-%d") + "/meals"
 
         data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
             BYTEBOT_HTTP_MAXSIZE)
