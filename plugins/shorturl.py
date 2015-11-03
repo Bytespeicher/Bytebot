@@ -88,19 +88,17 @@ class shorturl(Plugin):
             log.msg(e)
             return
 
-        if(url[-4:] == '.jpg'):
-            try:
-                desc = 'Tags : ' + self.getTags(url)
-            except Exception as e:
-                desc = ''
-        else:
-            try:
-                desc = 'Title : ' + self.getTitle(url)
-            except Exception as e:
-                desc = ''
+        desc = ''
+        try:
+            if url[-4:].lower() in ('.jpg', 'jpeg', '.png', '.gif'):
+                desc = 'Tags: ' + self.getTags(url)
+            else:
+                desc = 'Title: ' + self.getTitle(url)
+        except Exception as e:
+            pass
 
         if desc != '':
-            irc.msg(channel, desc)
+            irc.msg(channel, desc.encode('utf-8', 'replace'))
             irc.msg(channel, '\tURL: %s' % shorturl)
         else:
             irc.msg(channel, "URL: %s" % shorturl)
