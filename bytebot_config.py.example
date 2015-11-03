@@ -91,9 +91,9 @@ BYTEBOT_PLUGIN_CONFIG = {
     },
     'shorturl': {
         'shortener': 'krzus',
-        'api_key': 'thiswoudbeyourapikey'
-        'clarifai_app_id' : 'yourappid'
-        'clarifai_app_secret' ' 'yourappsecret'
+        'api_key': 'thiswoudbeyourapikey',
+        'clarifai_app_id' : 'yourappid',
+        'clarifai_app_secret', 'yourappsecret',
     },
     'parking': {
         'url': 'http://parken.cjcj.de/erfurt/'
