@@ -5,12 +5,11 @@ import urllib2
 import json
 import re
 
-from plugins.plugin import Plugin
 from bs4 import BeautifulSoup
 from twisted.python import log
-
 from clarifai.client import ClarifaiApi
 
+from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
@@ -75,7 +74,6 @@ class shorturl(Plugin):
         return ret
 
     def onPrivmsg(self, irc, msg, channel, user):
-
         try:
             url = re.findall(
                 'http[s]?://(?:[^\s]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)[0]
