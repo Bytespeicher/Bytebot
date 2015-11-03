@@ -17,7 +17,7 @@ class mensa(Plugin):
         pass
 
     def registerCommand(self, irc):
-        irc.registerCommand('!mensa', 'Parken')
+        irc.registerCommand("!mensa", "Mensa menu for today")
 
     def _get_mensa_food(self):
         url = "http://openmensa.org/api/v2/canteens/" + \
