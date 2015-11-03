@@ -1,0 +1,8 @@
+Twisted
+beautifulsoup4
+feedparser
+pyopenssl
+service_identity
+clarifai
+icalendar
+pillow
