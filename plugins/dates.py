@@ -10,6 +10,8 @@ from icalendar.prop import vDDDTypes
 from datetime import date, datetime, timedelta
 from pytz import utc, timezone
 from urllib import urlopen
+from dateutil.rrule import *
+from dateutil.parser import *
 
 
 class dates(Plugin):
@@ -44,56 +46,138 @@ class dates(Plugin):
 
         f = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
         cal = Calendar.from_ical(f.read())
-        now = datetime.now(utc).replace(
+        now = datetime.now().replace(
             hour=0, minute=0, second=0, microsecond=0)
-        nweek = now + timedelta(
+        then = now + timedelta(
             days=BYTEBOT_PLUGIN_CONFIG['dates']['timedelta'])
         found = 0
+
         data = []
+        timezoneEF = timezone('Europe/Berlin')
+        fmt = "%d.%m.%Y %H:%M"
 
+        # iterate all VEVENTS
         for ev in cal.walk('VEVENT'):
-            if len(str(vDDDTypes.from_ical(ev.get('dtstart'))).split(' ')) > 1:
-                start = vDDDTypes.from_ical(ev.get('dtstart')).replace(
-                    tzinfo=utc)
-                if start < now or start > nweek:
-                    continue
-            else:
-                start = vDDDTypes.from_ical(ev.get('dtstart'))
-                if start < now.date() or start > nweek.date():
-                    continue
+            start = vDDDTypes.from_ical(ev["DTSTART"])
 
-            found += 1
+            """
+            check if DTSTART could be casted into some instance of
+            dateime. If so, this indicates an event with a given start
+            and stop time. There are other events too, e.g. Events
+            lasting a whole day. Reading DTSTART of such whole day
+            events will result in some instance of date. We will
+            handle this case later.
+            """
 
-            timezoneEF = timezone('Europe/Berlin')
+            if isinstance(start, datetime):
+                rset = rruleset()  # create a set of recurrence rules
+                info = ""
+                loc = ""
 
-            # convert utc datetime to local timezone
-            dt_utc = ev.get('dtstart').dt
-            if type(dt_utc) is datetime:
-                fmt = "%d.%m.%Y %H:%M"
-                dt_local = dt_utc.astimezone(timezoneEF)
-                dt_str = dt_local.strftime(fmt)
-                dt_str_sort = dt_str
-            elif type(dt_utc) is date:
-                fmt = "%d.%m.%Y"
-                dt_str = dt_utc.strftime(fmt)
-                dt_str_sort = dt_str + ' 00:00'
-            else:
-                raise TypeError('Calendar event is not a date or datetime')
+                """
+                Everyone interested in calendar events wants to get
+                some summary about the event. So each event
+                handled here has to have a SUMMARY. If not, we will
+                discard handling the VEVENT here
+                """
+                if "SUMMARY" in ev:
+                    found += 1
+                    info = ev["SUMMARY"].encode("utf-8")
+                else:
+                    continue  # events ohne summary zeigen wir nicht an!
 
-            # encode unicode string in utf8
-            ucode_event_str = ev.get('summary')
-            utf8_event_str = ucode_event_str.encode("utf-8")
+                """
+                Printing the location of an event is important too.
+                However,
+                the string containing location info may be too long
+                to be viewed nicely in IRC. Since there exits no
+                good solution for this, this feature is coming soon.
 
-            data.append({
-                'datetime': dt_str,
-                'datetime_sort': dt_str_sort,
-                'info': utf8_event_str,
-            })
+                if "LOCATION" in ev:
+                    loc = ev["LOCATION"]
+                else:
+                    loc = "Liebknechtstrasse 8"
 
+                Recurrence handling starts here.
+                First, we check if there is a recurrence rule (RRULE)
+                inside the VEVENT, If so, we use the ical like
+                expression of DTSTART and RRULE to feed
+                our ruleset with.
+                """
+                if "RRULE" in ev:  # recurrence
+                    ical_dtstart = (ev.get("DTSTART")).to_ical()
+                    ical_rrule = (ev.get('RRULE')).to_ical()
+                    rset.rrule(rrulestr(ical_rrule,
+                                        dtstart=parse(ical_dtstart)))
+
+                    """
+                    the ruleset now may be used to calculate any datetime
+                    the event happened and will happen.
+                    Since we are only interested
+                    in upcoming events between now and then, we just use
+                    the between() method of the ruleset which will return an
+                    array of datetimes. Since timeutils cares about tumezones,
+                    no convertion between utc and ME(S)Z needs to be done.
+                    We just iterate the array of datetimes and put starting
+                    time (DTSTART) info (SUMMARY) and location (LOCATION)
+                    into our "database" of events
+                    """
+                    for e in rset.between(now, then):
+                        data.append({
+                            'datetime': e.strftime(fmt),
+                            'datetime_sort': e.strftime(fmt),
+                            'info': info,
+                            'loc': loc,
+                        })
+
+                    """
+                    Recurrence rules do also know about EXDATEs, handling this
+                    should be easy through rset (ruleset)...
+                    TODO handling of EXDATE
+                    """
+
+                else:  # no recurrence
+                    """
+                    there was no recurrence rule (RRULE), so we do not need
+                    to handle recurrece for this VEVENT. We do, however, need
+                    to handle conversion between UTC and ME(S)Z, because now
+                    timeutils, which would do this for us automatically, is
+                    not involved
+
+                    first we check if the DTSTART is between now and then.
+                    If so, we put the VEVENTs starttime (DTSTART), info
+                    (SUMMARY) and location (LOCATION) into our database.
+                    """
+
+                    if start < utc.localize(now) or start > utc.localize(then):
+                        continue
+
+                    data.append({
+                        'datetime': start.astimezone(timezoneEF).strftime(fmt),
+                        'datetime_sort':
+                            start.astimezone(timezoneEF).strftime(fmt),
+                        'info': info,
+                        'loc': loc,
+                    })
+
+            """
+            So far we only have handled short time events, but there are
+            whole day events too. So lets handle them here...
+
+            TODO handling of whole day events
+
+            if isinstance(start, date):
+            """
+
+        # lets sort our database, nearest events coming first...
         data = sorted(data,
                       key=lambda k: time.mktime(datetime.strptime(
                           k['datetime_sort'], "%d.%m.%Y %H:%M").timetuple()))
 
+        """
+        spit out all events in database into IRC. If there were no
+        events, print some message about this...
+        """
         for ev in data:
             irc.msg(channel, "  %s - %s" % (ev['datetime'], ev['info']))
 
