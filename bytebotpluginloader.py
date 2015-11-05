@@ -63,7 +63,9 @@ class ByteBotPluginLoader(object):
                             level=LOG_DEBUG)
                     reactor.callInThread(method, **args)
             except Exception as e:
-                log.msg("WARNING: An error occured while executing %s in %s with %s" %
-                        (fn, plugin, args),
-                        level=LOG_WARN)
+                log.msg(
+                    "WARNING: An error occured while executing %s in %s " +
+                    "with %s" % (fn, plugin, args),
+                    level=LOG_WARN
+                )
                 log.msg("WARNING: %s" % e, level=LOG_DEBUG)

@@ -22,7 +22,7 @@ class parking(Plugin):
         url = BYTEBOT_PLUGIN_CONFIG['parking']['url']
 
         data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
-                BYTEBOT_HTTP_MAXSIZE)
+            BYTEBOT_HTTP_MAXSIZE)
 
         data = unicode(data, errors='ignore')
 
@@ -51,7 +51,8 @@ class parking(Plugin):
                 for x in range(1, len(data)):
 
                     name = data[x][u'name'].encode('ascii', 'ignore')
-                    occupied = int(data[x][u'belegt'].encode('ascii', 'ignore'))
+                    occupied = int(data[x][u'belegt'].encode('ascii',
+                                                             'ignore'))
                     spaces = int(data[x][u'maximal'].encode('ascii', 'ignore'))
 
                     if(occupied < 0):

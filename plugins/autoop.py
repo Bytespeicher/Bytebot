@@ -13,26 +13,48 @@ class autoop(Plugin):
         user = prefix.split('!')[0]
         if 'autoop' in BYTEBOT_PLUGIN_CONFIG.keys():
             if 'hostmask' in BYTEBOT_PLUGIN_CONFIG['autoop'].keys():
-                if channel in BYTEBOT_PLUGIN_CONFIG['autoop']['hostmask'].keys():
-                    if prefix in BYTEBOT_PLUGIN_CONFIG['autoop']['hostmask'][channel]:
+                if channel in BYTEBOT_PLUGIN_CONFIG['autoop'][
+                        'hostmask'].keys():
+                    if prefix in BYTEBOT_PLUGIN_CONFIG['autoop']['hostmask'][
+                            channel]:
                         log.msg("Giving user %s +o on channel %s" %
                                 (prefix, channel), level=LOG_INFO)
                         irc.mode(channel, True, 'o', user=user)
-                        irc.msg(channel, "Hey, %s, it seems like you're a nice guy. Let me op you hard" % user)
-                    if user in BYTEBOT_PLUGIN_CONFIG['autoop']['name'][channel]:
+                        irc.msg(
+                            channel,
+                            "Hey, %s, it seems like you're a nice guy. Let " +
+                            "me op you hard" % user
+                        )
+                    if user in BYTEBOT_PLUGIN_CONFIG['autoop']['name'][
+                            channel]:
                         log.msg("Giving user %s +o on channel %s" %
                                 (user, channel), level=LOG_INFO)
                         irc.mode(channel, True, 'o', user=user)
-                        irc.msg(channel, "Hey, %s, it seems like you're a nice guy. Let me op you hard" % user)
+                        irc.msg(
+                            channel,
+                            "Hey, %s, it seems like you're a nice guy. Let " +
+                            "me op you hard" % user
+                        )
                     else:
-                        log.msg("User %s not in autoop list %s" %
-                                (prefix, channel), level=LOG_INFO)
+                        log.msg(
+                            "User %s not in autoop list %s" % (
+                                prefix, channel),
+                            level=LOG_INFO
+                        )
                 else:
-                    log.msg("Channel name %s not in bytebot_config.py" %
-                            channel, level=LOG_WARN)
+                    log.msg(
+                        "Channel name %s not in bytebot_config.py" % channel,
+                        level=LOG_WARN
+                    )
             else:
-                log.msg("BYTEBOT_PLUGIN_CONFIG in bytebot_config.py has no 'hostmask' section",
-                       level=LOG_WARN)
+                log.msg(
+                    "BYTEBOT_PLUGIN_CONFIG in bytebot_config.py has no " +
+                    "'hostmask' section",
+                    level=LOG_WARN
+                )
         else:
-            log.msg("BYTEBOT_PLUGIN_CONFIG in bytebot_config.py has no 'autoop' section",
-                   level=LOG_WARN)
+            log.msg(
+                "BYTEBOT_PLUGIN_CONFIG in bytebot_config.py has no 'autoop' " +
+                "section",
+                level=LOG_WARN
+            )

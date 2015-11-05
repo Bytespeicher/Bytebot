@@ -33,7 +33,10 @@ class autotopic(Plugin):
                 old_status = "closed"
 
             if old_status != status:
-                irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
+                irc.topic(
+                    BYTEBOT_CHANNEL,
+                    unicode(topic).encode('utf-8', errors='replace')
+                )
                 irc.topic(BYTEBOT_CHANNEL)
         except Exception as e:
             print(e)

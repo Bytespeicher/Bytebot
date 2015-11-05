@@ -22,7 +22,7 @@ class rss(Plugin):
     def registerCommand(self, irc):
         """Registers the '!rss' command to the global command list
 
-        irc:        An instance of the bytebot. Will be passed by the plugin loader
+        irc: An instance of the bytebot. Will be passed by the plugin loader
         """
 
         irc.registerCommand('!rss', 'Show the last recent changes')
@@ -30,7 +30,7 @@ class rss(Plugin):
     def fiveMinuteCron(self, irc):
         """Checks RSS feed every 5 minutes and post recent changes
 
-        irc:        An instance of the bytebot. Will be passed by the plugin loader
+        irc: An instance of the bytebot. Will be passed by the plugin loader
         """
         try:
 
@@ -44,12 +44,11 @@ class rss(Plugin):
             print(e)
             print("Error while processing rss feed")
 
-
     def onPrivmsg(self, irc, msg, channel, user):
         """Looks for a '!rss' command in messages posted to the channel and
         returns a list of recent changes.
 
-        irc:        An instance of the bytebot. Will be passed by the plugin loader
+        irc: An instance of the bytebot. Will be passed by the plugin loader
         msg:        The msg sent to the channel
         channel:    The channels name
         user:       The user who sent the message
@@ -60,9 +59,16 @@ class rss(Plugin):
 
         # Found rss command without source, show details
         if msg.find(' ') == -1:
-            irc.msg(channel, "Use !rss with one of the following second parameter to specify source:")
+            irc.msg(
+                channel,
+                "Use !rss with one of the following second parameter to " +
+                "specify source:"
+            )
             for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
-                irc.msg(channel, "  %s (%s)" % (feed['name'].lower(), feed['url']))
+                irc.msg(
+                    channel,
+                    "  %s (%s)" % (feed['name'].lower(), feed['url'])
+                )
             return
 
         self.irc = irc
@@ -77,7 +83,8 @@ class rss(Plugin):
         """Process a rss feed an post numberOfEntries
 
         feed:            Dictionary with feed informations
-        numberOfEntries: Number of entries to post. -1 means to post only new entries based on cached informations
+        numberOfEntries: Number of entries to post. -1 means to post
+                         only new entries based on cached informations
         """
 
         if numberOfEntries == -1 and os.path.isfile(feed['cache']):
@@ -99,7 +106,8 @@ class rss(Plugin):
 
         # Feed not successfull retrieved, so stop with error
         if request.status != 200:
-            log.msg("Unknown HTTP status retrieved for feed %s: %d" % (feed['name'], request.status), level=LOG_WARN)
+            log.msg("Unknown HTTP status retrieved for feed %s: %d" %
+                    (feed['name'], request.status), level=LOG_WARN)
 
         # local timezone
         timezoneEF = pytz.timezone('Europe/Berlin')
@@ -127,10 +135,11 @@ class rss(Plugin):
                             last_entry=dt_now)
             return
 
-        # traverse feed entries in reversed order (post oldest first)
+        """Traverses feed entries in reversed order (post oldest first)"""
         for entry in reversed(request.entries):
 
-            # parse date of entry dependent on the feedtype and convert to timestamp
+            """parse date of entry dependent on the feedtype and
+            convert to timestamp"""
             if feed['type'] == 'dokuwiki':
                 dt = parser.parse(entry.date)
             elif feed['type'] == 'wordpress':
@@ -141,18 +150,20 @@ class rss(Plugin):
             dt.astimezone(timezoneEF)
             dt_timestamp = dt.strftime('%s')
 
-            # skip old entries if we would only new entries
+            """skip old entries if we would only new entries"""
             if numberOfEntries == -1 and last_entry_timestamp >= dt_timestamp:
                 continue
 
             # create irc message dependent on the feedtype
             if feed['type'] == 'dokuwiki':
-                message = "%s changed %s" % (entry.author, entry.title.split(" - ", 1)[0])
+                message = "%s changed %s" % (entry.author,
+                                             entry.title.split(" - ", 1)[0])
                 message2 = "(%s)" % entry.link.split("?", 1)[0]
                 if len(entry.title.split(" - ", 1)) == 2:
-                     message += " - comment: %s" % entry.title.split(" - ")[1]
+                    message += " - comment: %s" % entry.title.split(" - ")[1]
             elif feed['type'] == 'wordpress':
-                message = "%s added \"%s\"" % (entry.author, entry.title_detail.value)
+                message = "%s added \"%s\"" % (entry.author,
+                                               entry.title_detail.value)
                 message2 = "(%s)" % entry.link
             elif feed['type'] == 'github':
                 message = "%s pushed a new commit:" % entry.author
@@ -164,8 +175,14 @@ class rss(Plugin):
             # post messages with named prefix
             message = "%s | %s" % (feed['name'].upper(), message)
             message2 = "%s   %s" % (" " * len(feed['name']), message2)
-            self.irc.say(self.channel, unicode(message).encode('utf-8', errors='replace'))
-            self.irc.say(self.channel, unicode(message2).encode('utf-8', errors='replace'))
+            self.irc.say(
+                self.channel,
+                unicode(message).encode('utf-8', errors='replace')
+            )
+            self.irc.say(
+                self.channel,
+                unicode(message2).encode('utf-8', errors='replace')
+            )
 
             if numberOfEntries == -1:
                 self.save_cache(filename=feed['cache'],
