@@ -37,6 +37,5 @@ class messagelogger(Plugin):
     def onAction(self, irc, user, channel, msg):
         self.log("%s: * %s %s" % (channel, user, msg))
 
-    def onIrc_Nick(self, irc):
+    def onIrc_Nick(self, irc, old_nick, new_nick):
         self.log("%s is now know as %s" % (old_nick, new_nick))
-
