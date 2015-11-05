@@ -105,10 +105,6 @@ class ByteBot(irc.IRCClient):
     def action(self, user, channel, msg):
         user = user.split("!", 1)[0]
 
-    def irc_NICK(self, prefix, params):
-        old_nick = prefix.split("!")[0]
-        new_nick = params[0]
-
     def irc_RPL_TOPIC(self, prefix, params):
         self.current_topic = params
 
