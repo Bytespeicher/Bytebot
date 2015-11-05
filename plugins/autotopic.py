@@ -19,7 +19,7 @@ class autotopic(Plugin):
             topic = BYTEBOT_TOPIC
             response = urlopen(BYTEBOT_STATUS_URL)
             data = json.loads(response.read())
-            if data['state']['open'] == True:
+            if data['state']['open'] is True:
                 topic += u' | Space is open'
                 status = 'open'
             else:
