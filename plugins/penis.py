@@ -22,7 +22,7 @@ class penis(Plugin):
 
         try:
             last_penis = irc.last_penis
-        except Exception as e:
+        except Exception:
             last_penis = 0
 
         if last_penis < (time() - 300):

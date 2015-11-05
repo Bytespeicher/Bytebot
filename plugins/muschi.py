@@ -22,7 +22,7 @@ class muschi(Plugin):
 
         try:
             last_muschi = irc.last_muschi
-        except Exception as e:
+        except Exception:
             last_muschi = 0
 
         if last_muschi < (time() - 300):
