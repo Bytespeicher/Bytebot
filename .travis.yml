@@ -21,7 +21,6 @@ notifications:
   irc:
     channels:
       - "ircs:irc.hackint.net:9999#bytespeicher-testing"
-    use_notice: true
     skip_join: true
     template:
       - "%{repository_slug} (%{commit}) : %{message}"
