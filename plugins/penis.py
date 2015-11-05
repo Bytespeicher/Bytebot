@@ -1,8 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from plugins.plugin import Plugin
 from time import time
+
+from plugins.plugin import Plugin
+
 
 class penis(Plugin):
     def __init__(self):
@@ -20,7 +22,7 @@ class penis(Plugin):
 
         try:
             last_penis = irc.last_penis
-        except Exception as e:
+        except Exception:
             last_penis = 0
 
         if last_penis < (time() - 300):

@@ -1,8 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from plugins.plugin import Plugin
 from time import time
+
+from plugins.plugin import Plugin
+
 
 class muschi(Plugin):
     def __init__(self):
@@ -20,7 +22,7 @@ class muschi(Plugin):
 
         try:
             last_muschi = irc.last_muschi
-        except Exception as e:
+        except Exception:
             last_muschi = 0
 
         if last_muschi < (time() - 300):

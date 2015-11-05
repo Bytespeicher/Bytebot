@@ -4,7 +4,6 @@ cache: bundler
 
 python:
   - "2.7"
-  - "3.2"
 
 before_install:
   - git submodule update --init --recursive
