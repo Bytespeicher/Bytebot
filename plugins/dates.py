@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import time
+from datetime import datetime, timedelta
+
+from icalendar import Calendar
+from icalendar.prop import vDDDTypes
+from pytz import utc, timezone
+from urllib import urlopen
+from dateutil.rrule import rruleset, rrulestr
+from dateutil.parser import parse
 
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-from icalendar import Calendar
-from icalendar.prop import vDDDTypes
-from datetime import date, datetime, timedelta
-from pytz import utc, timezone
-from urllib import urlopen
-from dateutil.rrule import *
-from dateutil.parser import *
 
 
 class dates(Plugin):

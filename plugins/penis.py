@@ -1,8 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from plugins.plugin import Plugin
 from time import time
+
+from plugins.plugin import Plugin
+
 
 class penis(Plugin):
     def __init__(self):

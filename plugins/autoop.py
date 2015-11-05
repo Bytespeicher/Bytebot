@@ -4,7 +4,8 @@
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from twisted.python import log
-from bytebot_log    import LOG_INFO, LOG_WARN
+from bytebot_log import LOG_INFO, LOG_WARN
+
 
 class autoop(Plugin):
     def onIrc_JOIN(self, irc, prefix, params):

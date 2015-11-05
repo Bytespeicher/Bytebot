@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
-from urllib         import urlopen
-
 import json
 import re
+from urllib import urlopen
+
+from plugins.plugin import Plugin
+from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
+
 
 class autotopic(Plugin):
 

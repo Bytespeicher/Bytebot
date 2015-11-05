@@ -4,6 +4,7 @@
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from plugins.plugin import Plugin
 
+
 class ircquestions(Plugin):
     def __init__(self):
         pass

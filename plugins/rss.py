@@ -2,16 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import time
-import feedparser
 import os
 import datetime
-import pytz
 
+import feedparser
+import pytz
 from twisted.python import log
-from dateutil       import parser
+from dateutil import parser
+
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG, BYTEBOT_CHANNEL
-from bytebot_log    import LOG_WARN
+from bytebot_log import LOG_WARN
+
 
 class rss(Plugin):
     def __init__(self):
