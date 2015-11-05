@@ -1,6 +1,6 @@
 language: python
 sudo: false
-cache: bundler
+cache: pip
 
 python:
   - "2.7"
