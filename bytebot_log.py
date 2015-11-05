@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+from twisted.python import log
+
 LOG_DEBUG = 0b0001
 LOG_INFO = 0b0010
 LOG_WARN = 0b0100
 LOG_ERROR = 0b1000
 
-from twisted.python import log
 
 class BytebotLogObserver(log.FileLogObserver):
     def __init__(self, f, level=LOG_ERROR):
