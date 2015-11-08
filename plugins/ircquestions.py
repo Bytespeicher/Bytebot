@@ -4,6 +4,7 @@
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from plugins.plugin import Plugin
 
+
 class ircquestions(Plugin):
     def __init__(self):
         pass
@@ -34,8 +35,11 @@ class ircquestions(Plugin):
 
         try:
             question = msg.split(' ')[1]
-        except IndexError as e:
-            irc.msg(channel, "Sorry, das habe ich nicht verstanden. Versuch doch mal !help")
+        except IndexError:
+            irc.msg(
+                channel,
+                "Sorry, das habe ich nicht verstanden. Versuch doch mal !help"
+            )
             return
 
         if question in BYTEBOT_PLUGIN_CONFIG['ircquestions']:

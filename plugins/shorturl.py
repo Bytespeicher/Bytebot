@@ -75,8 +75,8 @@ class shorturl(Plugin):
 
     def onPrivmsg(self, irc, msg, channel, user):
         try:
-            url = re.findall(
-                'http[s]?://(?:[^\s]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)[0]
+            url = re.findall("http[s]?://(?:[^\s]|[0-9]|[$-_@.&+]|[!*\(\),]|" +
+                             "(?:%[0-9a-fA-F][0-9a-fA-F]))+", msg)[0]
             try:
                 short_function = getattr(self, BYTEBOT_PLUGIN_CONFIG[
                                          'shorturl']['shortener'])

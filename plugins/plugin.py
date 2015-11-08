@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+
 class Plugin(object):
     """
     This class is a skeleton plugin class defining event hooks on which

@@ -1,26 +1,17 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import sys
-import re
-import inspect
-import json
-import resource
-import ssl
+from twisted.words.protocols import irc
+from twisted.internet import reactor, protocol, ssl, task
+from twisted.python import logfile, log
 
-try:
-    from urllib.request         import urlopen
-except ImportError:
-    from urllib                 import urlopen
+from bytebot_config import BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL, \
+    BYTEBOT_SSL, BYTEBOT_PORT, BYTEBOT_SERVER, BYTEBOT_PLUGINS, \
+    BYTEBOT_LOGPATH, BYTEBOT_LOGLEVEL
+from bytebotpluginloader import ByteBotPluginLoader
+from bytebot_log import BytebotLogObserver, LOG_ERROR, LOG_INFO, LOG_WARN, \
+    LOG_DEBUG
 
-from bytebot_config             import *
-from bytebotpluginloader        import ByteBotPluginLoader
-from time                       import time
-from bytebot_log                import *
-
-from twisted.words.protocols    import irc
-from twisted.internet           import reactor, protocol, ssl, task
-from twisted.python             import logfile, log
 
 class ByteBot(irc.IRCClient):
 
@@ -37,11 +28,10 @@ class ByteBot(irc.IRCClient):
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
-        self.factory.plugins.run('registerCommand',
-                                 {
-                                    'irc': self
-                                 }
-                                )
+        self.factory.plugins.run(
+            'registerCommand',
+            {'irc': self}
+        )
 
     def connectionLost(self, reason):
         irc.IRCClient.connectionLost(self, reason)
@@ -72,7 +62,10 @@ class ByteBot(irc.IRCClient):
 
         if channel == self.nickname:
             """ User whispering to the bot"""
-            self.msg(user, "I don't usually whisper back. But when I do, it's to you.")
+            self.msg(
+                user,
+                "I don't usually whisper back. But when I do, it's to you."
+            )
             return
 
         if msg.startswith(self.nickname + ":"):
@@ -112,10 +105,6 @@ class ByteBot(irc.IRCClient):
     def action(self, user, channel, msg):
         user = user.split("!", 1)[0]
 
-    def irc_NICK(self, prefix, params):
-        old_nick = prefix.split("!")[0]
-        new_nick = params[0]
-
     def irc_RPL_TOPIC(self, prefix, params):
         self.current_topic = params
 
@@ -151,6 +140,7 @@ class ByteBot(irc.IRCClient):
         self.dayCron = task.LoopingCall(runPerDay)
         self.dayCron.start(86400.0)
 
+
 class ByteBotFactory(protocol.ClientFactory):
 
     def __init__(self, nickname, password, channel):
@@ -181,18 +171,26 @@ if __name__ == '__main__':
     log_info = logfile.LogFile("bytebot.log", BYTEBOT_LOGPATH,
                                rotateLength=10000000, maxRotatedFiles=100)
 
-    logger_error = BytebotLogObserver(log_error,
-                            (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN))
-    logger_info = BytebotLogObserver(log_info,
-                            (BYTEBOT_LOGLEVEL & ~LOG_ERROR))
+    logger_error = BytebotLogObserver(
+        log_error,
+        (BYTEBOT_LOGLEVEL & ~LOG_INFO & ~LOG_DEBUG & ~LOG_WARN)
+    )
+    logger_info = BytebotLogObserver(
+        log_info,
+        (BYTEBOT_LOGLEVEL & ~LOG_ERROR)
+    )
 
     log.addObserver(logger_error.emit)
     log.addObserver(logger_info.emit)
 
     f = ByteBotFactory(BYTEBOT_NICK, BYTEBOT_PASSWORD, BYTEBOT_CHANNEL)
-    if BYTEBOT_SSL == True:
-        reactor.connectSSL(BYTEBOT_SERVER, int(BYTEBOT_PORT), f, ssl.ClientContextFactory())
+    if BYTEBOT_SSL is True:
+        reactor.connectSSL(
+            BYTEBOT_SERVER,
+            int(BYTEBOT_PORT),
+            f,
+            ssl.ClientContextFactory()
+        )
     else:
         reactor.connectTCP(BYTEBOT_SERVER, int(BYTEBOT_PORT), f)
     reactor.run()
-

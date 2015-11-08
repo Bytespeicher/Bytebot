@@ -1,12 +1,19 @@
+language: python
+sudo: false
+cache: pip
+
 python:
   - "2.7"
-  - "3.2"
-  - "3.3"
 
 before_install:
   - git submodule update --init --recursive
+  - pip install flake8
 
-install: true
+install:
+  - pip install -r contrib/requirements.txt
+
+script:
+  - flake8 .
 
 git:
   submodules: false
@@ -14,7 +21,8 @@ git:
 notifications:
   irc:
     channels:
-      - "irc.hackint.net#bytespeicher-testing"
+      - "ircs:irc.hackint.net:9999#bytespeicher-testing"
+    skip_join: true
     template:
       - "%{repository_slug} (%{commit}) : %{message}"
       - "Mehr zum Test: %{build_url}"

@@ -38,7 +38,7 @@ class mensa(Plugin):
 
         try:
             last_mensa = irc.last_mensa
-        except Exception as e:
+        except Exception:
             last_mensa = 0
 
         if last_mensa < (time() - 60):

@@ -1,4 +1,4 @@
-[![GitHub issues](https://img.shields.io/github/issues/Bytespeicher/Bytebot.svg?style=flat)](https://github.com/Bytespeicher/Bytebot/issues) 
+[![Build Status](https://travis-ci.org/Bytespeicher/Bytebot.svg?branch=master)](https://travis-ci.org/Bytespeicher/Bytebot)
 [![Codacy](https://img.shields.io/codacy/de9188fbea554501b247e1fac75346c9.svg?style=flat)](https://www.codacy.com/public/info_4/Bytebot)
 
 # Plugins

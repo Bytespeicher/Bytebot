@@ -1,0 +1,16 @@
+[Unit]
+Description=Bytespeicher IRC botno bytebot.service
+After=network-online.target
+After=syslog.service
+Requires=network-online.target
+Requires=syslog.service
+
+[Service]
+User=bytebot
+Group=bytebot
+Restart=all
+ExecStart=/home/bytebot/Bytebot/env/bin/python /home/bytebot/Bytebot/bytebot.py
+MemoryLimit=256M
+
+[Install]
+WantedBy=multi-user.target
