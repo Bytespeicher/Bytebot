@@ -8,9 +8,7 @@ from bs4 import BeautifulSoup
 from plugins.plugin import Plugin
 from time import time
 
-from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-
+from bytebot_config import BYTEBOT_HTTP_TIMEOUT
 
 class station(Plugin):
 
@@ -42,7 +40,7 @@ class station(Plugin):
             '&start=Anzeigen'
 
         req = urllib2.Request(url, data)
-        response = urllib2.urlopen(req)
+        response = urllib2.urlopen(req, timeout=BYTEBOT_HTTP_TIMEOUT)
 
         soup = BeautifulSoup(response.read(), 'html.parser')
 
@@ -55,9 +53,15 @@ class station(Plugin):
         ret = []
 
         for i in range(number_of_results):
-            ret.append({'time': time[i].text.encode('utf-8').strip(),
-                        'product': product[i].text.encode('utf-8').strip().replace("    ", " "),
-                        'timetable': timetable[i].find('a').text.encode('utf-8').strip()})
+            ret_time = time[i].text.encode('utf-8').strip()
+            ret_product = product[i].text.encode('utf-8').strip()
+            ret_product = ret_product.replace("    ", " ")
+            ret_timetable = timetable[i].find('a').text.encode('utf-8').strip()
+
+            ret.append(
+                {'time': ret_time,
+                 'product': ret_product,
+                 'timetable': ret_timetable})
 
         return name, ret
 
