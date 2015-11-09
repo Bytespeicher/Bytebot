@@ -55,12 +55,9 @@ class station(Plugin):
         ret = []
 
         for i in range(number_of_results):
-            try:
-                ret.append({'time': time[i].text.encode('utf-8').strip(),
-                            'product': product[i].text.encode('utf-8').strip().replace("    ", " "),
-                            'timetable': timetable[i].find('a').text.encode('utf-8').strip()})
-            except Exception as e:
-                #Ups should not happen, if e happens just do nothing brobot
+            ret.append({'time': time[i].text.encode('utf-8').strip(),
+                        'product': product[i].text.encode('utf-8').strip().replace("    ", " "),
+                        'timetable': timetable[i].find('a').text.encode('utf-8').strip()})
 
         return name, ret
 
