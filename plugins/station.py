@@ -10,6 +10,7 @@ from time import time
 
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT
 
+
 class station(Plugin):
 
     def __init__(self):
