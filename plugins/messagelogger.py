@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import time
+
 from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
-import time
 
 class messagelogger(Plugin):
     def __init__(self):
@@ -36,6 +37,5 @@ class messagelogger(Plugin):
     def onAction(self, irc, user, channel, msg):
         self.log("%s: * %s %s" % (channel, user, msg))
 
-    def onIrc_Nick(self, irc):
+    def onIrc_Nick(self, irc, old_nick, new_nick):
         self.log("%s is now know as %s" % (old_nick, new_nick))
-

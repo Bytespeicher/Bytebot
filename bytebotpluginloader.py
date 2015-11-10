@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from sys                import exit
-from twisted.internet   import reactor
-from bytebot_log        import *
-from twisted.python     import log
+from sys import exit
+from twisted.internet import reactor
+from bytebot_log import LOG_DEBUG, LOG_WARN, LOG_ERROR
+from twisted.python import log
+
 
 class ByteBotPluginLoader(object):
     """This class enables automatic loading and method calling for plugin
@@ -62,7 +63,9 @@ class ByteBotPluginLoader(object):
                             level=LOG_DEBUG)
                     reactor.callInThread(method, **args)
             except Exception as e:
-                log.msg("WARNING: An error occured while executing %s in %s with %s" %
-                        (fn, plugin, args),
-                        level=LOG_WARN)
+                log.msg(
+                    "WARNING: An error occured while executing %s in %s " +
+                    "with %s" % (fn, plugin, args),
+                    level=LOG_WARN
+                )
                 log.msg("WARNING: %s" % e, level=LOG_DEBUG)

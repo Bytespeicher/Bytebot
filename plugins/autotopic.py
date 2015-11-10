@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
-from urllib         import urlopen
-
 import json
 import re
+from urllib import urlopen
+
+from plugins.plugin import Plugin
+from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
+
 
 class autotopic(Plugin):
 
@@ -18,7 +19,7 @@ class autotopic(Plugin):
             topic = BYTEBOT_TOPIC
             response = urlopen(BYTEBOT_STATUS_URL)
             data = json.loads(response.read())
-            if data['state']['open'] == True:
+            if data['state']['open'] is True:
                 topic += u' | Space is open'
                 status = 'open'
             else:
@@ -32,7 +33,10 @@ class autotopic(Plugin):
                 old_status = "closed"
 
             if old_status != status:
-                irc.topic(BYTEBOT_CHANNEL, unicode(topic).encode('utf-8', errors='replace'))
+                irc.topic(
+                    BYTEBOT_CHANNEL,
+                    unicode(topic).encode('utf-8', errors='replace')
+                )
                 irc.topic(BYTEBOT_CHANNEL)
         except Exception as e:
             print(e)
