@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+from time import time
 import urllib2
 from datetime import datetime, timedelta
+
 from bs4 import BeautifulSoup
 
 from plugins.plugin import Plugin
-from time import time
-
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT
 
 
@@ -75,7 +75,7 @@ class station(Plugin):
 
         try:
             last_station = irc.last_station
-        except Exception as e:
+        except Exception:
             last_station = 0
 
         if last_station < (time() - 60):
@@ -92,8 +92,7 @@ class station(Plugin):
 
                 irc.last_station = time()
 
-            except Exception as e:
-                print(e)
+            except Exception:
                 irc.msg(channel, 'Error while fetching data.')
         else:
             irc.msg(channel, "Don't overdo it ;)")

@@ -8,7 +8,8 @@ Requires=syslog.service
 [Service]
 User=bytebot
 Group=bytebot
-Restart=all
+Restart=always
+RestartSec=30
 ExecStart=/home/bytebot/Bytebot/env/bin/python /home/bytebot/Bytebot/bytebot.py
 MemoryLimit=256M
 
