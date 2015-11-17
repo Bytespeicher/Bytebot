@@ -109,7 +109,8 @@ class dates(Plugin):
                     ical_dtstart = (ev.get("DTSTART")).to_ical()
                     ical_rrule = (ev.get('RRULE')).to_ical()
                     rset.rrule(rrulestr(ical_rrule,
-                                        dtstart=parse(ical_dtstart)))
+                                        dtstart=parse(ical_dtstart),
+                                        ignoretz=1))
 
                     """
                     the ruleset now may be used to calculate any datetime
