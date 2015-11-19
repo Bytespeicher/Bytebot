@@ -93,12 +93,14 @@ class dates(Plugin):
                 the string containing location info may be too long
                 to be viewed nicely in IRC. Since there exits no
                 good solution for this, this feature is coming soon.
+                """
 
                 if "LOCATION" in ev:
-                    loc = ev["LOCATION"]
+                    loc = ev["LOCATION"].encode("utf8")
                 else:
-                    loc = "Liebknechtstrasse 8"
+                    loc = "vermutlich Liebknechtstrasse 8"
 
+                """
                 Recurrence handling starts here.
                 First, we check if there is a recurrence rule (RRULE)
                 inside the VEVENT, If so, we use the ical like
@@ -181,7 +183,8 @@ class dates(Plugin):
         events, print some message about this...
         """
         for ev in data:
-            irc.msg(channel, "  %s - %s" % (ev['datetime'], ev['info']))
+            irc.msg(channel, "  %s - %s (%s)" % (ev['datetime'], ev['info'], 
+                     ev['loc']))
 
         if found == 0:
             irc.msg(channel, "No dates during the next week")
