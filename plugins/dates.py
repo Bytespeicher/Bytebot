@@ -183,8 +183,8 @@ class dates(Plugin):
         events, print some message about this...
         """
         for ev in data:
-            irc.msg(channel, "  %s - %s (%s)" % (ev['datetime'], ev['info'], 
-                     ev['loc']))
+            irc.msg(channel, "  %s - %s (%s)" % (ev['datetime'], ev['info'],
+                                                 ev['loc']))
 
         if found == 0:
             irc.msg(channel, "No dates during the next week")
