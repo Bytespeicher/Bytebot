@@ -3,7 +3,7 @@
 
 import urllib2
 import json
-from time import time, strftime
+from time import time
 
 from plugins.plugin import Plugin
 
@@ -62,12 +62,11 @@ class fuel(Plugin):
                 irc.msg(channel, "Error while fetching data.")
 
             if len(data) == 0:
-                irc.msg(channel, "'I'm sorry tankerkoenig.de has no fuel data.")
+                irc.msg(channel, "'I'm sorry, no fuel data.")
                 return
 
             messages = []
             for x in range(len(data['stations'])):
-                name = data[u'stations'][x][u"name"]
                 brand = data[u'stations'][x][u"brand"]
                 station_id = data['stations'][x][u"id"]
                 postCode = data['stations'][x][u"postCode"]
