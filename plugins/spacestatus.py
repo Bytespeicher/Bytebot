@@ -28,9 +28,9 @@ class spacestatus(Plugin):
 
                 irc.msg(channel, 'Space status:')
                 if data['state']['open']:
-                    irc.msg(channel, '\tDer Space ist offen!')
+                    irc.msg(channel, '\tDer Space ist offen! ' + str(data['status']))
                 else:
-                    irc.msg(channel, '\tDer Space ist geschlossen!')
+                    irc.msg(channel, '\tDer Space ist geschlossen! ' + str(data['status']))
             except Exception:
                 irc.msg(channel, '\tFehler beim Abrufen des Status')
 
