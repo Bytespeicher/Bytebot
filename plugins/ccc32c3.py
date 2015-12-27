@@ -7,7 +7,7 @@ from time import time
 
 from plugins.plugin import Plugin
 
-with open("events.json") as json_file:
+with open("data/events_32c3.json") as json_file:
     json_data = json.load(json_file)
 
 
