@@ -42,7 +42,13 @@ class ccc32c3(Plugin):
                      0:-6], "%Y-%m-%dT%H:%M:%S") - datetime.datetime.now())
 
                 if(z.days >= 0):
-                    if(datetime.datetime.strptime(event['date'][0:-6], "%Y-%m-%dT%H:%M:%S") < datetime.datetime.strptime(next_playing['date'][0:-6], "%Y-%m-%dT%H:%M:%S")):
+                    if(datetime.datetime.strptime(
+                            event['date'][0:-6],
+                            "%Y-%m-%dT%H:%M:%S") <
+                       datetime.datetime.strptime(
+                            next_playing['date'][0:-6],
+                            "%Y-%m-%dT%H:%M:%S")):
+
                         next_playing = event
 
         return now_playing, next_playing
@@ -58,45 +64,56 @@ class ccc32c3(Plugin):
         self.irc = irc
         self.channel = channel
 
-        try:
-            last_ccc32c3 = irc.last_ccc32c3
-        except Exception:
-            last_ccc32c3 = 0
-
         if msg.find("now") != -1:
             now, next = self.get_plays("Hall 1")
             irc.msg(channel, ("Hall 1: " +
-                              self.conv(now['date']) + " " + now['title']).encode("utf-8", "ignore"))
+                              self.conv(now['date']) + 
+                              " " + 
+                              now['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
-                              self.conv(now['date']) + " " + now['title']).encode("utf-8", "ignore"))
+                              self.conv(now['date']) + 
+                              " " + 
+                              now['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
-                              self.conv(now['date']) + " " + now['title']).encode("utf-8", "ignore"))
+                              self.conv(now['date']) + 
+                              " " + 
+                              now['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
-                              self.conv(now['date']) + " " + now['title']).encode("utf-8", "ignore"))
+                              self.conv(now['date']) + 
+                              " " + 
+                              now['title']).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
 
         if msg.find("next") != -1:
             now, next = self.get_plays("Hall 1")
             irc.msg(channel, ("Hall 1: " +
-                              self.conv(next['date']) + " " + next['title']).encode("utf-8", "ignore"))
+                              self.conv(next['date']) + 
+                              " " + 
+                              next['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
-                              self.conv(next['date']) + " " + next['title']).encode("utf-8", "ignore"))
+                              self.conv(next['date']) + 
+                              " " + 
+                              next['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
-                              self.conv(next['date']) + " " + next['title']).encode("utf-8", "ignore"))
+                              self.conv(next['date']) + 
+                              " " + 
+                              next['title']).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
-                              self.conv(next['date']) + " " + next['title']).encode("utf-8", "ignore"))
+                              self.conv(next['date']) + 
+                              " " + 
+                              next['title']).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
