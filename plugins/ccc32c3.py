@@ -8,10 +8,9 @@ from time import time
 
 from plugins.plugin import Plugin
 
-path = os.path.dirname(os.path.abspath(__file__)
-                       ) + "\..\data\events_32c3.json"
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
-with open(path) as json_file:
+with open(BYTEBOT_PLUGIN_CONFIG['ccc32c3']['events_json_path']) as json_file:
     json_data = json.load(json_file)
 
 

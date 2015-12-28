@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import bytebot_log
+import os
 
 BYTEBOT_LOGLEVEL    = bytebot_log.LOG_ERROR | bytebot_log.LOG_WARN
 BYTEBOT_LOGPATH     = '/var/log/bytebot/'
@@ -33,7 +34,8 @@ BYTEBOT_PLUGINS= [
     'shorturl',
     'dates',
     'rss',
-    'parking'
+    'parking',
+    'ccc32c3'
 ]
 
 BYTEBOT_PLUGIN_CONFIG = {
@@ -103,5 +105,9 @@ BYTEBOT_PLUGIN_CONFIG = {
     },
     'fuel': {
         'apikey': 'thiswoudbeyourapikey',
-    }
+    },
+    'ccc32c3': {
+        'events_json_path': os.path.dirname(os.path.abspath(__file__)
+                       ) + "/data/events_32c3.json",
+    },
 }
