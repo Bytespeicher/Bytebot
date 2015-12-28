@@ -8,7 +8,8 @@ from time import time
 
 from plugins.plugin import Plugin
 
-path = os.path.dirname(os.path.abspath(__file__)) + "\..\data\events_32c3.json"
+path = os.path.dirname(os.path.abspath(__file__)
+    ) + "\..\data\events_32c3.json"
 
 with open(path) as json_file:
     json_data = json.load(json_file)
@@ -79,32 +80,36 @@ class ccc32c3(Plugin):
                               self.conv(now['date']) +
                               " " +
                               now['title'] +
-                              " " + 
-                              self.getLineOfPersons(now)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
                               self.conv(now['date']) +
                               " " +
                               now['title'] +
-                              " " + 
-                              self.getLineOfPersons(now)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
                               self.conv(now['date']) +
                               " " +
                               now['title'] +
-                              " " + 
-                              self.getLineOfPersons(now)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
                               self.conv(now['date']) +
                               " " +
                               now['title'] +
-                              " " + 
-                              self.getLineOfPersons(now)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
 
@@ -114,31 +119,35 @@ class ccc32c3(Plugin):
                               self.conv(next['date']) +
                               " " +
                               next['title'] +
-                              " " + 
-                              self.getLineOfPersons(next)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
                               self.conv(next['date']) +
                               " " +
                               next['title'] +
-                              " " + 
-                              self.getLineOfPersons(next)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
                               self.conv(next['date']) +
                               " " +
                               next['title'] +
-                              " " + 
-                              self.getLineOfPersons(next)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
                               self.conv(next['date']) +
                               " " +
                               next['title'] +
-                              " " + 
-                              self.getLineOfPersons(next)).encode("utf-8", "ignore"))
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
