@@ -1,13 +1,17 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import os
 import json
 import datetime
 from time import time
 
 from plugins.plugin import Plugin
 
-with open("data/events_32c3.json") as json_file:
+path = os.path.dirname(os.path.abspath(__file__)
+                       ) + "\..\data\events_32c3.json"
+
+with open(path) as json_file:
     json_data = json.load(json_file)
 
 
@@ -28,16 +32,16 @@ class ccc32c3(Plugin):
             'conference']['days'][0]['rooms'][hall][0]
         next_playing['date'] = "2099-12-31T23:59:59+01:00"
 
-        for x in json_data['schedule']['conference']['days']:
+        for days in json_data['schedule']['conference']['days']:
 
-            for event in x['rooms'][hall]:
+            for event in days['rooms'][hall]:
                 z = (datetime.datetime.strptime(event['date'][
                      0:-6], "%Y-%m-%dT%H:%M:%S") - datetime.datetime.now())
 
                 if(z.days < 0):
                     now_playing = event
 
-            for event in x['rooms'][hall]:
+            for event in days['rooms'][hall]:
                 z = (datetime.datetime.strptime(event['date'][
                      0:-6], "%Y-%m-%dT%H:%M:%S") - datetime.datetime.now())
 
@@ -57,6 +61,12 @@ class ccc32c3(Plugin):
         x = datetime.datetime.strptime(t[0:-6], "%Y-%m-%dT%H:%M:%S")
         return x.strftime("%H:%M")
 
+    def getLineOfPersons(self, event):
+        line = ""
+        for persons in event['persons']:
+            line += "@" + persons['public_name'] + " "
+        return line
+
     def onPrivmsg(self, irc, msg, channel, user):
         if msg.find("!32c3") == -1:
             return
@@ -69,25 +79,37 @@ class ccc32c3(Plugin):
             irc.msg(channel, ("Hall 1: " +
                               self.conv(now['date']) +
                               " " +
-                              now['title']).encode("utf-8", "ignore"))
+                              now['title'] +
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
                               self.conv(now['date']) +
                               " " +
-                              now['title']).encode("utf-8", "ignore"))
+                              now['title'] +
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
                               self.conv(now['date']) +
                               " " +
-                              now['title']).encode("utf-8", "ignore"))
+                              now['title'] +
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
                               self.conv(now['date']) +
                               " " +
-                              now['title']).encode("utf-8", "ignore"))
+                              now['title'] +
+                              " " +
+                              self.getLineOfPersons(now)
+                              ).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
 
@@ -96,24 +118,36 @@ class ccc32c3(Plugin):
             irc.msg(channel, ("Hall 1: " +
                               self.conv(next['date']) +
                               " " +
-                              next['title']).encode("utf-8", "ignore"))
+                              next['title'] +
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 2")
             irc.msg(channel, ("Hall 2: " +
                               self.conv(next['date']) +
                               " " +
-                              next['title']).encode("utf-8", "ignore"))
+                              next['title'] +
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall G")
             irc.msg(channel, ("Hall G: " +
                               self.conv(next['date']) +
                               " " +
-                              next['title']).encode("utf-8", "ignore"))
+                              next['title'] +
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             now, next = self.get_plays("Hall 6")
             irc.msg(channel, ("Hall 6: " +
                               self.conv(next['date']) +
                               " " +
-                              next['title']).encode("utf-8", "ignore"))
+                              next['title'] +
+                              " " +
+                              self.getLineOfPersons(next)
+                              ).encode("utf-8", "ignore"))
 
             irc.last_ccc32c3 = time()
