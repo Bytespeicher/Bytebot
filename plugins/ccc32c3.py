@@ -9,7 +9,7 @@ from time import time
 from plugins.plugin import Plugin
 
 path = os.path.dirname(os.path.abspath(__file__)
-    ) + "\..\data\events_32c3.json"
+                       ) + "\..\data\events_32c3.json"
 
 with open(path) as json_file:
     json_data = json.load(json_file)
