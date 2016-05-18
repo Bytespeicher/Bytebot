@@ -80,12 +80,12 @@ class fuel(Plugin):
                 if brand == '':
                     brand = 'GLOBUS'
 
-                print_str = u"   {:20}".format(brand + ', ' + str(postCode) + ': ') + \
+                msg = u"   {:20}".format('%s, %s: ' % (brand, postCode)) + \
                     u"{:5}  ".format(e5) + \
                     u"{:5}  ".format(e10) + \
                     u"{:5}  ".format(diesel)
 
-                messages.append(print_str)
+                messages.append(msg)
 
             headline = u"{:23}".format('fuel prices:') + \
                 u"{:6} ".format('e5') + \
