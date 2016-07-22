@@ -48,7 +48,7 @@ class station(Plugin):
         station_name = soup.find_all('span', {"class": "output"})
         time = soup.find_all('td', {"class": "time"})
         product = soup.find_all('td', {"class": "product"})
-        timetable = soup.find_all('td', {"class": "timetable"})
+        timetable = soup.find_all('strong', {"class": "startDestination"})
 
         name = station_name[0].text.encode('utf-8').strip()
         ret = []
