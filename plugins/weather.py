@@ -32,7 +32,7 @@ class weather(Plugin):
         except Exception:
             last_weather = 0
 
-        if last_weather < (time() - 300):
+        if last_weather < (time() - 5):
             config = BYTEBOT_PLUGIN_CONFIG['weather']
             url = config['url'] + config['location'] + \
                 '&appid=%s' % config['api_key']
