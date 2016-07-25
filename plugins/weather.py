@@ -32,19 +32,31 @@ class weather(Plugin):
         except Exception:
             last_weather = 0
 
-        if last_weather < (time() - 300):
+        if last_weather < (time() - 5):
             config = BYTEBOT_PLUGIN_CONFIG['weather']
-            url = config['url'] + config['location'] + \
-                '&appid=%s' % config['api_key']
+
+            if msg.find(' ') == -1:
+                location = config['location']
+            else:
+                location = "".join(msg.split(' ')[1:])
+
+            url = config['url'] + location + '&appid=%s' % config['api_key']
             r = requests.get(url)
 
             if r.status_code != 200:
-                irc.msg('Error while retrieving weather data')
+                irc.msg(channel, 'Error while retrieving weather data')
                 return
 
-            temp = r.json()["main"]["temp"]
+            try:
+                j = r.json()
+                temp = j["main"]["temp"]
+                location = "%s,%s" % (j["name"].encode('utf-8'),
+                                      j["sys"]["country"].encode('utf-8'))
+            except KeyError:
+                irc.msg(channel, "Error while retrieving weather data")
+                return
 
-            irc.msg(channel, "We have now %2.2f °C in Erfurt" % temp)
+            irc.msg(channel, "We have now %2.2f °C in %s" % (temp, location))
             irc.last_weather = time()
         else:
             irc.msg(channel, "Don't overdo it ;)")
