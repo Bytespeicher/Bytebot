@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import chardet
 from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, ssl, task
 from twisted.python import logfile, log
@@ -22,6 +23,13 @@ class ByteBot(irc.IRCClient):
     channel = BYTEBOT_CHANNEL
 
     plugins = {}
+
+    def msg(self, user, message, length=None):
+        charset = chardet.detect(message)
+        if charset['encoding'] != 'UTF-8' and charset['confidence'] > 0.9:
+            message = message.decode(charset['encoding']).encode('utf-8')
+
+        irc.IRCClient.msg(self, user, message, length)
 
     def registerCommand(self, name, description=''):
         self.plugins[name] = description
