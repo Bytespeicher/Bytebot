@@ -25,9 +25,12 @@ class ByteBot(irc.IRCClient):
     plugins = {}
 
     def msg(self, user, message, length=None):
-        charset = chardet.detect(message)
-        if charset['encoding'] != 'UTF-8' and charset['confidence'] > 0.9:
-            message = message.decode(charset['encoding']).encode('utf-8')
+        if isinstance(message, unicode):
+            message = message.encode('utf-8')
+        else:
+            charset = chardet.detect(message)
+            if charset['encoding'] != 'UTF-8' and charset['confidence'] > 0.9:
+                message = message.decode(charset['encoding']).encode('utf-8')
 
         irc.IRCClient.msg(self, user, message, length)
 
