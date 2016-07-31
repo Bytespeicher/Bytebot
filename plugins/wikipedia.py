@@ -30,7 +30,7 @@ class wikipedia(Plugin):
             irc.msg(channel, 'usage: !wiki TOPIC')
             return
         else:
-            request = "".join(msg.split(' ')[1:])
+            request = " ".join(msg.split(' ')[1:])
 
         url = config['url'] + request
         try:
