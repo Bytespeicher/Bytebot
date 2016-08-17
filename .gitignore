@@ -1,7 +1,17 @@
-bytebot_config.py
-*.swp
-*.swo
+# Local / temporary Python files
 __pycache__
 *.pyc
-bytebot_config.py
 env/
+env3/
+
+# Configuration
+bytebot_config.py
+config.ini
+
+# Temporary project files
+logs/
+
+# Vim
+*.swp
+*.swo
+.ropeproject/
