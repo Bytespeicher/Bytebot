@@ -16,7 +16,7 @@ def weather(bot, mask, target, args):
     """
     config = BYTEBOT_PLUGIN_CONFIG['weather']
 
-    if '<city>' not in args:
+    if '<city>' not in args or len(args['<city>']) < 1:
         location = config['location']
     else:
         location = " ".join(args['<city>'])
