@@ -35,10 +35,13 @@ def weather(bot, mask, target, args):
     try:
         j = json.loads(r.decode('utf-8'))
         temp = j["main"]["temp"]
+        humidity = j["main"]["humidity"]
         location = "%s,%s" % (j["name"],
                               j["sys"]["country"])
+        info = j["weather"][0]["description"]
     except KeyError:
         bot.privmsg(target, "Error while retrieving weather data")
         raise Exception()
 
-    return "It's %2.2f °C in %s" % (temp, location)
+    return "It's %s with %2.2f °C and %d%% humidity in %s" % (
+        info, temp, humidity, location)
