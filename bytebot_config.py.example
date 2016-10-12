@@ -1,75 +1,46 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-import bytebot_log
 import os
 
-BYTEBOT_LOGLEVEL    = bytebot_log.LOG_ERROR | bytebot_log.LOG_WARN
-BYTEBOT_LOGPATH     = '/var/log/bytebot/'
-
-BYTEBOT_SERVER      = ""
-BYTEBOT_PORT        = 6667
-BYTEBOT_SSL         = True
-BYTEBOT_NICK        = ""
-BYTEBOT_PASSWORD    = ""
-BYTEBOT_CHANNEL     = ""
-BYTEBOT_DESCRIPTION = ""
-
-BYTEBOT_TOPIC       = u''
-
-BYTEBOT_STATUS_URL  = 'http://status.bytespeicher.org/status.json'
+BYTEBOT_STATUS_URL = 'http://status.bytespeicher.org/status.json'
 
 BYTEBOT_HTTP_TIMEOUT = 3
 BYTEBOT_HTTP_MAXSIZE = 1024 * 1024 * 10
 
-"""
-Enable plugins by writing their lowercase name here
-"""
-BYTEBOT_PLUGINS= [
-    'usercount',
-    'messagelogger',
-    'autoop',
-    'spacestatus',
-    'ircquestions',
-    'shorturl',
-    'dates',
-    'rss',
-    'parking',
-    'ccc32c3'
-]
-
 BYTEBOT_PLUGIN_CONFIG = {
     'rss': [
-          { 'name': 'Wiki',
-            'url':  'http://www.technikkultur-erfurt.de/feed.php',
-            'cache':'/tmp/feed_wiki.cache',
+        {
+            'name': 'Wiki',
+            'url': 'http://www.technikkultur-erfurt.de/feed.php',
+            'cache': '/tmp/feed_wiki.cache',
             'type': 'dokuwiki',
-          },
-          { 'name': 'Website',
+        },
+        {
+            'name': 'Website',
             'url':  'https://bytespeicher.org/feed/',
-            'cache':'/tmp/feed_website.cache',
+            'cache': '/tmp/feed_website.cache',
             'type': 'wordpress',
-          },
-          { 'name': 'BytebotCommits',
-            'url':  'https://github.com/Bytespeicher/Bytebot/commits/master.atom',
-            'cache':'/tmp/feed_bytebot.cache',
+        },
+        {
+            'name': 'BytebotCommits',
+            'url': 'https://github.com/Bytespeicher/Bytebot/commits/master.atom',
+            'cache': '/tmp/feed_bytebot.cache',
             'type': 'github',
-          },
-          { 'name': 'Redmine',
+        },
+        {
+            'name': 'Redmine',
             'url':  'http://redmine.bytespeicher.org/issues.atom',
-            'cache':'/tmp/feed_rm_bytespeicher.cache',
+            'cache': '/tmp/feed_rm_bytespeicher.cache',
             'type': 'redmine',
-          },
+        },
     ],
     'dates': {
-        'url':      'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
+        'url': 'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
         'timedelta': 21
     },
     'messagelogger': {
-        'file':     '/tmp/irc.log'
+        'file': '/tmp/irc.log'
     },
     'usercount': {
-        'file':     '/tmp/irc_user.log'
+        'file': '/tmp/irc_user.log'
     },
     'autoop': {
         'name': {
@@ -87,14 +58,14 @@ BYTEBOT_PLUGIN_CONFIG = {
         'url': 'http://status.bytespeicher.org/status.json'
     },
     'ircquestions': {
-        'location':   'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
-        'dates':      'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
+        'location': 'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
+        'dates': 'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
         'versorgung': 'http://technikkultur-erfurt.de/bytespeicher:versorgung',
     },
     'shorturl': {
         'shortener': 'krzus',
         'api_key': 'thiswoudbeyourapikey',
-        'clarifai_app_id' : 'yourappid',
+        'clarifai_app_id': 'yourappid',
         'clarifai_app_secret': 'yourappsecret',
     },
     'parking': {
@@ -107,8 +78,8 @@ BYTEBOT_PLUGIN_CONFIG = {
         'apikey': 'thiswoudbeyourapikey',
     },
     'ccc32c3': {
-        'events_json_path': os.path.dirname(os.path.abspath(__file__)
-                       ) + "/data/events_32c3.json",
+        'events_json_path': os.path.dirname(
+            os.path.abspath(__file__)) + "/data/events_32c3.json",
     },
     'weather': {
         'api_key': 'your_apikey',
