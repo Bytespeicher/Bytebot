@@ -26,7 +26,7 @@ def weather(bot, mask, target, args):
     url = config['url'] + location + '&appid=%s' % config['api_key']
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from aiohttp.get(url)
+            resp = yield from session.get(url)
             if resp.status != 200:
                 bot.privmsg(target, "Error while retrieving weather data")
                 raise Exception()
