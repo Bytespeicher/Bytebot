@@ -1,52 +1,67 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import json
-
-from urllib import urlopen
+from irc3.plugins.command import command
 
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-from plugins.plugin import Plugin
+from irc3 import asyncio
+import json
+import aiohttp
+
+@command(permission="view")
+@asyncio.coroutine
+def status(bot, mask, target, args):
+    """Returns the door status of the hackerspace rooms
+
+        %%status
+    """
+    try:
+        with aiohttp.Timeout(10):
+            with aiohttp.ClientSession(loop=bot.loop) as session:
+                resp = yield from session.get(
+                    BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
+                if resp.status != 200:
+                    bot.privmsg(target, "Error while retrieving weather data")
+                    raise Exception()
+                r = yield from resp.read()
+
+        data = json.loads(r.decode('utf-8'))
+
+        bot.privmsg(target, 'Space status:')
+        if data['state']['open']:
+            bot.privmsg(target, '\tDer Space ist offen!')
+        else:
+            bot.privmsg(target, '\tDer Space ist geschlossen!')
+    except Exception:
+        bot.privmsg(target, '\tFehler beim Abrufen des Status')
 
 
-class spacestatus(Plugin):
-    def registerCommand(self, irc):
-        irc.registerCommand(
-            '!status',
-            'Returns the door status of the hackerspace rooms'
-        )
-        irc.registerCommand(
-            '!users',
-            'Returns the current users inside the hackerspace rooms'
-        )
+@command(permission="view")
+@asyncio.coroutine
+def users(bot, mask, target, args):
+    """Returns the current users inside the hackerspace rooms
 
-    def onPrivmsg(self, irc, msg, channel, user):
-        if msg.startswith('!status'):
-            try:
-                response = urlopen(BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
-                data = json.loads(response.read())
+        %%users
+    """
+    try:
+        with aiohttp.Timeout(10):
+            with aiohttp.ClientSession(loop=bot.loop) as session:
+                resp = yield from session.get(
+                    BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
+                if resp.status != 200:
+                    bot.privmsg(target, "Error while retrieving weather data")
+                    raise Exception()
+                r = yield from resp.read()
 
-                irc.msg(channel, 'Space status:')
-                if data['state']['open']:
-                    irc.msg(channel, '\tDer Space ist offen!')
-                else:
-                    irc.msg(channel, '\tDer Space ist geschlossen!')
-            except Exception:
-                irc.msg(channel, '\tFehler beim Abrufen des Status')
+        data = json.loads(r.decode('utf-8'))['sensors']['people_now_present'][0]
 
-        if msg.startswith('!users'):
-            try:
-                response = urlopen(BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
-                data = json.loads(response.read())['sensors'][
-                    'people_now_present'][0]
-
-                if data['value'] > 0:
-                    irc.msg(channel,
-                            'Space users: ' + str(', '.join(data['names'])))
-                elif data['value'] == 0:
-                    irc.msg(channel, 'Scheinbar ist niemand im Space :(')
-                else:
-                    irc.msg(channel,
-                            'Ich bin mir nicht sicher, ob jemand da ist')
-            except Exception:
-                irc.msg(channel, '\tFehler beim Abrufen der User')
+        if data['value'] > 0:
+            bot.privmsg(target,
+                    'Space users: ' + str(', '.join(data['names'])))
+        elif data['value'] == 0:
+            bot.privmsg(target, 'Scheinbar ist niemand im Space :(')
+        else:
+            bot.privmsg(target,
+                    'Ich bin mir nicht sicher, ob jemand da ist')
+    except Exception:
+        bot.privmsg(target, '\tFehler beim Abrufen der User')
