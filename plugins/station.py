@@ -1,98 +1,77 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from time import time
-import urllib2
 from datetime import datetime, timedelta
 
+import aiohttp
+from irc3 import asyncio
+from irc3.plugins.command import command
 from bs4 import BeautifulSoup
 
-from plugins.plugin import Plugin
 from bytebot_config import BYTEBOT_HTTP_TIMEOUT
 
 
-class station(Plugin):
+@command(permission="view")
+@asyncio.coroutine
+def station(bot, mask, target, args):
+    """Show current tram and bus station information
 
-    def __init__(self):
-        pass
+        %%station
+    """
+    url = "http://vmt.hafas.de/bin/stboard.exe/dn?"
+    station='151213'
+    number_of_results=10
+    today = datetime.now()
+    tomorrow = datetime.now() + timedelta(hours=24)
 
-    def registerCommand(self, irc):
-        irc.registerCommand('!station', 'Haltestelle')
+    today_formated = '{:%d.%m.%y}'.format(today)
+    tomorrow_formated = '{:%d.%m.%y}'.format(tomorrow)
+    hour = '{:%H}'.format(today)
+    minute = '{:%M}'.format(today)
 
-    def _get_public_traffic(self, station, number_of_results):
-        url = "http://vmt.hafas.de/bin/stboard.exe/dn?"
+    data = 'input=' + station + \
+        '&selectDate=today&dateBegin=' + str(today_formated) + \
+        '&dateEnd=' + str(tomorrow_formated) + \
+        '&time=' + str(hour) + '%3A' + str(minute) + \
+        '&timeselect=W%E4hlen' +\
+        '&boardType=dep' +\
+        '&REQProduct_list=1%3A1111111111111111' +\
+        '&maxJourneys=' + str(number_of_results) + \
+        '&start=Anzeigen'
 
-        today = datetime.now()
-        tomorrow = datetime.now() + timedelta(hours=24)
+    with aiohttp.Timeout(BYTEBOT_HTTP_TIMEOUT):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.post(url, data=data)
+            if resp.status != 200:
+                raise Exception()
 
-        today_formated = '{:%d.%m.%y}'.format(today)
-        tomorrow_formated = '{:%d.%m.%y}'.format(tomorrow)
-        hour = '{:%H}'.format(today)
-        minute = '{:%M}'.format(today)
+            response = yield from resp.read()
 
-        data = 'input=' + station + \
-            '&selectDate=today&dateBegin=' + str(today_formated) + \
-            '&dateEnd=' + str(tomorrow_formated) + \
-            '&time=' + str(hour) + '%3A' + str(minute) + \
-            '&timeselect=W%E4hlen' +\
-            '&boardType=dep' +\
-            '&REQProduct_list=1%3A1111111111111111' +\
-            '&maxJourneys=' + str(number_of_results) + \
-            '&start=Anzeigen'
+    soup = BeautifulSoup(response, 'html.parser')
 
-        req = urllib2.Request(url, data)
-        response = urllib2.urlopen(req, timeout=BYTEBOT_HTTP_TIMEOUT)
+    station_name = soup.find_all('span', {"class": "output"})
+    time = soup.find_all('td', {"class": "time"})
+    product = soup.find_all('td', {"class": "product"})
+    timetable = soup.find_all('strong', {"class": "startDestination"})
 
-        soup = BeautifulSoup(response.read(), 'html.parser')
+    name = station_name[0].text.encode('utf-8').strip()
+    data = []
 
-        station_name = soup.find_all('span', {"class": "output"})
-        time = soup.find_all('td', {"class": "time"})
-        product = soup.find_all('td', {"class": "product"})
-        timetable = soup.find_all('strong', {"class": "startDestination"})
+    for i in range(number_of_results):
+        ret_time = time[i].text.encode('utf-8').strip()
+        ret_product = product[i].text.encode('utf-8').strip()
+        ret_product = ret_product.replace(b"    ", b" ")
+        ret_timetable = timetable[i].find('a').text.encode('utf-8').strip()
 
-        name = station_name[0].text.encode('utf-8').strip()
-        ret = []
+        data.append(
+            {'time': ret_time,
+             'product': ret_product,
+             'timetable': ret_timetable})
 
-        for i in range(number_of_results):
-            ret_time = time[i].text.encode('utf-8').strip()
-            ret_product = product[i].text.encode('utf-8').strip()
-            ret_product = ret_product.replace("    ", " ")
-            ret_timetable = timetable[i].find('a').text.encode('utf-8').strip()
+    bot.privmsg(target, name.decode())
 
-            ret.append(
-                {'time': ret_time,
-                 'product': ret_product,
-                 'timetable': ret_timetable})
-
-        return name, ret
-
-    def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find('!station') == -1:
-            return
-
-        self.irc = irc
-        self.channel = channel
-
-        try:
-            last_station = irc.last_station
-        except Exception:
-            last_station = 0
-
-        if last_station < (time() - 60):
-            try:
-                name, data = self._get_public_traffic('151213', 10)
-
-                irc.msg(channel, name + ':')
-
-                for i in range(len(data)):
-                    irc.msg(channel, '   ' +
-                            data[i]['time'] + ': ' +
-                            data[i]['product'] + ' -> ' +
-                            data[i]['timetable'])
-
-                irc.last_station = time()
-
-            except Exception:
-                irc.msg(channel, 'Error while fetching data.')
-        else:
-            irc.msg(channel, "Don't overdo it ;)")
+    for i in range(len(data)):
+        bot.privmsg(target,
+                    "%s: %s -> %s" % (data[i]['time'].decode(),
+                                      data[i]['product'].decode(),
+                                      data[i]['timetable'].decode()))
