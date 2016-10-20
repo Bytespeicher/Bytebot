@@ -1,3 +1,5 @@
+﻿#!/usr/bin/env python3
+#!python3
 # -*- coding: utf-8 -*-
 
 from irc3.plugins.command import command
@@ -15,6 +17,9 @@ def weather(bot, mask, target, args):
         %%weather [<city>]...
     """
     config = BYTEBOT_PLUGIN_CONFIG['weather']
+
+    if config['api_key'] == "your_apikey":
+        return "I don't have your api key!"
 
     if '<city>' not in args or len(args['<city>']) < 1:
         location = config['location']
