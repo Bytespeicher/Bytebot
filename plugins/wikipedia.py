@@ -34,7 +34,8 @@ class wikipedia(Plugin):
         else:
             request = " ".join(msg.split(' ')[1:])
 
-        url = config['url'] + request
+        url = config['url'] + urllib.quote(request) 
+        
         try:
             r = requests.get(url)
 
