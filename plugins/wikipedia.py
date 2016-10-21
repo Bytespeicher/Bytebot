@@ -15,9 +15,9 @@ class wikipedia(Plugin):
 
     def registerCommand(self, irc):
         irc.registerCommand(
-			'!wiki TOPIC',
-			'wikipedia article summary for TOPIC'
-		)
+            '!wiki TOPIC',
+            'wikipedia article summary for TOPIC'
+        )
 
     def onPrivmsg(self, irc, msg, channel, user):
         if msg.find('!wiki') == -1:
