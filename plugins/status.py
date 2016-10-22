@@ -29,7 +29,8 @@ def status(bot, mask, target, args):
             bot.privmsg(target, '\tThe space is open!')
         else:
             bot.privmsg(target, '\tThe space is closed!')
-    except Exception:
+    except Exception as e:
+        bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving space status')
 
 
@@ -60,5 +61,6 @@ def users(bot, mask, target, args):
         else:
             bot.privmsg(target,
                     "I'm not sure if anyone's in the space")
-    except Exception:
+    except Exception as e:
+        bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving user data')
