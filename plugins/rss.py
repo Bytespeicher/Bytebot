@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from dateutil import parser
 from irc3 import asyncio
@@ -11,7 +9,6 @@ import datetime
 import feedparser
 import os
 import pytz
-import string
 import time
 
 
