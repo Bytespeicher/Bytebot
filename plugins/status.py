@@ -1,6 +1,3 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
 from irc3.plugins.command import command
 
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
