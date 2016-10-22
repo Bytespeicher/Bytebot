@@ -1,3 +1,6 @@
 irc3
 aiohttp
 asyncio
+feedparser
+pytz
+python-dateutil
