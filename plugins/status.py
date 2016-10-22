@@ -18,7 +18,7 @@ def status(bot, mask, target, args):
                 resp = yield from session.get(
                     BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
                 if resp.status != 200:
-                    bot.privmsg(target, "Error while retrieving weather data")
+                    bot.privmsg(target, "Error while retrieving spaceapi data")
                     raise Exception()
                 r = yield from resp.read()
 
@@ -26,11 +26,11 @@ def status(bot, mask, target, args):
 
         bot.privmsg(target, 'Space status:')
         if data['state']['open']:
-            bot.privmsg(target, '\tDer Space ist offen!')
+            bot.privmsg(target, '\tThe space is open!')
         else:
-            bot.privmsg(target, '\tDer Space ist geschlossen!')
+            bot.privmsg(target, '\tThe space is closed!')
     except Exception:
-        bot.privmsg(target, '\tFehler beim Abrufen des Status')
+        bot.privmsg(target, '\tError while retrieving space status')
 
 
 @command(permission="view")
@@ -46,7 +46,7 @@ def users(bot, mask, target, args):
                 resp = yield from session.get(
                     BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
                 if resp.status != 200:
-                    bot.privmsg(target, "Error while retrieving weather data")
+                    bot.privmsg(target, "Error while retrieving spaceapi data")
                     raise Exception()
                 r = yield from resp.read()
 
@@ -56,9 +56,9 @@ def users(bot, mask, target, args):
             bot.privmsg(target,
                     'Space users: ' + str(', '.join(data['names'])))
         elif data['value'] == 0:
-            bot.privmsg(target, 'Scheinbar ist niemand im Space :(')
+            bot.privmsg(target, 'Nobody is logged into teh space :(')
         else:
             bot.privmsg(target,
-                    'Ich bin mir nicht sicher, ob jemand da ist')
+                    "I'm not sure if anyone's in the space")
     except Exception:
-        bot.privmsg(target, '\tFehler beim Abrufen der User')
+        bot.privmsg(target, '\tError while retrieving user data')
