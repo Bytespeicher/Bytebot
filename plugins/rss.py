@@ -4,6 +4,7 @@ from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from dateutil import parser
 from irc3 import asyncio
 from irc3.plugins.command import command
+from irc3.plugins.cron import cron
 
 import aiohttp
 import datetime
@@ -70,7 +71,7 @@ def _rss_process_feed(bot, target, config, number_of_entries=-1):
         last_entry_timestamp = 0
         if len(line) > 3:
             (cached_etag, last_entry_timestamp) = line.split(" ", 1)
-        get_params = {'etag': cached_etags}
+        get_params = {'etag': cached_etag}
     else:
         get_params = {}
 
@@ -167,7 +168,7 @@ def _rss_process_feed(bot, target, config, number_of_entries=-1):
             """Save etag and last entry informations to cache file"""
             if number_of_entries == -1:
                 _save_cache(filename=config['cache'],
-                            etag=request.etag,
+                            etag=r_etag,
                             last_entry=dt_timestamp)
 
     except KeyError:
@@ -188,19 +189,14 @@ def _save_cache(filename='', etag='', last_entry=''):
     cache.write('%s %s' % (etag, last_entry))
     cache.close()
 
-#    def fiveMinuteCron(self, irc):
-#        """Checks RSS feed every 5 minutes and post recent changes
-#
-#        irc: An instance of the bytebot. Will be passed by the plugin loader
-#        """
-#        try:
-#
-#            self.irc = irc
-#            self.channel = BYTEBOT_CHANNEL
-#            for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
-#                # process new feed entries
-#                self.process_feed(feed)
-#
-#        except Exception as e:
-#            print(e)
-#            print("Error while processing rss feed")
+
+@cron('*/5 * * * *')
+@asyncio.coroutine
+def rss_cron(bot):
+    """
+    Checks RSS feed every 5 minutes and post recent changes
+    """
+
+    config = BYTEBOT_PLUGIN_CONFIG['rss']
+    for feed in sorted(config, key=lambda entry: entry['name']):
+        yield from _rss_process_feed(bot, bot.config.autojoins[0], feed)
