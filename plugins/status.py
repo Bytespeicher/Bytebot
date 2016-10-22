@@ -4,6 +4,7 @@ from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 import json
 import aiohttp
+from lib.spaceapi import spaceapi
 
 @command(permission="view")
 @asyncio.coroutine
@@ -13,23 +14,15 @@ def status(bot, mask, target, args):
         %%status
     """
     try:
-        with aiohttp.Timeout(10):
-            with aiohttp.ClientSession(loop=bot.loop) as session:
-                resp = yield from session.get(
-                    BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
-                if resp.status != 200:
-                    bot.privmsg(target, "Error while retrieving spaceapi data")
-                    raise Exception()
-                r = yield from resp.read()
-
-        data = json.loads(r.decode('utf-8'))
+        data = yield from spaceapi(bot)
 
         bot.privmsg(target, 'Space status:')
         if data['state']['open']:
             bot.privmsg(target, '\tThe space is open!')
         else:
             bot.privmsg(target, '\tThe space is closed!')
-    except Exception:
+    except Exception as e:
+        bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving space status')
 
 
@@ -41,16 +34,8 @@ def users(bot, mask, target, args):
         %%users
     """
     try:
-        with aiohttp.Timeout(10):
-            with aiohttp.ClientSession(loop=bot.loop) as session:
-                resp = yield from session.get(
-                    BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
-                if resp.status != 200:
-                    bot.privmsg(target, "Error while retrieving spaceapi data")
-                    raise Exception()
-                r = yield from resp.read()
-
-        data = json.loads(r.decode('utf-8'))['sensors']['people_now_present'][0]
+        data = yield from spaceapi(bot)
+        data = data['sensors']['people_now_present'][0]
 
         if data['value'] > 0:
             bot.privmsg(target,
@@ -60,5 +45,6 @@ def users(bot, mask, target, args):
         else:
             bot.privmsg(target,
                     "I'm not sure if anyone's in the space")
-    except Exception:
+    except Exception as e:
+        bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving user data')
