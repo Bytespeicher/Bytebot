@@ -1,10 +1,8 @@
 from irc3.plugins.command import command
 
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
-import json
-import aiohttp
 from lib.spaceapi import spaceapi
+
 
 @command(permission="view")
 @asyncio.coroutine
@@ -39,12 +37,12 @@ def users(bot, mask, target, args):
 
         if data['value'] > 0:
             bot.privmsg(target,
-                    'Space users: ' + str(', '.join(data['names'])))
+                        'Space users: ' + str(', '.join(data['names'])))
         elif data['value'] == 0:
             bot.privmsg(target, 'Nobody is logged into teh space :(')
         else:
             bot.privmsg(target,
-                    "I'm not sure if anyone's in the space")
+                        "I'm not sure if anyone's in the space")
     except Exception as e:
         bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving user data')
