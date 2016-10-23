@@ -5,3 +5,4 @@ feedparser
 pytz
 python-dateutil
 aiocron
+aiofiles
