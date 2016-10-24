@@ -2,9 +2,18 @@
 ## Setup
 
 * Fork / pull the project
+	git clone; git checkout $BRANCH
 * Create virtual environment
+	pyvenv env
+	. env/bin/activate
 * Install dependencies (see [README](README.md))
-* Setup a `bytebot_config.py`
+	pip install -r contrib/requirements.txt
+* Setup a `config.ini`
+	cp config.ini{.example,}
+	$EDITOR config.ini
+* Start
+	irc3 config.ini
+
 
 ## Coding Style
 
