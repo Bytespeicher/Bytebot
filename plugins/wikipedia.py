@@ -6,6 +6,7 @@ from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 import requests
 import urllib
 
+
 class wikipedia(Plugin):
     """
     With this plugin you can search for wikipedia entries.
