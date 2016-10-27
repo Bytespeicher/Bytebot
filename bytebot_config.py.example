@@ -82,6 +82,9 @@ BYTEBOT_PLUGIN_CONFIG = {
     },
     'fuel': {
         'apikey': 'thiswoudbeyourapikey',
+            'lat': '50.9827792',
+            'lng': '11.0394426',
+            'rad': '10',
     },
     'ccc32c3': {
         'events_json_path': os.path.dirname(

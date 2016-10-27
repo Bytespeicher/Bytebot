@@ -1,102 +1,90 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
+from irc3.plugins.command import command
 
-import urllib2
-import json
-from time import time
-
-from plugins.plugin import Plugin
-
-from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+from irc3 import asyncio
+import json
+import aiohttp
 
+@command(permission="view")
+@asyncio.coroutine
+def fuel(bot, mask, target, args):
+    """Show the current fuel for Erfurt
 
-class fuel(Plugin):
+        %%fuel
+    """
+    config = BYTEBOT_PLUGIN_CONFIG['fuel']
 
-    def __init__(self):
-        pass
+    if config['api_key'] == "your_apikey":
+        return "I don't have your api key!"
 
-    def registerCommand(self, irc):
-        irc.registerCommand("!fuel", "Treibstoffpreise")
+    bot.log.info('Fetching fuel info for Erfurt')
 
-    def _get_fuel_stations(self):
+    try:
+        bot.log.info('Fetching fuel info for Erfurt')
         url = "https://creativecommons.tankerkoenig.de/json/list.php?" + \
-            "lat=50.9827792" + \
-            "&lng=11.0394426" + \
-            "&rad=15" + \
+            "lat=" + config['lat'] + \
+            "&lng=" + config['lng'] + \
+            "&rad=" + config['rad'] + \
             "&sort=dist" + \
             "&type=e5&apikey=" + \
-            str(BYTEBOT_PLUGIN_CONFIG["fuel"]["apikey"])
+            str(config['api_key'])
 
-        data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
-            BYTEBOT_HTTP_MAXSIZE)
+        with aiohttp.Timeout(10):
+            with aiohttp.ClientSession(loop=bot.loop) as session:
+                resp = yield from session.get(url)
+                if resp.status != 200:
+                    bot.privmsg(target, "Error while retrieving station list")
+                    raise Exception()
+                r = yield from resp.read()
 
-        return json.loads(data)
+        data = json.loads(r.decode('utf-8'))
 
-    def _get_fuel_stations_details(self, station_id):
-        url = "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
-            "id=" + station_id + \
-            "&apikey=" + str(BYTEBOT_PLUGIN_CONFIG["fuel"]["apikey"])
+        messages = []
+        for x in range(len(data['stations'])):
+            brand = data[u'stations'][x][u"brand"]
+            station_id = data['stations'][x][u"id"]
+            postCode = data['stations'][x][u"postCode"]
 
-        data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
-            BYTEBOT_HTTP_MAXSIZE)
+            bot.log.info('Fetching fuel info for Erfurt station ' +
+                str(station_id))
+            url = "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
+                "id=" + station_id + \
+                "&apikey=" + str(config['api_key'])
 
-        return json.loads(data)
+            with aiohttp.Timeout(10):
+                with aiohttp.ClientSession(loop=bot.loop) as session:
+                    resp = yield from session.get(url)
+                    if resp.status != 200:
+                        bot.privmsg(target, "Error while retrieving fuel data")
+                        raise Exception()
+                    r = yield from resp.read()
 
-    def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find("!fuel") == -1:
-            return
+            details = json.loads(r.decode('utf-8'))
 
-        self.irc = irc
-        self.channel = channel
+            e5 = details['station']['e5']
+            e10 = details['station']['e10']
+            diesel = details['station']['diesel']
 
-        try:
-            last_fuel = irc.last_fuel
-        except Exception:
-            last_fuel = 0
+            if brand == '':
+                brand = 'GLOBUS'
 
-        if last_fuel < (time() - 60):
-            try:
-                data = self._get_fuel_stations()
-            except Exception:
-                irc.msg(channel, "Error while fetching data.")
+            print_str = \
+                u"   {:20}".format(brand + ', ' + str(postCode) + ': ') + \
+                u"{:5}  ".format(e5) + \
+                u"{:5}  ".format(e10) + \
+                u"{:5}  ".format(diesel)
 
-            if len(data) == 0:
-                irc.msg(channel, "'I'm sorry, no fuel data.")
-                return
+            messages.append(print_str)
 
-            messages = []
-            for x in range(len(data['stations'])):
-                brand = data[u'stations'][x][u"brand"]
-                station_id = data['stations'][x][u"id"]
-                postCode = data['stations'][x][u"postCode"]
+        headline = u"{:23}".format('fuel prices:') + \
+            u"{:6} ".format('e5') + \
+            u"{:6} ".format('e10') + \
+            u"{:6} ".format('diesel')
 
-                data_details = self._get_fuel_stations_details(station_id)
+        bot.privmsg(target, headline)
+        for m in messages:
+            bot.privmsg(target, m)
 
-                e5 = data_details['station']['e5']
-                e10 = data_details['station']['e10']
-                diesel = data_details['station']['diesel']
-
-                if brand == '':
-                    brand = 'GLOBUS'
-
-                print_str = \
-                    u"   {:20}".format(brand + ', ' + str(postCode) + ': ') + \
-                    u"{:5}  ".format(e5) + \
-                    u"{:5}  ".format(e10) + \
-                    u"{:5}  ".format(diesel)
-
-                messages.append(print_str)
-
-            headline = u"{:23}".format('fuel prices:') + \
-                u"{:6} ".format('e5') + \
-                u"{:6} ".format('e10') + \
-                u"{:6} ".format('diesel')
-
-            irc.msg(channel, headline.encode("utf-8", "ignore"))
-            for m in messages:
-                irc.msg(channel, m.encode("utf-8", "ignore"))
-
-            irc.last_fuel = time()
-        else:
-            irc.msg(channel, "Don't overdo it ;)")
+    except KeyError:
+        bot.privmsg(target, "Error while retrieving fuel data")
+        raise Exception()
