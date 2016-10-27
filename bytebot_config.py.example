@@ -31,6 +31,12 @@ BYTEBOT_PLUGIN_CONFIG = {
             'cache': '/tmp/feed_rm_bytespeicher.cache',
             'type': 'redmine',
         },
+        {
+            'name': 'SpacestatusCommits',
+            'url': 'https://github.com/Bytespeicher/space-status/commits/master.atom',
+            'cache': '/tmp/feed_spacestatus.cache',
+            'type': 'github'
+        },
     ],
     'dates': {
         'url': 'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
