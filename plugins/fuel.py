@@ -5,25 +5,37 @@ from irc3 import asyncio
 import json
 import aiohttp
 
+from geopy.geocoders import Nominatim
+
 @command(permission="view")
 @asyncio.coroutine
 def fuel(bot, mask, target, args):
     """Show the current fuel for Erfurt
 
-        %%fuel
+        %%fuel [<city>]...
     """
     config = BYTEBOT_PLUGIN_CONFIG['fuel']
 
     if config['api_key'] == "your_apikey":
         return "I don't have your api key!"
 
-    bot.log.info('Fetching fuel info for Erfurt')
+    if '<city>' not in args or len(args['<city>']) < 1:
+        lat = config['lat']
+        lng = config['lng']
+        bot.log.info('Fetching fuel info for Erfurt')
+    else:
+        geolocator = Nominatim()
+        location = geolocator.geocode(" ".join(args['<city>']))
+
+        lat = location.latitude
+        lng = location.longitude
+        bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
+        print((lat, lng))
 
     try:
-        bot.log.info('Fetching fuel info for Erfurt')
         url = "https://creativecommons.tankerkoenig.de/json/list.php?" + \
-            "lat=" + config['lat'] + \
-            "&lng=" + config['lng'] + \
+            "lat=" + str(lat) + \
+            "&lng=" + str(lng) + \
             "&rad=" + config['rad'] + \
             "&sort=dist" + \
             "&type=e5&apikey=" + \
@@ -61,9 +73,9 @@ def fuel(bot, mask, target, args):
 
             details = json.loads(r.decode('utf-8'))
 
-            e5 = details['station']['e5']
-            e10 = details['station']['e10']
-            diesel = details['station']['diesel']
+            e5 = str(details['station']['e5'])
+            e10 = str(details['station']['e10'])
+            diesel = str(details['station']['diesel'])
 
             if brand == '':
                 brand = 'GLOBUS'

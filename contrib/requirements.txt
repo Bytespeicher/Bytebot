@@ -6,3 +6,4 @@ pytz
 python-dateutil
 aiocron
 aiofiles
+geopy
