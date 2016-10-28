@@ -6,41 +6,72 @@ import json
 import aiohttp
 
 from geopy.geocoders import Nominatim
+from geopy.distance import vincenty
 
 @command(permission="view")
 @asyncio.coroutine
 def fuel(bot, mask, target, args):
     """Show the current fuel for Erfurt
 
-        %%fuel [<city>]...
+        %%fuel [<city> <value> <type>]...
     """
     config = BYTEBOT_PLUGIN_CONFIG['fuel']
+    sort_type = 'all'
+    sort_value = 'dist'
+    lat = config['lat']
+    lng = config['lng']
+    fuel_types = ['e5','e10', 'diesel', 'all']
 
     if config['api_key'] == "your_apikey":
         return "I don't have your api key!"
 
     if '<city>' not in args or len(args['<city>']) < 1:
+        bot.log.info('Fetching fuel info for Erfurt')
         lat = config['lat']
         lng = config['lng']
-        bot.log.info('Fetching fuel info for Erfurt')
-    else:
-        geolocator = Nominatim()
-        location = geolocator.geocode(" ".join(args['<city>']))
 
-        lat = location.latitude
-        lng = location.longitude
-        bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
-        print((lat, lng))
+    else:
+        if " ".join(args['<city>']) == 'sort':
+            bot.log.info('Fetching fuel info for Erfurt')
+
+            lat = config['lat']
+            lng = config['lng']
+
+            if '<value>' not in args or len(args['<value>']) < 1:
+                sort_type = 'all'
+                sort_value = 'dist'
+            else:
+                sort_type = " ".join(args['<value>'])
+                sort_value = 'price'
+
+        else:
+            bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
+
+            geolocator = Nominatim()
+            location = geolocator.geocode(" ".join(args['<city>']))
+            lat = location.latitude
+            lng = location.longitude
+
+            if " ".join(args['<value>']) == 'sort':
+                if '<type>' not in args or len(args['<type>']) < 1:
+                    sort_type = 'all'
+                    sort_value = 'dist'
+                else:
+                    sort_type = " ".join(args['<type>'])
+                    sort_value = 'price'
+
+    if not sort_type in fuel_types:
+        return "Not supported fuel."
 
     try:
         url = "https://creativecommons.tankerkoenig.de/json/list.php?" + \
             "lat=" + str(lat) + \
             "&lng=" + str(lng) + \
-            "&rad=" + config['rad'] + \
-            "&sort=dist" + \
-            "&type=e5&apikey=" + \
-            str(config['api_key'])
-
+            "&rad=" + str(config['rad']) + \
+            "&sort=" + str(sort_value) + \
+            "&type=" + str(sort_type) + \
+            "&apikey=" + str(config['api_key'])
+        print(url)
         with aiohttp.Timeout(10):
             with aiohttp.ClientSession(loop=bot.loop) as session:
                 resp = yield from session.get(url)
@@ -77,6 +108,9 @@ def fuel(bot, mask, target, args):
             e10 = str(details['station']['e10'])
             diesel = str(details['station']['diesel'])
 
+            dist = vincenty((details['station']['lat'], details['station']['lng']),
+                (lat, lng)).meters/1000
+
             if brand == '':
                 brand = 'GLOBUS'
 
@@ -84,18 +118,23 @@ def fuel(bot, mask, target, args):
                 u"   {:20}".format(brand + ', ' + str(postCode) + ': ') + \
                 u"{:5}  ".format(e5) + \
                 u"{:5}  ".format(e10) + \
-                u"{:5}  ".format(diesel)
+                u"{:5}  ".format(diesel) + \
+                u"{:5.2} km".format(dist)
 
             messages.append(print_str)
 
         headline = u"{:23}".format('fuel prices:') + \
             u"{:6} ".format('e5') + \
             u"{:6} ".format('e10') + \
-            u"{:6} ".format('diesel')
+            u"{:6} ".format('diesel') + \
+            u"{:6} ".format('dist')
 
-        bot.privmsg(target, headline)
-        for m in messages:
-            bot.privmsg(target, m)
+        if len(messages) >0:
+            bot.privmsg(target, headline)
+            for m in messages:
+                bot.privmsg(target, m)
+        else:
+            return "No fuel data found!"
 
     except KeyError:
         bot.privmsg(target, "Error while retrieving fuel data")
