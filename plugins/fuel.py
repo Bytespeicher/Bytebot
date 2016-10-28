@@ -45,20 +45,35 @@ def fuel(bot, mask, target, args):
                 sort_value = 'price'
 
         else:
-            bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
+            if " ".join(args['<city>']) == 'help':
+                bot.log.info('Printing some Help')
 
-            geolocator = Nominatim()
-            location = geolocator.geocode(" ".join(args['<city>']))
-            lat = location.latitude
-            lng = location.longitude
+                cmd = '!'
+                bot.privmsg(target, '( ͡° ͜ʖ ͡°)')
+                bot.privmsg(target, 'Example commands:')
+                bot.privmsg(target, cmd + 'fuel')
+                bot.privmsg(target, cmd + 'fuel help')
+                bot.privmsg(target, cmd + 'fuel sort <fuel>')
+                bot.privmsg(target, cmd + 'fuel <place>')
+                bot.privmsg(target, cmd + 'fuel <place> sort <fuel>')
 
-            if " ".join(args['<value>']) == 'sort':
-                if '<type>' not in args or len(args['<type>']) < 1:
-                    sort_type = 'all'
-                    sort_value = 'dist'
-                else:
-                    sort_type = " ".join(args['<type>'])
-                    sort_value = 'price'
+                return ""
+
+            else:
+                bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
+
+                geolocator = Nominatim()
+                location = geolocator.geocode(" ".join(args['<city>']))
+                lat = location.latitude
+                lng = location.longitude
+
+                if " ".join(args['<value>']) == 'sort':
+                    if '<type>' not in args or len(args['<type>']) < 1:
+                        sort_type = 'all'
+                        sort_value = 'dist'
+                    else:
+                        sort_type = " ".join(args['<type>'])
+                        sort_value = 'price'
 
     if not sort_type in fuel_types:
         return "Not supported fuel."
@@ -71,7 +86,7 @@ def fuel(bot, mask, target, args):
             "&sort=" + str(sort_value) + \
             "&type=" + str(sort_type) + \
             "&apikey=" + str(config['api_key'])
-        print(url)
+
         with aiohttp.Timeout(10):
             with aiohttp.ClientSession(loop=bot.loop) as session:
                 resp = yield from session.get(url)
@@ -108,8 +123,8 @@ def fuel(bot, mask, target, args):
             e10 = str(details['station']['e10'])
             diesel = str(details['station']['diesel'])
 
-            dist = vincenty((details['station']['lat'], details['station']['lng']),
-                (lat, lng)).meters/1000
+            dist = u"{:0.2} km".format(vincenty((details['station']['lat'], details['station']['lng']),
+                (lat, lng)).meters/1000)
 
             if brand == '':
                 brand = 'GLOBUS'
@@ -119,7 +134,7 @@ def fuel(bot, mask, target, args):
                 u"{:5}  ".format(e5) + \
                 u"{:5}  ".format(e10) + \
                 u"{:5}  ".format(diesel) + \
-                u"{:5.2} km".format(dist)
+                u"{:5}  ".format(dist)
 
             messages.append(print_str)
 
