@@ -12,7 +12,7 @@ def status(bot, mask, target, args):
         %%status
     """
     try:
-        data = yield from spaceapi(bot)
+        data = yield from spaceapi(bot, target)
 
         bot.privmsg(target, 'Space status:')
         if data['state']['open']:
@@ -32,7 +32,7 @@ def users(bot, mask, target, args):
         %%users
     """
     try:
-        data = yield from spaceapi(bot)
+        data = yield from spaceapi(bot, target)
         data = data['sensors']['people_now_present'][0]
 
         if data['value'] > 0:

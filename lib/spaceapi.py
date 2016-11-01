@@ -3,8 +3,9 @@ import aiohttp
 from irc3 import asyncio
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
+
 @asyncio.coroutine
-def spaceapi(bot):
+def spaceapi(bot, target):
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
             resp = yield from session.get(
