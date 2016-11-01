@@ -5,6 +5,7 @@ from irc3 import asyncio
 import json
 import aiohttp
 
+
 @command(permission="view")
 @asyncio.coroutine
 def weather(bot, mask, target, args):
