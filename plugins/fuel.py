@@ -107,10 +107,10 @@ def fuel(bot, mask, target, args):
 
             bot.log.info('Fetching fuel info for Erfurt station ' +
                          str(station_id))
-            url =
+            url = \
                 "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
-                    "id=" + station_id + \
-                    "&apikey=" + str(config['api_key'])
+                "id=" + station_id + \
+                "&apikey=" + str(config['api_key'])
 
             with aiohttp.Timeout(10):
                 with aiohttp.ClientSession(loop=bot.loop) as session:
