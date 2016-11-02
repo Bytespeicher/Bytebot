@@ -77,7 +77,7 @@ def fuel(bot, mask, target, args):
                         sort_type = " ".join(args['<type>'])
                         sort_value = 'price'
 
-    if not sort_type in fuel_types:
+    if sort_type not in fuel_types:
         return "Not supported fuel."
 
     try:
@@ -107,9 +107,10 @@ def fuel(bot, mask, target, args):
 
             bot.log.info('Fetching fuel info for Erfurt station ' +
                          str(station_id))
-            url = "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
-                "id=" + station_id + \
-                "&apikey=" + str(config['api_key'])
+            url =
+                "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
+                    "id=" + station_id + \
+                    "&apikey=" + str(config['api_key'])
 
             with aiohttp.Timeout(10):
                 with aiohttp.ClientSession(loop=bot.loop) as session:
