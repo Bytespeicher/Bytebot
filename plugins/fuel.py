@@ -55,8 +55,15 @@ def fuel(bot, mask, target, args):
                 bot.privmsg(target, cmd + 'fuel')
                 bot.privmsg(target, cmd + 'fuel help')
                 bot.privmsg(target, cmd + 'fuel sort <fuel>')
+                bot.privmsg(target, cmd + 'fuel sort e5')
+                bot.privmsg(target, cmd + 'fuel sort e10')
+                bot.privmsg(target, cmd + 'fuel sort diesel')
                 bot.privmsg(target, cmd + 'fuel <place>')
+                bot.privmsg(target, cmd + 'fuel erfurt')
                 bot.privmsg(target, cmd + 'fuel <place> sort <fuel>')
+                bot.privmsg(target, cmd + 'fuel erfurt sort e5')
+                bot.privmsg(target, cmd + 'fuel bytespeicher sort e10')
+                bot.privmsg(target, cmd + 'fuel krautspace sort diesel')
 
                 return ""
 
