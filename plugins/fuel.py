@@ -8,6 +8,7 @@ import aiohttp
 from geopy.geocoders import Nominatim
 from geopy.distance import vincenty
 
+
 @command(permission="view")
 @asyncio.coroutine
 def fuel(bot, mask, target, args):
@@ -20,7 +21,7 @@ def fuel(bot, mask, target, args):
     sort_value = 'dist'
     lat = config['lat']
     lng = config['lng']
-    fuel_types = ['e5','e10', 'diesel', 'all']
+    fuel_types = ['e5', 'e10', 'diesel', 'all']
 
     if config['api_key'] == "your_apikey":
         return "I don't have your api key!"
@@ -60,7 +61,8 @@ def fuel(bot, mask, target, args):
                 return ""
 
             else:
-                bot.log.info('Fetching fuel info for ' + str(" ".join(args['<city>'])))
+                bot.log.info('Fetching fuel info for ' +
+                             str(" ".join(args['<city>'])))
 
                 geolocator = Nominatim()
                 location = geolocator.geocode(" ".join(args['<city>']))
@@ -104,7 +106,7 @@ def fuel(bot, mask, target, args):
             postCode = data['stations'][x][u"postCode"]
 
             bot.log.info('Fetching fuel info for Erfurt station ' +
-                str(station_id))
+                         str(station_id))
             url = "https://creativecommons.tankerkoenig.de/json/detail.php?" + \
                 "id=" + station_id + \
                 "&apikey=" + str(config['api_key'])
@@ -123,8 +125,9 @@ def fuel(bot, mask, target, args):
             e10 = str(details['station']['e10'])
             diesel = str(details['station']['diesel'])
 
-            dist = u"{:0.2} km".format(vincenty((details['station']['lat'], details['station']['lng']),
-                (lat, lng)).meters/1000)
+            dist = u"{:0.2} km".format(vincenty((details['station']['lat'],
+                                                 details['station']['lng']),
+                                                (lat, lng)).meters / 1000)
 
             if brand == '':
                 brand = 'GLOBUS'
@@ -144,7 +147,7 @@ def fuel(bot, mask, target, args):
             u"{:6} ".format('diesel') + \
             u"{:6} ".format('dist')
 
-        if len(messages) >0:
+        if len(messages) > 0:
             bot.privmsg(target, headline)
             for m in messages:
                 bot.privmsg(target, m)
