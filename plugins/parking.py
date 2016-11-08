@@ -1,13 +1,8 @@
-﻿#!/usr/bin/env python3
-#!python3
-# -*- coding: utf-8 -*-
-from irc3.plugins.command import command
+﻿from irc3.plugins.command import command
 
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
-import json
 import aiohttp
-import requests
 import xml.etree.ElementTree as ET
 
 
@@ -24,22 +19,26 @@ def parking(bot, mask, target, args):
         return "I don't have your parking url!"
 
     bot.privmsg(target, 'Parkhausbelegung:')
-    r = requests.get(config['url'])
-    if r.status_code == 200:
-        root = ET.fromstring(r.text)
-        for lot in root.findall('ph'):
-            name = lot.find('longname').text.replace("Ăź", "ü")
-            use = int(lot.find('belegung').text)
-            max = int(lot.find('kapazitaet').text)
 
-            print_str = \
-                u"   {:32}".format(name) + \
-                u"{:3}".format(max - use) + \
-                u" von " + \
-                u"{:3}".format(max) + \
-                u" frei"
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.get(config['url'])
+            if resp.status != 200:
+                bot.privmsg(target, "Error while retrieving parking data")
+                raise Exception()
+            r = yield from resp.read()
 
-            bot.privmsg(target, print_str)
-    else:
-        r.raise_for_status()
-        return "Service seems offline!"
+            root = ET.fromstring(r)
+            for lot in root.findall('ph'):
+                name = lot.find('longname').text
+                use = int(lot.find('belegung').text)
+                max = int(lot.find('kapazitaet').text)
+
+                print_str = \
+                    u"   {:32}".format(name) + \
+                    u"{:3}".format(max - use) + \
+                    u" von " + \
+                    u"{:3}".format(max) + \
+                    u" frei"
+
+                bot.privmsg(target, print_str)
