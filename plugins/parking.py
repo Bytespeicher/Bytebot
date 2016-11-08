@@ -35,10 +35,10 @@ def parking(bot, mask, target, args):
                 max = int(lot.find('kapazitaet').text)
 
                 print_str = \
-                    u"   {:32}".format(name) + \
-                    u"{:3}".format(max - use) + \
-                    u" von " + \
-                    u"{:3}".format(max) + \
-                    u" frei"
+                    "   {:32}".format(name) + \
+                    "{:3}".format(max - use) + \
+                    " von " + \
+                    "{:3}".format(max) + \
+                    " frei"
 
                 bot.privmsg(target, print_str)
