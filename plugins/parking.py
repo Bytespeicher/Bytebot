@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 #!python3
 # -*- coding: utf-8 -*-
 from irc3.plugins.command import command
@@ -28,11 +28,9 @@ def parking(bot, mask, target, args):
     if r.status_code == 200:
         root = ET.fromstring(r.text)
         for lot in root.findall('ph'):
-            # id = int(lot.find('id').text)
             name = lot.find('longname').text.replace("Ăź", "ü")
             use = int(lot.find('belegung').text)
             max = int(lot.find('kapazitaet').text)
-            val = lot.find('tendenz').text
 
             print_str = \
                 u"   {:32}".format(name) + \
