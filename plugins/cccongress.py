@@ -47,8 +47,7 @@ def cccongress_update_cron(bot):
     yield from _update_cache(bot)
 
 
-# @cron('* * 27-30 12 *')
-@cron('* * * * *')
+@cron('* * 27-30 12 *')
 @asyncio.coroutine
 def cccongress_announce_next_talks(bot):
     """Announce next talks"""
