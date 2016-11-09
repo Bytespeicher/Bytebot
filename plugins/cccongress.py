@@ -177,7 +177,6 @@ def _get_talk(hall, slot=0, bot=None):
 
     for day in json_data['schedule']['conference']['days']:
 
-        day_start = dateutil.parser.parse(day['day_start'])
         day_end = dateutil.parser.parse(day['day_end'])
 
         """Ignore days in the past"""
@@ -253,7 +252,8 @@ def _update_cache(bot):
                 """Etag was used in request and noting changed."""
                 return
             else:
-                bot.privmsg(target, "Error while retrieving schedule data")
+                bot.privmsg(bot.config.autojoins[0],
+                            "Error while retrieving schedule data")
                 raise Exception()
 
     try:
@@ -270,5 +270,6 @@ def _update_cache(bot):
         cache.close()
 
     except KeyError:
-        bot.privmsg(target, "Error while retrieving schedule data")
+        bot.privmsg(bot.config.autojoins[0],
+                    "Error while retrieving schedule data")
         raise Exception()
