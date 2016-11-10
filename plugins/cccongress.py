@@ -73,8 +73,9 @@ def cccongress_announce_next_talks(bot):
     if len(announcelist) > 0:
         bot.privmsg(
             bot.config.autojoins[0],
-            "The following talks will start in %d minutes" %
-            config['announce_minutes']
+            "The following talks will start in %d minutes" % (
+                config['announce_minutes']
+            )
         )
         for event in announcelist:
             yield from _output_single_talk(event['hall'],
@@ -109,12 +110,15 @@ def _output_single_talk(hall, event, bot, target):
         event: Event information
     """
 
-    bot.privmsg(target,
-                "[%s] %s %s" % (hall, event['start'], event['title']))
     bot.privmsg(
         target,
-        "%s (%s / %s)" %
-        ('{:<14}'.format(''), event['language'], _get_persons(event))
+        "[%s] %s %s" % (hall, event['start'], event['title'])
+    )
+    bot.privmsg(
+        target,
+        "%s (%s / %s)" % (
+            '{:<14}'.format(''), event['language'], _get_persons(event)
+        )
     )
 
 
@@ -127,23 +131,24 @@ def _schedule_information(bot, target):
 
     bot.privmsg(
         target,
-        "%s (%s)" %
-        (json_data['schedule']['conference']['title'],
-         json_data['schedule']['conference']['acronym'])
+        "%s (%s)" % (
+            json_data['schedule']['conference']['title'],
+            json_data['schedule']['conference']['acronym']
+        )
     )
 
     file_mtime = os.path.getmtime(config['cache'])
     file_dtime = datetime.datetime.fromtimestamp(file_mtime)
     bot.privmsg(
         target,
-        "Schedule was last updated on %s" %
-        file_dtime.strftime('%Y-%m-%d %H:%M:%S')
+        "Schedule was last updated on %s" % (
+            file_dtime.strftime('%Y-%m-%d %H:%M:%S')
+        )
     )
 
     bot.privmsg(
         target,
-        "Current schedule version is %s" %
-        json_data['schedule']['version']
+        "Current schedule version is %s" % json_data['schedule']['version']
     )
 
 
