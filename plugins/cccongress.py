@@ -14,7 +14,7 @@ import json
 @command(permission="view")
 @asyncio.coroutine
 def cccongress(bot, mask, target, args):
-    """Show informations about Chaos Communication Congress
+    """Show information about Chaos Communication Congress
 
         %%cccongress [<command>]
     """
@@ -33,7 +33,7 @@ def cccongress(bot, mask, target, args):
     elif args['<command>'] == 'next':
         yield from _output_talks(1, bot, target)
     elif args['<command>'] == 'schedule':
-        yield from _scheduleinformations(bot, target)
+        yield from _schedule_information(bot, target)
     elif args['<command>'] == "help":
         yield from _output_help(bot, target)
 
@@ -65,7 +65,7 @@ def cccongress_announce_next_talks(bot):
                 datetime.datetime.now(pytz.timezone('Europe/Berlin')) + \
                 datetime.timedelta(minutes=config['announce_minutes'])
             if event_start == designated_start:
-                """Save hall informations in event and add to announcelist"""
+                """Save hall information in event and add to announcelist"""
                 event['hall'] = hall
                 announcelist.append(event)
 
@@ -90,14 +90,14 @@ def _output_talks(slot, bot, target):
         slot: Output talks running now (slot = 0) or next (slot = 1)
     """
 
-    eventcounter = 0
+    event_counter = 0
     for hall in _get_halls():
         event = _get_talk(hall, slot)
         if event is not None:
-            eventcounter += 1
+            event_counter += 1
             yield from _output_single_talk(hall, event, bot, target)
 
-    if eventcounter == 0:
+    if event_counter == 0:
         bot.privmsg(target, "No talks found.")
 
 
@@ -106,7 +106,7 @@ def _output_single_talk(hall, event, bot, target):
     """Output single talk
 
         hall: Name of hall
-        event: Event informations
+        event: Event information
     """
 
     bot.privmsg(target,
@@ -119,8 +119,8 @@ def _output_single_talk(hall, event, bot, target):
 
 
 @asyncio.coroutine
-def _scheduleinformations(bot, target):
-    """Output informations about schedule"""
+def _schedule_information(bot, target):
+    """Output information about schedule"""
 
     config = BYTEBOT_PLUGIN_CONFIG['cccongress']
     json_data = _get_json_data()
@@ -155,7 +155,7 @@ def _output_help(bot, target):
     bot.privmsg(target, "!cccongress          - Show current talks")
     bot.privmsg(target, "!cccongress halls    - Show available halls")
     bot.privmsg(target, "!cccongress next     - Show next talks")
-    bot.privmsg(target, "!cccongress schedule - Show schedule informations")
+    bot.privmsg(target, "!cccongress schedule - Show schedule information")
 
 
 def _get_json_data():
