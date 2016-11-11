@@ -44,7 +44,7 @@ def cccongress(bot, mask, target, args):
 def cccongress_update_cron(bot):
     """Update schedule in December"""
 
-    yield from _update_cache(bot)
+    yield from _update_cache(bot, 1)
 
 
 @cron('* * 27-30 12 *')
@@ -247,8 +247,11 @@ def _get_persons(event):
 
 
 @asyncio.coroutine
-def _update_cache(bot):
-    """Update cached schedule"""
+def _update_cache(bot, cron=0):
+    """Update cached schedule
+
+        cron: defines whether update was triggered by cron or not
+    """
 
     config = BYTEBOT_PLUGIN_CONFIG['cccongress']
     config['cache_etag'] = config['cache'] + '.etag'
@@ -262,21 +265,26 @@ def _update_cache(bot):
     else:
         headers = {}
 
-    """Request the schedule content."""
-    with aiohttp.Timeout(10):
-        with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from session.get(config['url'], headers=headers)
-            if resp.status == 200:
-                """Get text content and etag from http request."""
-                r = yield from resp.text()
-                r_etag = resp.headers.get('etag')
-            elif resp.status == 304:
-                """Etag was used in request and noting changed."""
-                return
-            else:
-                bot.privmsg(bot.config.autojoins[0],
-                            "Error while retrieving schedule data")
-                raise Exception()
+    try:
+        """Request the schedule content."""
+        with aiohttp.Timeout(10):
+            with aiohttp.ClientSession(loop=bot.loop) as session:
+                resp = yield from session.get(config['url'], headers=headers)
+                if resp.status == 200:
+                    """Get text content and etag from http request."""
+                    r = yield from resp.text()
+                    r_etag = resp.headers.get('etag')
+                elif resp.status == 304:
+                    """Etag was used in request and noting changed."""
+                    return
+                else:
+                    raise Exception()
+
+    except Exception as e:
+        bot.log.error(e)
+        if cron == 0:
+            bot.privmsg(bot.config.autojoins[0],
+                        "Error while retrieving schedule data")
 
     try:
         """ Save schedule cache to disk """
@@ -291,7 +299,5 @@ def _update_cache(bot):
         cache.write('%s' % r_etag)
         cache.close()
 
-    except KeyError:
-        bot.privmsg(bot.config.autojoins[0],
-                    "Error while retrieving schedule data")
-        raise Exception()
+    except OSError as e:
+        bot.log.error(e)
