@@ -86,9 +86,10 @@ BYTEBOT_PLUGIN_CONFIG = {
         'lng': '11.0394426',
         'rad': '10',
     },
-    'ccc32c3': {
-        'events_json_path': os.path.dirname(
-            os.path.abspath(__file__)) + "/data/events_32c3.json",
+    'cccongress': {
+        'url': 'https://events.ccc.de/congress/YEAR/Fahrplan/schedule.json',
+        'cache': '/tmp/cccongress.cache',
+        'announce_minutes': 15,
     },
     'weather': {
         'api_key': 'your_apikey',
