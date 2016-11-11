@@ -127,7 +127,12 @@ def _schedule_information(bot, target):
     """Output information about schedule"""
 
     config = BYTEBOT_PLUGIN_CONFIG['cccongress']
-    json_data = _get_json_data()
+
+    try:
+        json_data = _get_json_data()
+    except Exception:
+        bot.privmsg(target, "Schedule information unavailable.")
+        return
 
     bot.privmsg(
         target,
@@ -166,18 +171,26 @@ def _output_help(bot, target):
 def _get_json_data():
     """Get json from cached file"""
 
-    with open(BYTEBOT_PLUGIN_CONFIG['cccongress']['cache']) as json_file:
-        return json.load(json_file)
+    try:
+        with open(BYTEBOT_PLUGIN_CONFIG['cccongress']['cache']) as json_file:
+            return json.load(json_file)
+    except OSError as e:
+        raise Exception(e)
 
 
-def _get_talk(hall, slot=0, bot=None):
+def _get_talk(hall, slot=0):
     """Get talks for a hall
 
         hall: Name of hall
         slot: Get talks running now (slot = 0) or next (slot = 1)
     """
 
-    json_data = _get_json_data()
+    try:
+        json_data = _get_json_data()
+    except:
+        """Silently ignore errors"""
+        return []
+
     now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
 
     for day in json_data['schedule']['conference']['days']:
@@ -211,7 +224,11 @@ def _get_talk(hall, slot=0, bot=None):
 
 def _get_halls():
 
-    json_data = _get_json_data()
+    try:
+        json_data = _get_json_data()
+    except Exception as e:
+        """Silently ignore errors"""
+        return []
 
     halls = []
     for day in json_data['schedule']['conference']['days']:
@@ -231,7 +248,7 @@ def _get_persons(event):
 
 @asyncio.coroutine
 def _update_cache(bot):
-    """ Update cached schedule """
+    """Update cached schedule"""
 
     config = BYTEBOT_PLUGIN_CONFIG['cccongress']
     config['cache_etag'] = config['cache'] + '.etag'
