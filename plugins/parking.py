@@ -30,15 +30,9 @@ def parking(bot, mask, target, args):
 
             root = ET.fromstring(r)
             for lot in root.findall('ph'):
-                name = lot.find('longname').text
-                use = int(lot.find('belegung').text)
-                max = int(lot.find('kapazitaet').text)
-
-                print_str = \
-                    "   {:32}".format(name) + \
-                    "{:3}".format(max - use) + \
-                    " von " + \
-                    "{:3}".format(max) + \
-                    " frei"
-
-                bot.privmsg(target, print_str)
+                bot.privmsg(target,
+                            "    {name:32}{use:3} von {max:3} frei".format(
+                                name=lot.find('longname').text,
+                                use=int(lot.find('belegung').text),
+                                max=int(lot.find('kapazitaet').text)
+                            ))
