@@ -75,7 +75,7 @@ BYTEBOT_PLUGIN_CONFIG = {
         'clarifai_app_secret': 'yourappsecret',
     },
     'parking': {
-        'url': 'http://parken.cjcj.de/erfurt/',
+        'url': 'parking_url',
     },
     'mensa': {
         'canteen': 148,
