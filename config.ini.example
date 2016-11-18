@@ -58,3 +58,7 @@ mkzero!*@* = all_permissions
 [irc3.plugins.logger]
 channels = #bytespeicher-testing
 filename = logs/{host}/{channel}-{date:%Y-%m-%d}.log
+
+[plugins.autotopic]
+topic = Test topic mit 100% Funktionen
+channels = #bytespeicher-testing
