@@ -31,6 +31,12 @@ BYTEBOT_PLUGIN_CONFIG = {
             'cache': '/tmp/feed_rm_bytespeicher.cache',
             'type': 'redmine',
         },
+        {
+            'name': 'SpacestatusCommits',
+            'url': 'https://github.com/Bytespeicher/space-status/commits/master.atom',
+            'cache': '/tmp/feed_spacestatus.cache',
+            'type': 'github'
+        },
     ],
     'dates': {
         'url': 'http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics',
@@ -69,21 +75,28 @@ BYTEBOT_PLUGIN_CONFIG = {
         'clarifai_app_secret': 'yourappsecret',
     },
     'parking': {
-        'url': 'http://parken.cjcj.de/erfurt/',
+        'url': 'parking_url',
     },
     'mensa': {
         'canteen': 148,
     },
     'fuel': {
         'apikey': 'thiswoudbeyourapikey',
+        'lat': '50.9827792',
+        'lng': '11.0394426',
+        'rad': '10',
     },
-    'ccc32c3': {
-        'events_json_path': os.path.dirname(
-            os.path.abspath(__file__)) + "/data/events_32c3.json",
+    'cccongress': {
+        'url': 'https://events.ccc.de/congress/YEAR/Fahrplan/schedule.json',
+        'cache': '/tmp/cccongress.cache',
+        'announce_minutes': 15,
     },
     'weather': {
         'api_key': 'your_apikey',
         'url': 'http://api.openweathermap.org/data/2.5/weather?units=metric&q=',
-        'location': 'Erfurt,de'
+        'location': 'city,countrycode'
+    },
+    'wikipedia': {
+        'url': 'https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles='
     },
 }
