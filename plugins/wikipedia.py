@@ -18,7 +18,7 @@ def wikipedia(bot, mask, target, args):
     config = BYTEBOT_PLUGIN_CONFIG['wikipedia']
 
     if ' '.join(args['<topic>']) == 'help':
-        return 'Use !wikipedia TOPIC to show wikipedia informations about topic'
+        return 'Use !wikipedia TOPIC to show wikipedia abstract about topic'
 
     """Request the wikipedia content."""
     with aiohttp.Timeout(10):
