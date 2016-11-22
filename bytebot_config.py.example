@@ -100,4 +100,7 @@ BYTEBOT_PLUGIN_CONFIG = {
         'url': 'https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles=',
         'length_of_abstract': 400
     },
+    'betterplace': {
+          'id': 24759,
+    },
 }
