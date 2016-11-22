@@ -39,7 +39,8 @@ def betterplace(bot, mask, target, args):
             for d in projects["data"]:
                 if(d["closed_at"] == None):
                     bot.privmsg(target,
-                                "  {name:35} {got:3}€ von {want:3}€ gespendet".format(
+                                " {name:35}" +
+                                " {got:3}€ von {want:3}€ gespendet".format(
                                     name=d["title"],
                                     got=int(
                                         d["donated_amount_in_cents"]) / 100,
