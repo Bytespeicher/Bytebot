@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import re
 from datetime import datetime, timedelta
 
 from icalendar import Calendar
@@ -46,7 +47,19 @@ class dates(Plugin):
             return
 
         f = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
-        cal = Calendar.from_ical(f.read())
+
+        """
+        icalender does not like to see any X-APPLE-MAPKIT-HANDLEs,
+        so lets replace all X-APPLE-MAPKIT-HANDLEs with nothing
+        """
+        applefilter = re.compile(
+                r"X-APPLE-MAPKIT-HANDLE.*?;",
+                re.MULTILINE | re.DOTALL)
+        ical_orig = f.read()
+        ical_filtered = applefilter.sub("", ical_orig)
+
+        cal = Calendar.from_ical(ical_filtered)
+
         now = datetime.now().replace(
             hour=0, minute=0, second=0, microsecond=0)
         then = now + timedelta(
