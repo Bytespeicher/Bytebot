@@ -1,10 +1,10 @@
 from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 import irc3
 from irc3 import asyncio
-from irc3.plugins.command import command
 from irc3.plugins.cron import cron
 from lib.spaceapi import spaceapi
 import re
+
 
 @irc3.plugin
 class autotopic:
@@ -20,7 +20,9 @@ class autotopic:
         """Change the topic each minute on demand"""
         try:
             data = yield from spaceapi(self.bot)
-            current_topic = yield from self.bot.async_cmds.topic(self.bot.config.autojoins[0])
+            current_topic = yield from self.bot.async_cmds.topic(
+                self.bot.config.autojoins[0]
+            )
             topic = BYTEBOT_PLUGIN_CONFIG['autotopic']
 
             if data['state']['open']:
@@ -31,7 +33,8 @@ class autotopic:
                 status = 'closed'
 
             try:
-                old_status = re.search('Space is (open|closed)', current_topic['topic'])
+                old_status = re.search('Space is (open|closed)',
+                                       current_topic['topic'])
                 old_status = old_status.group(1)
             except Exception as e:
                 old_status = 'closed'

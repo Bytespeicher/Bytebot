@@ -11,7 +11,7 @@ def spaceapi(bot, target=None):
             resp = yield from session.get(
                 BYTEBOT_PLUGIN_CONFIG['spacestatus']['url'])
             if resp.status != 200:
-                if target != None:
+                if target is not None:
                     bot.privmsg(target, "Error while retrieving spaceapi data")
                 raise Exception()
             r = yield from resp.read()
