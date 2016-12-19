@@ -61,7 +61,7 @@ BYTEBOT_PLUGIN_CONFIG = {
         }
     },
     'spacestatus': {
-        'url': 'http://status.bytespeicher.org/status.json'
+        'url': 'https://status.bytespeicher.org/status.json'
     },
     'ircquestions': {
         'location': 'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
@@ -87,7 +87,7 @@ BYTEBOT_PLUGIN_CONFIG = {
         'rad': '10',
     },
     'cccongress': {
-        'url': 'https://events.ccc.de/congress/YEAR/Fahrplan/schedule.json',
+        'url': 'https://fahrplan.events.ccc.de/congress/YEAR/Fahrplan/schedule.json',
         'cache': '/tmp/cccongress.cache',
         'announce_minutes': 15,
     },
