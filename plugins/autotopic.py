@@ -1,54 +1,43 @@
-import json
-import re
-import aiohttp
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+import irc3
 from irc3 import asyncio
-from irc3 import rfc
-from irc3 import event
+from irc3.plugins.command import command
 from irc3.plugins.cron import cron
+from lib.spaceapi import spaceapi
+import re
 
-from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
+@irc3.plugin
+class autotopic:
 
+    requires = ['irc3.plugins.async']
 
-@cron('* * * * *')
-@asyncio.coroutine
-def autotopic(bot):
-    bot.topic(BYTEBOT_CHANNEL)
-    bot.log.info('requested channel topic')
+    def __init__(self, bot):
+        self.bot = bot
 
-
-@event(rfc.TOPIC)
-def myevent(bot, srv=None, me=None, channel=None, data=None):
-    bot.log.info('test')
-    try:
-        bot.topic(channel, topic="TESTTOPIC")
-        topic = BYTEBOT_TOPIC
-        with aiohttp.Timeout(10):
-            with aiohttp.ClientSession(loop=bot.loop) as session:
-                resp = yield from session.get(BYTEBOT_STATUS_URL)
-                if resp.status != 200:
-                    bot.log.info("Error retrieving status")
-                    raise Exception()
-                response = yield from resp.read()
-
-        data = json.loads(response.decode('utf-8'))
-        if data['state']['open'] is True:
-            topic += u' | Space is open'
-            status = 'open'
-        else:
-            topic += u' | Space is closed'
-            status = 'closed'
-
+    @cron('* * * * *')
+    @asyncio.coroutine
+    def cron_topic(self):
+        """Change the topic each minute on demand"""
         try:
-            old_status = re.search('Space is (open|closed)', old_topic[2])
-            old_status = old_status.group(1)
-        except Exception as e:
-            old_status = "closed"
+            data = yield from spaceapi(self.bot)
+            current_topic = yield from self.bot.async_cmds.topic(self.bot.config.autojoins[0])
+            topic = BYTEBOT_PLUGIN_CONFIG['autotopic']
 
-        if old_status != status:
-            bot.log.info(bot.topic(
-                channel,
-                topic
-            ))
-    except Exception as e:
-        bot.log.error(e)
-        bot.log.error("Error while setting topic")
+            if data['state']['open']:
+                topic += u' | Space is open'
+                status = 'open'
+            else:
+                topic += u' | Space is closed'
+                status = 'closed'
+
+            try:
+                old_status = re.search('Space is (open|closed)', current_topic['topic'])
+                old_status = old_status.group(1)
+            except Exception as e:
+                old_status = 'closed'
+
+            if old_status != status:
+                self.bot.topic(self.bot.config.autojoins[0], topic)
+
+        except Exception as e:
+            self.bot.log.error(e)
