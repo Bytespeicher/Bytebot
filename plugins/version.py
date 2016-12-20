@@ -3,6 +3,7 @@ from irc3.plugins.command import command
 
 from git import Repo
 import time
+import os
 
 
 @command(permission="view")
@@ -14,7 +15,11 @@ def version(bot, mask, target, args):
     """
 
     try:
-        repo = Repo()
+        """Get path of plugins folder and derive git root"""
+        git_root = os.path.dirname(os.path.realpath(__file__))[:-8]
+
+        """Get information from git"""
+        repo = Repo(git_root)
         bot.privmsg(
             target,
             "Bot is running on commit %s" % repo.head.commit.hexsha
