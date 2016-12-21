@@ -78,11 +78,6 @@ BYTEBOT_PLUGIN_CONFIG = {
         'lng': '11.0394426',
         'rad': '10',
     },
-    'cccongress': {
-        'url': 'https://fahrplan.events.ccc.de/congress/YEAR/Fahrplan/schedule.json',
-        'cache': '/tmp/cccongress.cache',
-        'announce_minutes': 15,
-    },
     'weather': {
         'api_key': 'your_apikey',
         'url': 'http://api.openweathermap.org/data/2.5/weather?units=metric&q=',

@@ -1,4 +1,3 @@
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 from irc3.plugins.command import command
 from irc3.plugins.cron import cron
@@ -11,6 +10,12 @@ import os
 import json
 
 
+def cccongress_configuration(bot):
+    """Load configuration"""
+    config = {'cache': '/tmp/cccongress.cache', 'announce_minutes': 15}
+    config.update(bot.config.get(__name__, {}))
+
+
 @command(permission="view")
 @asyncio.coroutine
 def cccongress(bot, mask, target, args):
@@ -19,7 +24,7 @@ def cccongress(bot, mask, target, args):
         %%cccongress [<command>]
     """
 
-    config = BYTEBOT_PLUGIN_CONFIG['cccongress']
+    config = cccongress_configuration(bot)
 
     if not os.path.isfile(config['cache']):
         yield from _update_cache(bot)
@@ -52,7 +57,7 @@ def cccongress_update_cron(bot):
 def cccongress_announce_next_talks(bot):
     """Announce next talks"""
 
-    config = BYTEBOT_PLUGIN_CONFIG['cccongress']
+    config = cccongress_configuration(bot)
 
     announcelist = []
     for hall in _get_halls():
@@ -126,7 +131,7 @@ def _output_single_talk(hall, event, bot, target):
 def _schedule_information(bot, target):
     """Output information about schedule"""
 
-    config = BYTEBOT_PLUGIN_CONFIG['cccongress']
+    config = cccongress_configuration(bot)
 
     try:
         json_data = _get_json_data()
