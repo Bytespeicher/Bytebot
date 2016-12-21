@@ -62,3 +62,6 @@ filename = logs/{host}/{channel}-{date:%Y-%m-%d}.log
 [plugins.autotopic]
 topic = Test topic mit 100% Funktionen
 channels = #bytespeicher-testing
+
+[plugins.parking]
+# url = parking_url

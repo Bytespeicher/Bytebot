@@ -1,6 +1,4 @@
 ﻿from irc3.plugins.command import command
-
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 import aiohttp
 import xml.etree.ElementTree as ET
@@ -13,7 +11,10 @@ def parking(bot, mask, target, args):
 
         %%parking
     """
-    config = BYTEBOT_PLUGIN_CONFIG['parking']
+
+    """Load configuration"""
+    config = {'url' : 'parking_url'}
+    config.update(bot.config.get(__name__, {}))
 
     if config['url'] == "parking_url":
         return "I don't have your parking url!"

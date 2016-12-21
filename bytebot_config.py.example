@@ -74,9 +74,6 @@ BYTEBOT_PLUGIN_CONFIG = {
         'clarifai_app_id': 'yourappid',
         'clarifai_app_secret': 'yourappsecret',
     },
-    'parking': {
-        'url': 'parking_url',
-    },
     'mensa': {
         'canteen': 148,
     },
