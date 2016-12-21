@@ -1,4 +1,3 @@
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 from irc3.plugins.command import command
 
@@ -21,11 +20,14 @@ def dates(bot, mask, target, args):
         %%dates
     """
 
+    """Load configuration"""
+    config = {'url': '', 'timedelta': 21}
+    config.update(bot.config.get(__name__, {}))
+
     """Request the ical file."""
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from session.get(
-                BYTEBOT_PLUGIN_CONFIG['dates']['url'])
+            resp = yield from session.get(config['url'])
             if resp.status == 200:
                 """Get text content from http request."""
                 r = yield from resp.text()
@@ -38,7 +40,7 @@ def dates(bot, mask, target, args):
         now = datetime.now().replace(
             hour=0, minute=0, second=0, microsecond=0)
         then = now + timedelta(
-            days=BYTEBOT_PLUGIN_CONFIG['dates']['timedelta'])
+            days=config['timedelta'])
         found = 0
 
         data = []

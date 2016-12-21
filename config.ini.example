@@ -62,5 +62,9 @@ filename = logs/{host}/{channel}-{date:%Y-%m-%d}.log
 [plugins.autotopic]
 topic = Testtopic mit 100% Funktionen
 
+[plugins.dates]
+url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics
+# timedelta = 21
+
 [plugins.parking]
 # url = parking_url
