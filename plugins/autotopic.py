@@ -1,4 +1,3 @@
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 import irc3
 from irc3 import asyncio
 from irc3.plugins.cron import cron
@@ -14,6 +13,10 @@ class autotopic:
     def __init__(self, bot):
         self.bot = bot
 
+        """Load configuration"""
+        self.config = {'topic' : ''}
+        self.config.update(self.bot.config.get(__name__, {}))
+
     @cron('* * * * *')
     @asyncio.coroutine
     def cron_topic(self):
@@ -23,7 +26,7 @@ class autotopic:
             current_topic = yield from self.bot.async_cmds.topic(
                 self.bot.config.autojoins[0]
             )
-            topic = BYTEBOT_PLUGIN_CONFIG['autotopic']
+            topic = self.config['topic']
 
             if data['state']['open']:
                 topic += u' | Space is open'
