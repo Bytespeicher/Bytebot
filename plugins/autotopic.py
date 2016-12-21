@@ -1,25 +1,31 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-import json
+from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+import irc3
+from irc3 import asyncio
+from irc3.plugins.cron import cron
+from lib.spaceapi import spaceapi
 import re
-from urllib import urlopen
-
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_STATUS_URL, BYTEBOT_TOPIC, BYTEBOT_CHANNEL
 
 
-class autotopic(Plugin):
+@irc3.plugin
+class autotopic:
 
-    def minuteCron(self, irc):
+    requires = ['irc3.plugins.async']
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @cron('* * * * *')
+    @asyncio.coroutine
+    def cron_topic(self):
+        """Change the topic each minute on demand"""
         try:
-            irc.topic(BYTEBOT_CHANNEL)
-            old_topic = irc.current_topic
+            data = yield from spaceapi(self.bot)
+            current_topic = yield from self.bot.async_cmds.topic(
+                self.bot.config.autojoins[0]
+            )
+            topic = BYTEBOT_PLUGIN_CONFIG['autotopic']
 
-            topic = BYTEBOT_TOPIC
-            response = urlopen(BYTEBOT_STATUS_URL)
-            data = json.loads(response.read())
-            if data['state']['open'] is True:
+            if data['state']['open']:
                 topic += u' | Space is open'
                 status = 'open'
             else:
@@ -27,17 +33,14 @@ class autotopic(Plugin):
                 status = 'closed'
 
             try:
-                old_status = re.search('Space is (open|closed)', old_topic[2])
+                old_status = re.search('Space is (open|closed)',
+                                       current_topic['topic'])
                 old_status = old_status.group(1)
             except Exception as e:
-                old_status = "closed"
+                old_status = 'closed'
 
             if old_status != status:
-                irc.topic(
-                    BYTEBOT_CHANNEL,
-                    unicode(topic).encode('utf-8', errors='replace')
-                )
-                irc.topic(BYTEBOT_CHANNEL)
+                self.bot.topic(self.bot.config.autojoins[0], topic)
+
         except Exception as e:
-            print(e)
-            print("Error while setting topic")
+            self.bot.log.error(e)
