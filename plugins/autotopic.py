@@ -14,7 +14,7 @@ class autotopic:
         self.bot = bot
 
         """Load configuration"""
-        self.config = {'topic' : ''}
+        self.config = {'topic': ''}
         self.config.update(self.bot.config.get(__name__, {}))
 
     @cron('* * * * *')

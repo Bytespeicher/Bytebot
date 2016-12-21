@@ -13,7 +13,7 @@ def parking(bot, mask, target, args):
     """
 
     """Load configuration"""
-    config = {'url' : 'parking_url'}
+    config = {'url': 'parking_url'}
     config.update(bot.config.get(__name__, {}))
 
     if config['url'] == "parking_url":
