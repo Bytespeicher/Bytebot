@@ -74,6 +74,11 @@ url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.cal
 [plugins.parking]
 # url = parking_url
 
+[plugins.weather]
+api_key = your_apikey
+url = http://api.openweathermap.org/data/2.5/weather?units=metric&q=
+location' = city,countrycode
+
 [plugins.wikipedia]
 url = https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles=
 # length_of_abstract = 400
