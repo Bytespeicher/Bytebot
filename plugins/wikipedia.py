@@ -1,4 +1,3 @@
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 from irc3.plugins.command import command
 
@@ -15,7 +14,9 @@ def wikipedia(bot, mask, target, args):
         %%wikipedia <topic>...
     """
 
-    config = BYTEBOT_PLUGIN_CONFIG['wikipedia']
+    """Load configuration"""
+    config = {'length_of_abstract': 400}
+    config.update(bot.config.get(__name__, {}))
 
     if ' '.join(args['<topic>']) == 'help':
         return 'Use !wikipedia TOPIC to show wikipedia abstract about topic'

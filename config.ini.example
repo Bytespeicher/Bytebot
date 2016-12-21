@@ -73,3 +73,7 @@ url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.cal
 
 [plugins.parking]
 # url = parking_url
+
+[plugins.wikipedia]
+url = https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles=
+# length_of_abstract = 400

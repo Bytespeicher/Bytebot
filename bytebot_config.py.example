@@ -83,8 +83,4 @@ BYTEBOT_PLUGIN_CONFIG = {
         'url': 'http://api.openweathermap.org/data/2.5/weather?units=metric&q=',
         'location': 'city,countrycode'
     },
-    'wikipedia': {
-        'url': 'https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles=',
-        'length_of_abstract': 400
-    },
 }
