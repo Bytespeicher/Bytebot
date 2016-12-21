@@ -16,7 +16,7 @@ def version(bot, mask, target, args):
 
     try:
         """Get path of plugins folder and derive git root"""
-        git_root = os.path.dirname(os.path.realpath(__file__))[:-8]
+        git_root = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
         """Get information from git"""
         repo = Repo(git_root)
