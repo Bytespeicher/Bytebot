@@ -29,10 +29,19 @@ def parking(bot, mask, target, args):
             r = yield from resp.read()
 
             root = ET.fromstring(r)
+
+            """Sort XML by element longname"""
+            root[:] = sorted(root, key=lambda key: key.findtext("longname"))
+
             for lot in root.findall('ph'):
-                bot.privmsg(target,
-                            "    {name:32}{use:3} von {max:3} frei".format(
-                                name=lot.find('longname').text,
-                                use=int(lot.find('belegung').text),
-                                max=int(lot.find('kapazitaet').text)
-                            ))
+                bot.privmsg(
+                    target,
+                    "    {name:32}{use:3} von {max:3} frei".format(
+                        name=lot.find('longname').text,
+                        use=(
+                            int(lot.find('kapazitaet').text) -
+                            int(lot.find('belegung').text)
+                        ),
+                        max=int(lot.find('kapazitaet').text)
+                    )
+                )
