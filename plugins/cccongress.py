@@ -14,6 +14,7 @@ def cccongress_configuration(bot):
     """Load configuration"""
     config = {'cache': '/tmp/cccongress.cache', 'announce_minutes': 15}
     config.update(bot.config.get(__name__, {}))
+    return config
 
 
 @command(permission="view")
@@ -34,7 +35,7 @@ def cccongress(bot, mask, target, args):
     if args['<command>'] is None:
         yield from _output_talks(0, bot, target)
     elif args['<command>'] == 'halls':
-        bot.privmsg(target, "Available halls: %s" % ', '.join(_get_halls()))
+        bot.privmsg(target, "Available halls: %s" % ', '.join(_get_halls(bot)))
     elif args['<command>'] == 'next':
         yield from _output_talks(1, bot, target)
     elif args['<command>'] == 'schedule':
@@ -60,7 +61,7 @@ def cccongress_announce_next_talks(bot):
     config = cccongress_configuration(bot)
 
     announcelist = []
-    for hall in _get_halls():
+    for hall in _get_halls(bot):
         """Get next event for hall"""
         event = _get_talk(hall, 1)
         if event is not None:
@@ -97,7 +98,7 @@ def _output_talks(slot, bot, target):
     """
 
     event_counter = 0
-    for hall in _get_halls():
+    for hall in _get_halls(bot):
         event = _get_talk(hall, slot)
         if event is not None:
             event_counter += 1
@@ -134,7 +135,7 @@ def _schedule_information(bot, target):
     config = cccongress_configuration(bot)
 
     try:
-        json_data = _get_json_data()
+        json_data = _get_json_data(bot)
     except Exception:
         bot.privmsg(target, "Schedule information unavailable.")
         return
@@ -173,11 +174,13 @@ def _output_help(bot, target):
     bot.privmsg(target, "!cccongress schedule - Show schedule information")
 
 
-def _get_json_data():
+def _get_json_data(bot):
     """Get json from cached file"""
 
+    config = cccongress_configuration(bot)
+
     try:
-        with open(BYTEBOT_PLUGIN_CONFIG['cccongress']['cache']) as json_file:
+        with open(config['cache']) as json_file:
             return json.load(json_file)
     except OSError as e:
         raise Exception(e)
@@ -191,7 +194,7 @@ def _get_talk(hall, slot=0):
     """
 
     try:
-        json_data = _get_json_data()
+        json_data = _get_json_data(bot)
     except:
         """Silently ignore errors"""
         return []
@@ -227,10 +230,10 @@ def _get_talk(hall, slot=0):
     return None
 
 
-def _get_halls():
+def _get_halls(bot):
 
     try:
-        json_data = _get_json_data()
+        json_data = _get_json_data(bot)
     except Exception as e:
         """Silently ignore errors"""
         return []
@@ -258,7 +261,7 @@ def _update_cache(bot, cron=0):
         cron: defines whether update was triggered by cron or not
     """
 
-    config = BYTEBOT_PLUGIN_CONFIG['cccongress']
+    config = cccongress_configuration(bot)
     config['cache_etag'] = config['cache'] + '.etag'
     config['url'] = config['url'].replace('YEAR',
                                           str(datetime.datetime.now().year))
