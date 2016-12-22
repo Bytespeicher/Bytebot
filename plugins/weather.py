@@ -13,8 +13,7 @@ def weather(bot, mask, target, args):
     """
 
     """Load configuration"""
-    config = {}
-    config.update(bot.config.get(__name__, {}))
+    config = bot.config.get(__name__, {})
 
     if config['api_key'] == "your_apikey":
         return "I don't have your api key!"
