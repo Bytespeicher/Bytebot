@@ -67,6 +67,11 @@ mkzero!*@* = all_permissions
 channels = #bytespeicher-testing
 filename = logs/{host}/{channel}-{date:%Y-%m-%d}.log
 
+[plugins.bytehelp]
+location = http://technikkultur-erfurt.de/bytespeicher:anfahrt
+dates = http://technikkultur-erfurt.de/bytespeicher:veranstaltungen
+versorgung = http://technikkultur-erfurt.de/bytespeicher:versorgung
+
 [plugins.autotopic]
 topic = Testtopic mit 100% Funktionen
 

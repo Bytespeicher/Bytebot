@@ -58,11 +58,6 @@ BYTEBOT_PLUGIN_CONFIG = {
     'spacestatus': {
         'url': 'https://status.bytespeicher.org/status.json'
     },
-    'ircquestions': {
-        'location': 'http://technikkultur-erfurt.de/bytespeicher:anfahrt',
-        'dates': 'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
-        'versorgung': 'http://technikkultur-erfurt.de/bytespeicher:versorgung',
-    },
     'mensa': {
         'canteen': 148,
     },
