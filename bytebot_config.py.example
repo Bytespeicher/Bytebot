@@ -61,10 +61,4 @@ BYTEBOT_PLUGIN_CONFIG = {
     'mensa': {
         'canteen': 148,
     },
-    'fuel': {
-        'apikey': 'thiswoudbeyourapikey',
-        'lat': '50.9827792',
-        'lng': '11.0394426',
-        'rad': '10',
-    },
 }

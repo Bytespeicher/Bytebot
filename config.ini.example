@@ -84,6 +84,12 @@ url = https://fahrplan.events.ccc.de/congress/YEAR/Fahrplan/schedule.json
 url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics
 # timedelta = 21
 
+[plugins.fuel]
+apikey = your_apikey
+# lat = 50.9827792
+# lng = 11.0394426
+# rad = 10
+
 [plugins.parking]
 # url = parking_url
 
