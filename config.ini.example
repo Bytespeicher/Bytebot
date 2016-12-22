@@ -123,6 +123,9 @@ SpacestatusCommits =
 clarifai_app_id = yourappid
 clarifai_app_secret = yourappsecret
 
+[plugins.status]
+url = https://status.bytespeicher.org/status.json
+
 [plugins.weather]
 api_key = your_apikey
 url = http://api.openweathermap.org/data/2.5/weather?units=metric&q=

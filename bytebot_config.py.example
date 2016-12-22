@@ -1,6 +1,5 @@
 import os
 
-BYTEBOT_STATUS_URL = 'http://status.bytespeicher.org/status.json'
 BYTEBOT_HTTP_TIMEOUT = 3
 BYTEBOT_HTTP_MAXSIZE = 1024 * 1024 * 10
 
@@ -22,9 +21,6 @@ BYTEBOT_PLUGIN_CONFIG = {
                 'username!~user@example.com'
             ],
         }
-    },
-    'spacestatus': {
-        'url': 'https://status.bytespeicher.org/status.json'
     },
     'mensa': {
         'canteen': 148,
