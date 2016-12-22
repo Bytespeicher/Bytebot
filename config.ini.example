@@ -93,6 +93,32 @@ apikey = your_apikey
 [plugins.parking]
 # url = parking_url
 
+[plugins.rss]
+# RSS-Name =
+#     URL to RSS feed
+#     Tempfile for caching
+#     feed type (dokuwiki, wordpress, github, redmine)
+Wiki =
+    http://www.technikkultur-erfurt.de/feed.php
+    /tmp/feed_wiki.cache
+    dokuwiki
+Website =
+    https://bytespeicher.org/feed/
+    /tmp/feed_website.cache
+    wordpress
+BytebotCommits =
+    https://github.com/Bytespeicher/Bytebot/commits/master.atom
+    /tmp/feed_bytebot.cache
+    github
+Redmine =
+    http://redmine.bytespeicher.org/issues.atom
+    /tmp/feed_rm_bytespeicher.cache
+    redmine
+SpacestatusCommits =
+    https://github.com/Bytespeicher/space-status/commits/master.atom
+    /tmp/feed_spacestatus.cache
+    github
+
 [plugins.shorturl]
 clarifai_app_id = yourappid
 clarifai_app_secret = yourappsecret

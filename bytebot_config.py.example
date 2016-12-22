@@ -5,38 +5,6 @@ BYTEBOT_HTTP_TIMEOUT = 3
 BYTEBOT_HTTP_MAXSIZE = 1024 * 1024 * 10
 
 BYTEBOT_PLUGIN_CONFIG = {
-    'rss': [
-        {
-            'name': 'Wiki',
-            'url': 'http://www.technikkultur-erfurt.de/feed.php',
-            'cache': '/tmp/feed_wiki.cache',
-            'type': 'dokuwiki',
-        },
-        {
-            'name': 'Website',
-            'url':  'https://bytespeicher.org/feed/',
-            'cache': '/tmp/feed_website.cache',
-            'type': 'wordpress',
-        },
-        {
-            'name': 'BytebotCommits',
-            'url': 'https://github.com/Bytespeicher/Bytebot/commits/master.atom',
-            'cache': '/tmp/feed_bytebot.cache',
-            'type': 'github',
-        },
-        {
-            'name': 'Redmine',
-            'url':  'http://redmine.bytespeicher.org/issues.atom',
-            'cache': '/tmp/feed_rm_bytespeicher.cache',
-            'type': 'redmine',
-        },
-        {
-            'name': 'SpacestatusCommits',
-            'url': 'https://github.com/Bytespeicher/space-status/commits/master.atom',
-            'cache': '/tmp/feed_spacestatus.cache',
-            'type': 'github'
-        },
-    ],
     'messagelogger': {
         'file': '/tmp/irc.log'
     },
