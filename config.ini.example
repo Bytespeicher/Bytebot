@@ -16,7 +16,15 @@ includes =
     irc3.plugins.log
     irc3.plugins.logger
 #    irc3.plugins.ctcp
-    plugins.weather
+#    plugins.autotopic
+#    plugins.bytehelp
+#    plugins.bofh
+#    plugins.cccongress
+#    plugins.fuel
+#    plugins.parking
+#    plugins.shorturl
+#    plugins.status
+#    plugins.weather
 
 # the bot will join #bytebot_channel
 # ${hash} is replaced by the # char
