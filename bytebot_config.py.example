@@ -63,12 +63,6 @@ BYTEBOT_PLUGIN_CONFIG = {
         'dates': 'http://technikkultur-erfurt.de/bytespeicher:veranstaltungen',
         'versorgung': 'http://technikkultur-erfurt.de/bytespeicher:versorgung',
     },
-    'shorturl': {
-        'shortener': 'krzus',
-        'api_key': 'thiswoudbeyourapikey',
-        'clarifai_app_id': 'yourappid',
-        'clarifai_app_secret': 'yourappsecret',
-    },
     'mensa': {
         'canteen': 148,
     },

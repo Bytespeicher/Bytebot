@@ -74,6 +74,10 @@ url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.cal
 [plugins.parking]
 # url = parking_url
 
+[plugins.shorturl]
+clarifai_app_id = yourappid
+clarifai_app_secret = yourappsecret
+
 [plugins.weather]
 api_key = your_apikey
 url = http://api.openweathermap.org/data/2.5/weather?units=metric&q=
