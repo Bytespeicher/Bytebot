@@ -33,11 +33,11 @@ def cccongress(bot, mask, target, args):
                "Please try again in a few minutes!"
 
     if args['<command>'] is None:
-        yield from _output_talks(0, bot, target)
+        yield from _output_talks(bot, 0, target)
     elif args['<command>'] == 'halls':
         bot.privmsg(target, "Available halls: %s" % ', '.join(_get_halls(bot)))
     elif args['<command>'] == 'next':
-        yield from _output_talks(1, bot, target)
+        yield from _output_talks(bot, 1, target)
     elif args['<command>'] == 'schedule':
         yield from _schedule_information(bot, target)
     elif args['<command>'] == "help":
@@ -63,7 +63,7 @@ def cccongress_announce_next_talks(bot):
     announcelist = []
     for hall in _get_halls(bot):
         """Get next event for hall"""
-        event = _get_talk(hall, 1)
+        event = _get_talk(bot, hall, 1)
         if event is not None:
             """Check if event starts in a few minutes"""
             event_start = dateutil.parser.parse(event['date'])
@@ -91,7 +91,7 @@ def cccongress_announce_next_talks(bot):
 
 
 @asyncio.coroutine
-def _output_talks(slot, bot, target):
+def _output_talks(bot, slot, target):
     """Output talks
 
         slot: Output talks running now (slot = 0) or next (slot = 1)
@@ -99,7 +99,7 @@ def _output_talks(slot, bot, target):
 
     event_counter = 0
     for hall in _get_halls(bot):
-        event = _get_talk(hall, slot)
+        event = _get_talk(bot, hall, slot)
         if event is not None:
             event_counter += 1
             yield from _output_single_talk(hall, event, bot, target)
@@ -186,7 +186,7 @@ def _get_json_data(bot):
         raise Exception(e)
 
 
-def _get_talk(hall, slot=0):
+def _get_talk(bot, hall, slot=0):
     """Get talks for a hall
 
         hall: Name of hall
