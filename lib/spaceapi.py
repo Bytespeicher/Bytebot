@@ -7,7 +7,7 @@ from irc3 import asyncio
 def spaceapi(bot, target=None):
 
     """Load configuration"""
-    config = bot.config.get('plugins.status', {})
+    config = bot.config.get(__name__, {})
 
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
