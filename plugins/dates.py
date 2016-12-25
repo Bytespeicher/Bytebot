@@ -1,69 +1,46 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
+from irc3 import asyncio
+from irc3.plugins.command import command
 
+import aiohttp
 import time
-import re
-from datetime import datetime, timedelta
 
+from datetime import datetime, timedelta
+from dateutil.rrule import rruleset, rrulestr
+from dateutil.parser import parse
 from icalendar import Calendar
 from icalendar.prop import vDDDTypes
 from pytz import utc, timezone
-from urllib import urlopen
-from dateutil.rrule import rruleset, rrulestr
-from dateutil.parser import parse
-
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 
 
-class dates(Plugin):
-    def __init__(self):
-        try:
-            BYTEBOT_PLUGIN_CONFIG['dates'].keys()
-        except Exception:
-            raise Exception('ERROR: Plugin "dates" is missing configuration!')
+@command(permission="view")
+@asyncio.coroutine
+def dates(bot, mask, target, args):
+    """Show the planned dates within the next days
 
-        pass
+        %%dates
+    """
 
-    def registerCommand(self, irc):
-        """Registers the '!dates' command to the global command list
+    """Load configuration"""
+    config = {'url': '', 'timedelta': 21}
+    config.update(bot.config.get(__name__, {}))
 
-        irc: An instance of the bytebot. Will be passed by the plugin loader
-        """
+    """Request the ical file."""
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.get(config['url'])
+            if resp.status == 200:
+                """Get text content from http request."""
+                r = yield from resp.text()
+            else:
+                bot.privmsg(target, "Error while retrieving calendar data")
+                raise Exception()
 
-        irc.registerCommand('!dates', 'Shows the next planned dates')
-
-    def onPrivmsg(self, irc, msg, channel, user):
-        """Looks for a '!dates' command in messages posted to the channel and
-        returns a list of dates within the next week.
-
-        irc: An instance of the bytebot. Will be passed by the plugin loader
-        msg: The msg sent to the channel
-        channel: The channels name
-        user: The user who sent the message
-        """
-
-        if msg.find('!dates') == -1:
-            return
-
-        f = urlopen(BYTEBOT_PLUGIN_CONFIG['dates']['url'])
-
-        """
-        icalender does not like to see any X-APPLE-MAPKIT-HANDLEs,
-        so lets replace all X-APPLE-MAPKIT-HANDLEs with nothing
-        """
-        applefilter = re.compile(
-                r"X-APPLE-MAPKIT-HANDLE.*?;",
-                re.MULTILINE | re.DOTALL)
-        ical_orig = f.read()
-        ical_filtered = applefilter.sub("", ical_orig)
-
-        cal = Calendar.from_ical(ical_filtered)
-
+    try:
+        cal = Calendar.from_ical(r)
         now = datetime.now().replace(
             hour=0, minute=0, second=0, microsecond=0)
         then = now + timedelta(
-            days=BYTEBOT_PLUGIN_CONFIG['dates']['timedelta'])
+            days=config['timedelta'])
         found = 0
 
         data = []
@@ -96,7 +73,7 @@ class dates(Plugin):
                 """
                 if "SUMMARY" in ev:
                     found += 1
-                    info = ev["SUMMARY"].encode("utf-8")
+                    info = ev["SUMMARY"]
                 else:
                     continue  # events ohne summary zeigen wir nicht an!
 
@@ -119,8 +96,8 @@ class dates(Plugin):
                 our ruleset with.
                 """
                 if "RRULE" in ev:  # recurrence
-                    ical_dtstart = (ev.get("DTSTART")).to_ical()
-                    ical_rrule = (ev.get('RRULE')).to_ical()
+                    ical_dtstart = (ev.get("DTSTART")).to_ical().decode()
+                    ical_rrule = (ev.get('RRULE')).to_ical().decode()
                     rset.rrule(rrulestr(ical_rrule,
                                         dtstart=parse(ical_dtstart),
                                         ignoretz=1))
@@ -194,9 +171,11 @@ class dates(Plugin):
         events, print some message about this...
         """
         for ev in data:
-            irc.msg(channel, "  %s - %s" % (ev['datetime'], ev['info']))
+            bot.privmsg(target, "  %s - %s" % (ev['datetime'], ev['info']))
 
         if found == 0:
-            irc.msg(channel, "No dates during the next week")
+            bot.privmsg(target, "No dates during the next week")
 
-        f.close()
+    except KeyError:
+        bot.privmsg(target, "Error while retrieving rss data")
+        raise Exception()
