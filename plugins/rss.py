@@ -1,202 +1,214 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-import time
-import os
-import datetime
-
-import feedparser
-import pytz
-from twisted.python import log
 from dateutil import parser
+from irc3 import asyncio
+from irc3.plugins.command import command
+from irc3.plugins.cron import cron
 
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG, BYTEBOT_CHANNEL
-from bytebot_log import LOG_WARN
+import aiohttp
+import datetime
+import feedparser
+import os
+import pytz
+import time
 
 
-class rss(Plugin):
-    def __init__(self):
-        pass
+def rss_configuration(bot):
+    """Load configuration"""
+    config = bot.config.get(__name__, {})
 
-    def registerCommand(self, irc):
-        """Registers the '!rss' command to the global command list
+    """Remove default hash key from config and determine commands"""
+    if 'hash' in config:
+        del config['hash']
 
-        irc: An instance of the bytebot. Will be passed by the plugin loader
-        """
+    return config
 
-        irc.registerCommand('!rss', 'Show the last recent changes')
 
-    def fiveMinuteCron(self, irc):
-        """Checks RSS feed every 5 minutes and post recent changes
+@command(permission="view")
+@asyncio.coroutine
+def rss(bot, mask, target, args):
+    """Show last entries for a rss source
 
-        irc: An instance of the bytebot. Will be passed by the plugin loader
-        """
-        try:
+        %%rss [<feed>]
+    """
 
-            self.irc = irc
-            self.channel = BYTEBOT_CHANNEL
-            for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
-                # process new feed entries
-                self.process_feed(feed)
+    """Load configuration"""
+    config = rss_configuration(bot)
 
-        except Exception as e:
-            print(e)
-            print("Error while processing rss feed")
+    if args['<feed>'] is None:
+        """No argument was given."""
+        bot.privmsg(
+            target,
+            'Use !rss with one of the following parameters'
+        )
 
-    def onPrivmsg(self, irc, msg, channel, user):
-        """Looks for a '!rss' command in messages posted to the channel and
-        returns a list of recent changes.
-
-        irc: An instance of the bytebot. Will be passed by the plugin loader
-        msg:        The msg sent to the channel
-        channel:    The channels name
-        user:       The user who sent the message
-        """
-
-        if msg.find('!rss') == -1:
-            return
-
-        # Found rss command without source, show details
-        if msg.find(' ') == -1:
-            irc.msg(
-                channel,
-                "Use !rss with one of the following second parameter to " +
-                "specify source:"
+        """Output name ordered list of feeds."""
+        for feedname in sorted(config.keys()):
+            bot.privmsg(
+                target,
+                "  %s (%s)" % (feedname.lower(), config[feedname][0])
             )
-            for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
-                irc.msg(
-                    channel,
-                    "  %s (%s)" % (feed['name'].lower(), feed['url'])
-                )
-            return
 
-        self.irc = irc
-        self.channel = channel
+    else:
+        """Argument <feed> was set, check if it is a valid one."""
+        feeds = filter(lambda key: key.lower() == args['<feed>'],
+                       config)
+        if feeds:
+            for feedname in feeds:
+                bot.log.info('Fetching rss feed for %s' % feedname.lower())
+                yield from _rss_process_feed(bot, target,
+                                             feedname, config[feedname], 5)
+        else:
+            bot.privmsg(
+                target,
+                'Invalid feed name. Use !rss to get a list of valid feeds'
+            )
 
-        # Found source, show last feed entries
-        for feed in BYTEBOT_PLUGIN_CONFIG['rss']:
-            if msg.split(' ', 1)[1] == feed['name'].lower():
-                self.process_feed(feed, 5)
 
-    def process_feed(self, feed, numberOfEntries=-1):
-        """Process a rss feed an post numberOfEntries
+@asyncio.coroutine
+def _rss_process_feed(bot, target, feedname, config, number_of_entries=-1):
+    """Process a rss feed an post numberOfEntries
 
         feed:            Dictionary with feed informations
         numberOfEntries: Number of entries to post. -1 means to post
                          only new entries based on cached informations
-        """
+    """
 
-        if numberOfEntries == -1 and os.path.isfile(feed['cache']):
-            # try to read read cache information about last run
-            cache = open(feed['cache'], "r")
-            line = cache.readline()
-            cached_etag = ""
-            last_entry_timestamp = 0
-            if len(line) > 3:
-                (cached_etag, last_entry_timestamp) = line.split(" ", 1)
+    if number_of_entries == -1 and os.path.isfile(config[1]):
+        """Try to read read cache information about last run"""
+        cache = open(config[1], "r")
+        line = cache.readline()
+        cached_etag = ""
+        last_entry_timestamp = 0
+        if len(line) > 3:
+            (cached_etag, last_entry_timestamp) = line.split(" ", 1)
+        get_params = {'etag': cached_etag}
+    else:
+        get_params = {}
 
-            request = feedparser.parse(feed['url'], etag=cached_etag)
-        else:
-            request = feedparser.parse(feed['url'])
+    """Request the rss feed content."""
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.get(config[0], params=get_params)
+            if resp.status == 200:
+                """Get text content and etag from http request."""
+                r = yield from resp.text()
+                r_etag = resp.headers.get('etag')
+            elif resp.status == 304:
+                """Etag was used in request and noting changed."""
+                return
+            else:
+                bot.privmsg(target, "Error while retrieving rss data")
+                raise Exception()
 
-        # Nothing changed
-        if request.status == 304:
-            return
+    try:
+        """Parse feed."""
+        feed = feedparser.parse(r)
+        if feed.bozo:
+            raise Exception(str(feed.bozo_exception))
 
-        # Feed not successfull retrieved, so stop with error
-        if request.status != 200:
-            log.msg("Unknown HTTP status retrieved for feed %s: %d" %
-                    (feed['name'], request.status), level=LOG_WARN)
+        """Remove unneeded entries in feed."""
+        if number_of_entries != -1:
+            feed.entries = feed.entries[0:number_of_entries]
 
-        # local timezone
+        """Use local timezone as source for calculations."""
         timezoneEF = pytz.timezone('Europe/Berlin')
 
-        # remove unneeded entries in feed
-        if numberOfEntries != -1:
-            request.entries = request.entries[0:numberOfEntries]
-
-        if not os.path.isfile(feed['cache']):
+        if not os.path.isfile(config[1]):
             """
             Save new file if none exists and don't post anything. Prevents
             spamming of already posted entries if the cache file was removed.
 
             See https://github.com/Bytespeicher/Bytebot/issues/46
             """
-            request = feedparser.parse(feed['url'])
 
             dt_now = datetime.datetime.utcnow()
             dt_now = dt_now.replace(tzinfo=pytz.utc)
             dt_now.astimezone(timezoneEF)
             dt_now = time.mktime(dt_now.timetuple())
 
-            self.save_cache(filename=feed['cache'],
-                            etag=request.etag,
-                            last_entry=dt_now)
+            _save_cache(filename=config[1],
+                        etag=r_etag,
+                        last_entry=dt_now)
             return
 
         """Traverses feed entries in reversed order (post oldest first)"""
-        for entry in reversed(request.entries):
+        for entry in reversed(feed.entries):
 
-            """parse date of entry dependent on the feedtype and
-            convert to timestamp"""
-            if feed['type'] == 'dokuwiki':
+            """Parse date of entry dependent on the feedtype and
+            convert to timestamp."""
+            if config[2] == 'dokuwiki':
                 dt = parser.parse(entry.date)
-            elif feed['type'] == 'wordpress':
+            elif config[2] == 'wordpress':
                 dt = parser.parse(entry.published)
-            elif feed['type'] in ('github', 'redmine'):
+            elif config[2] in ('github', 'redmine'):
                 dt = parser.parse(entry.updated)
 
             dt.astimezone(timezoneEF)
             dt_timestamp = dt.strftime('%s')
 
-            """skip old entries if we would only new entries"""
-            if numberOfEntries == -1 and last_entry_timestamp >= dt_timestamp:
+            """Skip old entries if we would only new entries."""
+            if number_of_entries == -1 and \
+               last_entry_timestamp >= dt_timestamp:
                 continue
 
-            # create irc message dependent on the feedtype
-            if feed['type'] == 'dokuwiki':
+            """Create irc message dependent on the feedtype."""
+            if config[2] == 'dokuwiki':
                 message = "%s changed %s" % (entry.author,
                                              entry.title.split(" - ", 1)[0])
                 message2 = "(%s)" % entry.link.split("?", 1)[0]
                 if len(entry.title.split(" - ", 1)) == 2:
                     message += " - comment: %s" % entry.title.split(" - ")[1]
-            elif feed['type'] == 'wordpress':
+            elif config[2] == 'wordpress':
                 message = "%s added \"%s\"" % (entry.author,
                                                entry.title_detail.value)
                 message2 = "(%s)" % entry.link
-            elif feed['type'] == 'github':
+            elif config[2] == 'github':
                 message = "%s pushed a new commit:" % entry.author
                 message2 = entry.title
-            elif feed['type'] == 'redmine':
+            elif config[2] == 'redmine':
                 message = "%s: %s" % (entry.author_detail.name, entry.title)
                 message2 = entry.link
 
-            # post messages with named prefix
-            message = "%s | %s" % (feed['name'].upper(), message)
-            message2 = "%s   %s" % (" " * len(feed['name']), message2)
-            self.irc.say(
-                self.channel,
-                unicode(message).encode('utf-8', errors='replace')
-            )
-            self.irc.say(
-                self.channel,
-                unicode(message2).encode('utf-8', errors='replace')
-            )
+            """Post messages with named prefix."""
+            message = "%s | %s" % (feedname.upper(), message)
+            message2 = "%s   %s" % (" " * len(feedname), message2)
+            bot.privmsg(target, message)
+            bot.privmsg(target, message2)
 
-            if numberOfEntries == -1:
-                self.save_cache(filename=feed['cache'],
-                                etag=request.etag,
-                                last_entry=dt_timestamp)
+            """Save etag and last entry informations to cache file"""
+            if number_of_entries == -1:
+                _save_cache(filename=config[1],
+                            etag=r_etag,
+                            last_entry=dt_timestamp)
 
-    def save_cache(self, filename='', etag='', last_entry=''):
-        """Save the cache tags to a file
+    except KeyError:
+        bot.privmsg(target, "Error while retrieving rss data")
+        raise Exception()
 
-        Keyword arguments:
-        etag -- The etag header checksum
-        last_entry -- The timestamp when the latest entry was submitted
-        """
-        cache = open(filename, "w")
-        cache.truncate(0)
-        cache.write('%s %s' % (etag, last_entry))
-        cache.close()
+
+def _save_cache(filename='', etag='', last_entry=''):
+    """
+    Save the cache tags to a file
+
+    Keyword arguments:
+    etag -- The etag header checksum
+    last_entry -- The timestamp when the latest entry was submitted
+    """
+    cache = open(filename, "w")
+    cache.truncate(0)
+    cache.write('%s %s' % (etag, last_entry))
+    cache.close()
+
+
+@cron('*/5 * * * *')
+@asyncio.coroutine
+def rss_cron(bot):
+    """
+    Checks RSS feed every 5 minutes and post recent changes
+    """
+
+    """Load configuration"""
+    config = rss_configuration(bot)
+
+    for feedname in sorted(config.keys()):
+        yield from _rss_process_feed(bot, bot.config.autojoins[0],
+                                     feedname, config[feedname])

@@ -1,62 +1,49 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-from time import time
-
-from plugins.plugin import Plugin
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-import requests
+from irc3.plugins.command import command
+from irc3 import asyncio
+import json
+import aiohttp
 
 
-class weather(Plugin):
+@command(permission="view")
+@asyncio.coroutine
+def weather(bot, mask, target, args):
+    """Show the current weather for a city
+
+        %%weather [<city>]...
     """
-    The weather function read the current temperature of the city Erfurt.
-    It is necessary to register to get an API key from openweathermap
-    http://openweathermap.org/api
-    """
-    def __init__(self):
-        pass
 
-    def registerCommand(self, irc):
-        irc.registerCommand('!weather', 'weather in Erfurt')
+    """Load configuration"""
+    config = bot.config.get(__name__, {})
 
-    def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find('!weather') == -1:
-            return
+    if config['api_key'] == "your_apikey":
+        return "I don't have your api key!"
 
-        self.irc = irc
-        self.channel = channel
+    if '<city>' not in args or len(args['<city>']) < 1:
+        location = config['location']
+    else:
+        location = " ".join(args['<city>'])
 
-        try:
-            last_weather = irc.last_weather
-        except Exception:
-            last_weather = 0
+    bot.log.info('Fetching weather info for %s' % location)
 
-        if last_weather < (time() - 5):
-            config = BYTEBOT_PLUGIN_CONFIG['weather']
+    url = config['url'] + location + '&appid=%s' % config['api_key']
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.get(url)
+            if resp.status != 200:
+                bot.privmsg(target, "Error while retrieving weather data")
+                raise Exception()
+            r = yield from resp.read()
 
-            if msg.find(' ') == -1:
-                location = config['location']
-            else:
-                location = "".join(msg.split(' ')[1:])
+    try:
+        j = json.loads(r.decode('utf-8'))
+        temp = j["main"]["temp"]
+        humidity = j["main"]["humidity"]
+        location = "%s,%s" % (j["name"],
+                              j["sys"]["country"])
+        info = j["weather"][0]["description"]
+    except KeyError:
+        bot.privmsg(target, "Error while retrieving weather data")
+        raise Exception()
 
-            url = config['url'] + location + '&appid=%s' % config['api_key']
-            r = requests.get(url)
-
-            if r.status_code != 200:
-                irc.msg(channel, 'Error while retrieving weather data')
-                return
-
-            try:
-                j = r.json()
-                temp = j["main"]["temp"]
-                location = "%s,%s" % (j["name"].encode('utf-8'),
-                                      j["sys"]["country"].encode('utf-8'))
-            except KeyError:
-                irc.msg(channel, "Error while retrieving weather data")
-                return
-
-            irc.msg(channel, "We have now %2.2f °C in %s" % (temp, location))
-            irc.last_weather = time()
-        else:
-            irc.msg(channel, "Don't overdo it ;)")
+    return "It's %s with %2.2f °C and %d%% humidity in %s" % (
+        info, temp, humidity, location)
