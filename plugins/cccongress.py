@@ -45,7 +45,7 @@ def cccongress(bot, mask, target, args):
 
 
 @cron('1 * 1-26,31 12 *')
-@cron('*/15 * 27-30 12 *')
+@cron('2-59/15 * 27-30 12 *')
 @asyncio.coroutine
 def cccongress_update_cron(bot):
     """Update schedule in December"""
@@ -70,7 +70,14 @@ def cccongress_announce_next_talks(bot):
             designated_start = \
                 datetime.datetime.now(pytz.timezone('Europe/Berlin')) + \
                 datetime.timedelta(minutes=config['announce_minutes'])
-            if event_start == designated_start:
+            """
+            Compare without seconds to prevent problems if
+            process runs multiple seconds
+            """
+            designated_start_compare = \
+                designated_start.strftime('%Y-%m-%d %H:%M')
+            event_start_compare = event_start.strftime('%Y-%m-%d %H:%M')
+            if event_start_compare == designated_start_compare:
                 """Save hall information in event and add to announcelist"""
                 event['hall'] = hall
                 announcelist.append(event)
