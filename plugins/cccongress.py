@@ -45,7 +45,7 @@ def cccongress(bot, mask, target, args):
 
 
 @cron('1 * 1-26,31 12 *')
-@cron('*/15 * 27-30 12 *')
+@cron('2-59/15 * 27-30 12 *')
 @asyncio.coroutine
 def cccongress_update_cron(bot):
     """Update schedule in December"""
