@@ -19,8 +19,6 @@ def parking(bot, mask, target, args):
     if config['url'] == "parking_url":
         return "I don't have your parking url!"
 
-    bot.privmsg(target, 'Parkhausbelegung:')
-
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
             resp = yield from session.get(config['url'])
@@ -29,20 +27,25 @@ def parking(bot, mask, target, args):
                 raise Exception()
             r = yield from resp.read()
 
-            root = ET.fromstring(r)
+    try:
+        root = ET.fromstring(r)
 
-            """Sort XML by element longname"""
-            root[:] = sorted(root, key=lambda key: key.findtext("longname"))
+        """Sort XML by element longname"""
+        root[:] = sorted(root, key=lambda key: key.findtext("longname"))
 
-            for lot in root.findall('ph'):
-                bot.privmsg(
-                    target,
-                    "    {name:32}{use:3} von {max:3} frei".format(
-                        name=lot.find('longname').text,
-                        use=(
-                            int(lot.find('kapazitaet').text) -
-                            int(lot.find('belegung').text)
-                        ),
-                        max=int(lot.find('kapazitaet').text)
-                    )
+        bot.privmsg(target, 'Parkhausbelegung:')
+
+        for lot in root.findall('ph'):
+            bot.privmsg(
+                target,
+                "    {name:32}{use:3} von {max:3} frei".format(
+                    name=lot.find('longname').text,
+                    use=(
+                        int(lot.find('kapazitaet').text) -
+                        int(lot.find('belegung').text)
+                    ),
+                    max=int(lot.find('kapazitaet').text)
                 )
+            )
+    except Exception:
+        bot.privmsg(target, "Error while parsing parking data")
