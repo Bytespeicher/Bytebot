@@ -112,7 +112,7 @@ def dates(bot, mask, target, args):
                     if "EXDATE" in ev:
                         ical_exdate = ev.get('EXDATE')
                         if isinstance(ical_exdate, vDDDLists):
-                            ical_exdate = [ical_exdate] 
+                            ical_exdate = [ical_exdate]
                         for exdate in ical_exdate:
                             rset.exdate(parse(exdate.to_ical()))
 
