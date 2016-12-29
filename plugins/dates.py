@@ -98,7 +98,6 @@ def dates(bot, mask, target, args):
                 if "RRULE" in ev:  # recurrence
                     ical_dtstart = (ev.get("DTSTART")).to_ical().decode()
                     ical_rrule = (ev.get('RRULE')).to_ical().decode()
-
                     rset.rrule(rrulestr(ical_rrule,
                                         dtstart=parse(ical_dtstart),
                                         ignoretz=1))
