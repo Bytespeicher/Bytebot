@@ -181,11 +181,16 @@ def dates(bot, mask, target, args):
                           k['datetime_sort'], "%d.%m.%Y %H:%M").timetuple()))
 
         """
-        spit out all events in database into IRC. If there were no
-        events, print some message about this...
+        Spit out all events in database into IRC. Suppress duplicate lines
+        from nonconforming ics files. If there were no events, print some
+        message about this...
         """
+        last_output = None
         for ev in data:
-            bot.privmsg(target, "  %s - %s" % (ev['datetime'], ev['info']))
+            output = "  %s - %s" % (ev['datetime'], ev['info'])
+            if last_output != output:
+                last_output = output
+                bot.privmsg(target, output)
 
         if found == 0:
             bot.privmsg(target, "No dates during the next week")
