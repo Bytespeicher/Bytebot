@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from dateutil.rrule import rruleset, rrulestr
 from dateutil.parser import parse
 from icalendar import Calendar
-from icalendar.prop import vDDDTypes
+from icalendar.prop import vDDDTypes, vDDDLists
 from pytz import utc, timezone
 
 
@@ -101,6 +101,20 @@ def dates(bot, mask, target, args):
                     rset.rrule(rrulestr(ical_rrule,
                                         dtstart=parse(ical_dtstart),
                                         ignoretz=1))
+
+                    """
+                    Recurrence handling includes exceptions in EXDATE.
+                    First we check if there are EXDATE values. If there
+                    is only one we will convert this also to a list to
+                    simplify handling. We use list entries to feed our
+                    ruleset with.
+                    """
+                    if "EXDATE" in ev:
+                        ical_exdate = ev.get('EXDATE')
+                        if isinstance(ical_exdate, vDDDLists):
+                            ical_exdate = [ical_exdate]
+                        for exdate in ical_exdate:
+                            rset.exdate(parse(exdate.to_ical()))
 
                     """
                     the ruleset now may be used to calculate any datetime
