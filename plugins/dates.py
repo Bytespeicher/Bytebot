@@ -269,7 +269,8 @@ def _update_cache(bot):
                     """Get text content from http request."""
                     r = yield from resp.text()
                 else:
-                    bot.privmsg(target, "Error while retrieving calendar data")
+                    bot.privmsg(bot.config.autojoins[0],
+                                "Error while retrieving calendar data")
                     raise Exception()
 
     except Exception as e:
