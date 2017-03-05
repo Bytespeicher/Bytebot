@@ -86,8 +86,10 @@ url = https://fahrplan.events.ccc.de/congress/YEAR/Fahrplan/schedule.json
 [plugins.dates]
 url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics
 cache = /tmp/dates.cache
-# timedelta = 21
-# announce_minutes = 60,1440
+# Days in the future to show on list request
+list_days = 21
+# Minutes in the future to show event announcement (space separated list for multiple values)
+announce_minutes = 60 1440
 
 [plugins.fuel]
 apikey = your_apikey

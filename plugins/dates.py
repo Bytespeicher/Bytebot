@@ -15,7 +15,7 @@ from pytz import utc, timezone
 
 def dates_configuration(bot):
     """Load configuration"""
-    config = {'url': '', 'timedelta': 21, 'announce_minutes': ''}
+    config = {'url': '', 'list_days': 21, 'announce_minutes': ''}
     config.update(bot.config.get(__name__, {}))
     return config
 
@@ -39,7 +39,7 @@ def dates(bot, mask, target, args):
     yield from output_dates(bot,
                             target,
                             now,
-                            now + timedelta(days=config['timedelta']))
+                            now + timedelta(days=config['list_days']))
 
 
 @cron('*/15 * * * *')
@@ -47,7 +47,6 @@ def dates(bot, mask, target, args):
 def cccongress_update_cron(bot):
     """Update ical file"""
 
-    bot.log.info("Update cache")
     yield from _update_cache(bot)
 
 
@@ -61,7 +60,7 @@ def dates_announce_next_talks(bot):
     now = datetime.utcnow().replace(second=0,
                                     microsecond=0)
 
-    for minutes in config['announce_minutes'].split(','):
+    for minutes in config['announce_minutes'].split(' '):
         yield from output_dates(bot,
                                 bot.config.autojoins[0],
                                 now + timedelta(minutes=int(minutes)),
@@ -246,7 +245,7 @@ def output_dates(bot, target, now, then, announce=0):
         if found == 0 and announce == 0:
             bot.privmsg(
                 target,
-                "No dates during the next %d days" % config['timedelta']
+                "No dates during the next %d days" % config['list_days']
             )
 
     except KeyError:
