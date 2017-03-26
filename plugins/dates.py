@@ -1,5 +1,6 @@
 from irc3 import asyncio
 from irc3.plugins.command import command
+from irc3.plugins.cron import cron
 
 import aiohttp
 import time
@@ -12,6 +13,13 @@ from icalendar.prop import vDDDTypes, vDDDLists
 from pytz import utc, timezone
 
 
+def dates_configuration(bot):
+    """Load configuration"""
+    config = {'url': '', 'list_days': 21, 'announce_minutes': ''}
+    config.update(bot.config.get(__name__, {}))
+    return config
+
+
 @command(permission="view")
 @asyncio.coroutine
 def dates(bot, mask, target, args):
@@ -20,27 +28,64 @@ def dates(bot, mask, target, args):
         %%dates
     """
 
-    """Load configuration"""
-    config = {'url': '', 'timedelta': 21}
-    config.update(bot.config.get(__name__, {}))
+    config = dates_configuration(bot)
 
-    """Request the ical file."""
-    with aiohttp.Timeout(10):
-        with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from session.get(config['url'])
-            if resp.status == 200:
-                """Get text content from http request."""
-                r = yield from resp.text()
-            else:
-                bot.privmsg(target, "Error while retrieving calendar data")
-                raise Exception()
+    now = datetime.utcnow().replace(hour=0,
+                                    minute=0,
+                                    second=0,
+                                    microsecond=0)
+
+    yield from _update_cache(bot)
+    yield from output_dates(bot,
+                            target,
+                            now,
+                            now + timedelta(days=config['list_days']))
+
+
+@cron('*/15 * * * *')
+@asyncio.coroutine
+def cccongress_update_cron(bot):
+    """Update ical file"""
+
+    yield from _update_cache(bot)
+
+
+@cron('* * * * *')
+@asyncio.coroutine
+def dates_announce_next_talks(bot):
+    """Announce next dates"""
+
+    config = dates_configuration(bot)
+
+    now = datetime.utcnow().replace(second=0,
+                                    microsecond=0)
+
+    for minutes in config['announce_minutes'].split(' '):
+        yield from output_dates(bot,
+                                bot.config.autojoins[0],
+                                now + timedelta(minutes=int(minutes)),
+                                now + timedelta(minutes=int(minutes)),
+                                int(minutes))
+
+
+@asyncio.coroutine
+def output_dates(bot, target, now, then, announce=0):
+    """
+    Output dates between now and then.
+    Set announce greater 0 to add announce message and
+    suppresses the No dates found message.
+    """
+
+    config = dates_configuration(bot)
+
+    try:
+        file = open(config['cache'])
+        r = file.read()
+    except OSError as e:
+        raise Exception(e)
 
     try:
         cal = Calendar.from_ical(r)
-        now = datetime.now().replace(
-            hour=0, minute=0, second=0, microsecond=0)
-        then = now + timedelta(
-            days=config['timedelta'])
         found = 0
 
         data = []
@@ -72,7 +117,6 @@ def dates(bot, mask, target, args):
                 discard handling the VEVENT here
                 """
                 if "SUMMARY" in ev:
-                    found += 1
                     info = ev["SUMMARY"]
                 else:
                     continue  # events ohne summary zeigen wir nicht an!
@@ -129,6 +173,7 @@ def dates(bot, mask, target, args):
                     into our "database" of events
                     """
                     for e in rset.between(now, then):
+                        found += 1
                         data.append({
                             'datetime': e.strftime(fmt),
                             'datetime_sort': e.strftime(fmt),
@@ -158,6 +203,7 @@ def dates(bot, mask, target, args):
                     if start < utc.localize(now) or start > utc.localize(then):
                         continue
 
+                    found += 1
                     data.append({
                         'datetime': start.astimezone(timezoneEF).strftime(fmt),
                         'datetime_sort':
@@ -182,9 +228,13 @@ def dates(bot, mask, target, args):
 
         """
         Spit out all events in database into IRC. Suppress duplicate lines
-        from nonconforming ics files. If there were no events, print some
-        message about this...
+        from nonconforming ics files. Add message on announcing events. If
+        there were no events, print some message about this...
         """
+
+        if found > 0 and announce > 0:
+            bot.privmsg(target, "Please notice the next following event(s):")
+
         last_output = None
         for ev in data:
             output = "  %s - %s" % (ev['datetime'], ev['info'])
@@ -192,9 +242,48 @@ def dates(bot, mask, target, args):
                 last_output = output
                 bot.privmsg(target, output)
 
-        if found == 0:
-            bot.privmsg(target, "No dates during the next week")
+        if found == 0 and announce == 0:
+            bot.privmsg(
+                target,
+                "No dates during the next %d days" % config['list_days']
+            )
 
     except KeyError:
-        bot.privmsg(target, "Error while retrieving rss data")
+        bot.privmsg(target, "Error while retrieving dates data")
         raise Exception()
+
+
+@asyncio.coroutine
+def _update_cache(bot):
+    """Update cached ical file"""
+
+    config = dates_configuration(bot)
+
+    try:
+        """Request the ical file."""
+        with aiohttp.Timeout(10):
+            with aiohttp.ClientSession(loop=bot.loop) as session:
+                resp = yield from session.get(config['url'])
+                if resp.status == 200:
+                    """Get text content from http request."""
+                    r = yield from resp.text()
+                else:
+                    bot.privmsg(bot.config.autojoins[0],
+                                "Error while retrieving calendar data")
+                    raise Exception()
+
+    except Exception as e:
+        bot.log.error(e)
+        if cron == 0:
+            bot.privmsg(bot.config.autojoins[0],
+                        "Error while retrieving calendar data")
+
+    try:
+        """ Save ical cache to disk """
+        cache = open(config['cache'], "w")
+        cache.truncate(0)
+        cache.write('%s' % r)
+        cache.close()
+
+    except OSError as e:
+        bot.log.error(e)
