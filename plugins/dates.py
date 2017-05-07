@@ -39,7 +39,8 @@ def dates(bot, mask, target, args):
     yield from output_dates(bot,
                             target,
                             now,
-                            now + timedelta(days=config['list_days']))
+                            now + timedelta(days=config['list_days']),
+                            config['filter_location'])
 
 
 @cron('*/15 * * * *')
@@ -65,13 +66,14 @@ def dates_announce_next_talks(bot):
                                 bot.config.autojoins[0],
                                 now + timedelta(minutes=int(minutes)),
                                 now + timedelta(minutes=int(minutes)),
+                                config['filter_location'],
                                 int(minutes))
 
 
 @asyncio.coroutine
-def output_dates(bot, target, now, then, announce=0):
+def output_dates(bot, target, now, then, filter_location, announce=0):
     """
-    Output dates between now and then.
+    Output dates between now and then and filter default location.
     Set announce greater 0 to add announce message and
     suppresses the No dates found message.
     """
@@ -125,14 +127,16 @@ def output_dates(bot, target, now, then, announce=0):
                 Printing the location of an event is important too.
                 However,
                 the string containing location info may be too long
-                to be viewed nicely in IRC. Since there exits no
-                good solution for this, this feature is coming soon.
+                to be viewed nicely in IRC.
+                We filter our default location and strip every other
+                location to the location name without address.
+                """
 
                 if "LOCATION" in ev:
-                    loc = ev["LOCATION"]
-                else:
-                    loc = "Liebknechtstrasse 8"
+                    if not ev["LOCATION"].startswith(filter_location):
+                        loc = ev["LOCATION"].split(', ')[0]
 
+                """
                 Recurrence handling starts here.
                 First, we check if there is a recurrence rule (RRULE)
                 inside the VEVENT, If so, we use the ical like
@@ -238,6 +242,9 @@ def output_dates(bot, target, now, then, announce=0):
         last_output = None
         for ev in data:
             output = "  %s - %s" % (ev['datetime'], ev['info'])
+            if ev['loc']:
+                output = "%s (%s)" % (output, ev['loc'])
+
             if last_output != output:
                 last_output = output
                 bot.privmsg(target, output)
