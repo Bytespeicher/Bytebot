@@ -90,6 +90,8 @@ cache = /tmp/dates.cache
 list_days = 21
 # Minutes in the future to show event announcement (space separated list for multiple values)
 announce_minutes = 60 1440
+# Do not show default location
+filter_location = Bytespeicher
 
 [plugins.fuel]
 apikey = your_apikey
