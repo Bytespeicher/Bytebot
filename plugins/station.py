@@ -7,12 +7,14 @@ import aiohttp
 
 from datetime import datetime
 
+_RE_FIX = "(,\\s*|\\s*-\\s*){component}|{component}((,\\s*)|\\s*-\\s*)"
+
 
 def remove_component(targetlocation, component="Erfurt"):
     """
     Fix API locations like "Erfurt, Daberstedt" to just "Daberstedt"
     """
-    return re.sub("(,\\s*|\\s*-\\s*)" + component + "|" + component + "((,\\s*)|\\s*-\\s*)", "", targetlocation)
+    return re.sub(_RE_FIX.format(component=component), "", targetlocation)
 
 
 @command(permission="view")
@@ -47,7 +49,9 @@ def station(bot, mask, target, args):
         for departure in body.get("departures", []):
             delay = 0  # in seconds
             try:
-                delay = max(0, departure.get("timestamp_rt", 0) - departure["timestamp"]) // 60
+                timestamp = departure.get("timestamp")
+                timestamp_rt = departure.get("timestamp_rt", 0)
+                delay = max(0, timestamp_rt - timestamp) // 60
             except ValueError:
                 pass
 
@@ -55,16 +59,20 @@ def station(bot, mask, target, args):
                 "type": "Tram" if departure["type"] == "Strab" else "Bus",
                 "line": departure["line"],
                 "target": remove_component(departure["targetLocation"]),
-                "time": datetime.utcfromtimestamp(departure["timestamp"]), "delay": delay
+                "time": datetime.utcfromtimestamp(departure["timestamp"]),
+                "delay": delay
             })
 
         bot.privmsg(target, "Erfurt, Leipziger Platz")
         for departure in data[:10]:
+            delay = ""
+            if departure["delay"]:
+                delay = " +{:d}".format(departure["delay"])
             bot.privmsg(
                 target,
                 "{:4}{} | {:4} {} -> {}".format(
                     departure["time"].strftime("%H:%M"),
-                    " +{:d}".format(departure["delay"]) if departure["delay"] else "",
+                    delay,
                     departure["type"], departure["line"],
                     departure["target"]))
 
