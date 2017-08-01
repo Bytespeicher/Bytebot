@@ -63,11 +63,20 @@ def station(bot, mask, target, args):
                 "delay": delay
             })
 
+        # limit output to 10 max
+        data = data[:10]
+
+        # add padding to all departures if any is delayed
+        delayed = any(map(lambda d: d["delay"] > 0, data))
+
         bot.privmsg(target, "Erfurt, Leipziger Platz")
-        for departure in data[:10]:
+        for departure in data:
             delay = ""
             if departure["delay"]:
                 delay = " +{:d}".format(departure["delay"])
+            elif delayed:
+                delay = "   "
+
             bot.privmsg(
                 target,
                 "{:4}{} | {:4} {} -> {}".format(
