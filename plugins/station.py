@@ -6,6 +6,7 @@ import json
 import aiohttp
 
 from datetime import datetime
+from dateutil import tz
 
 _RE_FIX = "(,\\s*|\\s*-\\s*){component}|{component}((,\\s*)|\\s*-\\s*)"
 
@@ -45,6 +46,9 @@ def station(bot, mask, target, args):
         bot.privmsg(target, "Error while retrieving traffic data.")
 
     try:
+        # use local timezone
+        tzinfo = tz.tzlocal()
+
         data = []
         for departure in body.get("departures", []):
             delay = 0  # in seconds
@@ -59,7 +63,7 @@ def station(bot, mask, target, args):
                 "type": "Tram" if departure["type"] == "Strab" else "Bus",
                 "line": departure["line"],
                 "target": remove_component(departure["targetLocation"]),
-                "time": datetime.utcfromtimestamp(departure["timestamp"]),
+                "time": datetime.fromtimestamp(departure["timestamp"], tzinfo),
                 "delay": delay
             })
 
