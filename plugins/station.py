@@ -1,20 +1,52 @@
 from irc3 import asyncio
 from irc3.plugins.command import command
 
+import io
 import re
 import json
 import aiohttp
 
 from datetime import datetime
+from dateutil import tz
 
-_RE_FIX = "(,\\s*|\\s*-\\s*){component}|{component}((,\\s*)|\\s*-\\s*)"
+from difflib import get_close_matches
+
+URL = "https://evag-live.wla-backend.de/node/v1/departures/{extId}"
+RE_FIX = "(,\\s*|\\s*-\\s*){component}|{component}((,\\s*)|\\s*-\\s*)"
 
 
-def remove_component(targetlocation, component="Erfurt"):
+def lookup_by_id(extId):
+    """
+    Lookup station by extId and return the pretty concatenation of name, parent
+    """
+    with io.open("data/stations.latest.json") as fp:
+        for obj in json.load(fp):
+            if obj["id"] == extId:
+                return "{parent}, {name}".format(**obj)
+
+
+def lookup_by_name(name, parent):
+    """
+    Lookup station by (parent, name) and return its extId.
+    """
+    with io.open("data/stations.latest.json") as fp:
+        data = json.load(fp)
+        candidates = [obj["name"] for obj in data if obj["parent"] == parent]
+
+        match = get_close_matches(name, candidates, 1, 0.3)
+        if not match:
+            return None
+
+        for obj in data:
+            if obj["parent"] == parent and obj["name"] == match[0]:
+                return str(obj["id"])
+
+
+def remove_component(targetlocation, component):
     """
     Fix API locations like "Erfurt, Daberstedt" to just "Daberstedt"
     """
-    return re.sub(_RE_FIX.format(component=component), "", targetlocation)
+    return re.sub(RE_FIX.format(component=component), "", targetlocation)
 
 
 @command(permission="view")
@@ -28,12 +60,38 @@ def station(bot, mask, target, args):
     https://evag-live.wla-backend.de/stations/latest.json
 
     %%station
+    %%station <name>...
     """
-    url = "https://evag-live.wla-backend.de/node/v1/departures/151213"
-    headers = {"Content-Type": "application/json"}
+
+    # load configuration
+    config = bot.config.get(__name__, {})
+
+    city = config.get("city")
+    if not city:
+        city = "Erfurt"
+
+    # determine extId (VMT internal id) and friendly name
+    extid = " ".join(args["<name>"])
+    if not extid:
+        extid = str(config.get("id", 151213))
+
+    if extid == "help":
+        return "Use !station NAME/EXTID to get recent departures"
+
+    name = None
+    if extid.isdigit():
+        name = lookup_by_id(extid)
+    else:
+        extid = lookup_by_name(extid, city)
+        if extid is not None:
+            name = lookup_by_id(extid)
+
+    if extid is None:
+        return "Unknown station: " + " ".join(args["<name>"])
+
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from session.get(url, headers=headers)
+            resp = yield from session.get(URL.format(extId=extid))
             if resp.status != 200:
                 bot.privmsg(target, "Error while retrieving traffic data.")
                 raise Exception()
@@ -45,6 +103,9 @@ def station(bot, mask, target, args):
         bot.privmsg(target, "Error while retrieving traffic data.")
 
     try:
+        # use local timezone
+        tzinfo = tz.tzlocal()
+
         data = []
         for departure in body.get("departures", []):
             delay = 0  # in seconds
@@ -58,8 +119,8 @@ def station(bot, mask, target, args):
             data.append({
                 "type": "Tram" if departure["type"] == "Strab" else "Bus",
                 "line": departure["line"],
-                "target": remove_component(departure["targetLocation"]),
-                "time": datetime.utcfromtimestamp(departure["timestamp"]),
+                "target": remove_component(departure["targetLocation"], city),
+                "time": datetime.fromtimestamp(departure["timestamp"], tzinfo),
                 "delay": delay
             })
 
@@ -69,7 +130,10 @@ def station(bot, mask, target, args):
         # add padding to all departures if any is delayed
         delayed = any(map(lambda d: d["delay"] > 0, data))
 
-        bot.privmsg(target, "Erfurt, Leipziger Platz")
+        # get max line number
+        maxline = max(map(lambda d: len(d["line"]), data))
+
+        bot.privmsg(target, name)
         for departure in data:
             delay = ""
             if departure["delay"]:
@@ -82,7 +146,8 @@ def station(bot, mask, target, args):
                 "{:4}{} | {:4} {} -> {}".format(
                     departure["time"].strftime("%H:%M"),
                     delay,
-                    departure["type"], departure["line"],
+                    departure["type"],
+                    departure["line"].rjust(maxline),
                     departure["target"]))
 
     except KeyError:

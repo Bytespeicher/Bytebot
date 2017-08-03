@@ -132,6 +132,10 @@ SpacestatusCommits =
 clarifai_app_id = yourappid
 clarifai_app_secret = yourappsecret
 
+[plugins.station]
+city = Erfurt
+id = 151213
+
 [plugins.weather]
 api_key = your_apikey
 url = http://api.openweathermap.org/data/2.5/weather?units=metric&q=
