@@ -2,17 +2,26 @@
 ## Setup
 
 * Fork / pull the project
-	git clone; git checkout $BRANCH
+
+	`git clone; git checkout $BRANCH`
 * Create virtual environment
-	pyvenv env
+
+	```
+	pyvenv env`
 	. env/bin/activate
+	```
 * Install dependencies (see [README](README.md))
-	pip install -r contrib/requirements.txt
-* Setup a `config.ini`
+
+	`pip install -r contrib/requirements.txt`
+* Setup a `config.ini
+
+	```
 	cp config.ini{.example,}
 	$EDITOR config.ini
+	```
 * Start
-	irc3 config.ini
+
+	`irc3 config.ini`
 
 
 ## Coding Style

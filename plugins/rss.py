@@ -96,7 +96,11 @@ def _rss_process_feed(bot, target, feedname, config, number_of_entries=-1):
                 """Etag was used in request and noting changed."""
                 return
             else:
-                bot.privmsg(target, "Error while retrieving rss data")
+                if number_of_entries == -1:
+                    bot.log.error("Error while retrieving rss data")
+                else:
+                    bot.privmsg(target, "Error while retrieving rss data")
+
                 raise Exception()
 
     try:
