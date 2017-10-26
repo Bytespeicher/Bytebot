@@ -11,10 +11,14 @@ def spaceapi(bot, target=None):
 
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
-            resp = yield from session.get(config['url'])
-            if resp.status != 200:
-                if target is not None:
-                    bot.privmsg(target, "Error while retrieving spaceapi data")
-                raise Exception()
-            r = yield from resp.read()
-    return json.loads(r.decode('utf-8'))
+            ret = []
+            for space_url in config['url'].split():
+                resp = yield from session.get(space_url)
+                if resp.status != 200:
+                    if target is not None:
+                        bot.privmsg(target, "Error while retrieving spaceapi data" + space_url)
+                    raise Exception()
+                r = yield from resp.read()
+                ret.append(json.loads(r.decode('utf-8')))
+                    
+    return ret
