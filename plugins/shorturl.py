@@ -4,8 +4,6 @@ import json
 import irc3
 import aiohttp
 
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
-
 try:
     from clarifai.client import ClarifaiApi
 except ImportError:
@@ -27,7 +25,6 @@ __URL_REGEX = re.compile(
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 __URL_KRZUS = "https://krz.us/api/v1/short"
-__URL_GOOGL = "https://www.googleapis.com/urlshortener/v1/url"
 
 __IMAGE_EXT = ("jpeg", "jpg", "gif", "png")
 
@@ -46,6 +43,9 @@ def greetings(bot, mask, target, data=None, **kw):
 
     if not url:
         return
+
+    """Load configuration"""
+    config = bot.config.get(__name__, {})
 
     with aiohttp.Timeout(10):
         with aiohttp.ClientSession(loop=bot.loop) as session:
@@ -68,8 +68,8 @@ def greetings(bot, mask, target, data=None, **kw):
     desc = None
     if url.endswith(__IMAGE_EXT) and ClarifaiApi is not None:
         api = ClarifaiApi(
-            BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_id'],
-            BYTEBOT_PLUGIN_CONFIG['shorturl']['clarifai_app_secret'])
+            config['clarifai_app_id'],
+            config['clarifai_app_secret'])
         tags = api.tag_image_urls(url)
 
         if tags['status_code'] == "OK":

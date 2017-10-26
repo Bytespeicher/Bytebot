@@ -1,6 +1,4 @@
 from irc3.plugins.command import command
-
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 import json
 import aiohttp
@@ -16,7 +14,15 @@ def fuel(bot, mask, target, args):
 
         %%fuel [<city> <value> <type>]...
     """
-    config = BYTEBOT_PLUGIN_CONFIG['fuel']
+
+    """Load configuration"""
+    config = {
+        'lat': 50.9827792,
+        'lng': 11.0394426,
+        'rad': 10
+    }
+    config.update(bot.config.get(__name__, {}))
+
     sort_type = 'all'
     sort_value = 'dist'
     lat = config['lat']

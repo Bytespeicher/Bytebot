@@ -1,6 +1,4 @@
 from irc3.plugins.command import command
-
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 import json
 import aiohttp
@@ -13,7 +11,9 @@ def weather(bot, mask, target, args):
 
         %%weather [<city>]...
     """
-    config = BYTEBOT_PLUGIN_CONFIG['weather']
+
+    """Load configuration"""
+    config = bot.config.get(__name__, {})
 
     if config['api_key'] == "your_apikey":
         return "I don't have your api key!"

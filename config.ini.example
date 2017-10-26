@@ -16,7 +16,15 @@ includes =
     irc3.plugins.log
     irc3.plugins.logger
 #    irc3.plugins.ctcp
-    plugins.weather
+#    plugins.autotopic
+#    plugins.bytehelp
+#    plugins.bofh
+#    plugins.cccongress
+#    plugins.fuel
+#    plugins.parking
+#    plugins.shorturl
+#    plugins.status
+#    plugins.weather
 
 # the bot will join #bytebot_channel
 # ${hash} is replaced by the # char
@@ -58,3 +66,71 @@ mkzero!*@* = all_permissions
 [irc3.plugins.logger]
 channels = #bytespeicher-testing
 filename = logs/{host}/{channel}-{date:%Y-%m-%d}.log
+
+[lib.spaceapi]
+url = https://status.bytespeicher.org/status.json
+
+[plugins.bytehelp]
+location = http://technikkultur-erfurt.de/bytespeicher:anfahrt
+dates = http://technikkultur-erfurt.de/bytespeicher:veranstaltungen
+versorgung = http://technikkultur-erfurt.de/bytespeicher:versorgung
+
+[plugins.autotopic]
+topic = Testtopic mit 100% Funktionen
+
+[plugins.cccongress]
+url = https://fahrplan.events.ccc.de/congress/YEAR/Fahrplan/schedule.json
+# cache = /tmp/cccongress.cache
+# announce_minutes = 15
+
+[plugins.dates]
+url = http://www.google.com/calendar/ical/2eskb61g20prl65k2qd01uktis%40group.calendar.google.com/public/basic.ics
+# timedelta = 21
+
+[plugins.fuel]
+apikey = your_apikey
+# lat = 50.9827792
+# lng = 11.0394426
+# rad = 10
+
+[plugins.parking]
+# url = parking_url
+
+[plugins.rss]
+# RSS-Name =
+#     URL to RSS feed
+#     Tempfile for caching
+#     feed type (dokuwiki, wordpress, github, redmine)
+Wiki =
+    http://www.technikkultur-erfurt.de/feed.php
+    /tmp/feed_wiki.cache
+    dokuwiki
+Website =
+    https://bytespeicher.org/feed/
+    /tmp/feed_website.cache
+    wordpress
+BytebotCommits =
+    https://github.com/Bytespeicher/Bytebot/commits/master.atom
+    /tmp/feed_bytebot.cache
+    github
+Redmine =
+    http://redmine.bytespeicher.org/issues.atom
+    /tmp/feed_rm_bytespeicher.cache
+    redmine
+SpacestatusCommits =
+    https://github.com/Bytespeicher/space-status/commits/master.atom
+    /tmp/feed_spacestatus.cache
+    github
+
+[plugins.shorturl]
+clarifai_app_id = yourappid
+clarifai_app_secret = yourappsecret
+
+[plugins.weather]
+api_key = your_apikey
+url = http://api.openweathermap.org/data/2.5/weather?units=metric&q=
+location' = city,countrycode
+
+[plugins.wikipedia]
+url = https://de.wikipedia.org/w/api.php?&action=query&format=json&prop=extracts&exintro=&explaintext=&titles=
+# length_of_abstract = 400

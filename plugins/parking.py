@@ -1,6 +1,4 @@
 ﻿from irc3.plugins.command import command
-
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
 from irc3 import asyncio
 import aiohttp
 import xml.etree.ElementTree as ET
@@ -13,7 +11,10 @@ def parking(bot, mask, target, args):
 
         %%parking
     """
-    config = BYTEBOT_PLUGIN_CONFIG['parking']
+
+    """Load configuration"""
+    config = {'url': 'parking_url'}
+    config.update(bot.config.get(__name__, {}))
 
     if config['url'] == "parking_url":
         return "I don't have your parking url!"
@@ -29,10 +30,19 @@ def parking(bot, mask, target, args):
             r = yield from resp.read()
 
             root = ET.fromstring(r)
+
+            """Sort XML by element longname"""
+            root[:] = sorted(root, key=lambda key: key.findtext("longname"))
+
             for lot in root.findall('ph'):
-                bot.privmsg(target,
-                            "    {name:32}{use:3} von {max:3} frei".format(
-                                name=lot.find('longname').text,
-                                use=int(lot.find('belegung').text),
-                                max=int(lot.find('kapazitaet').text)
-                            ))
+                bot.privmsg(
+                    target,
+                    "    {name:32}{use:3} von {max:3} frei".format(
+                        name=lot.find('longname').text,
+                        use=(
+                            int(lot.find('kapazitaet').text) -
+                            int(lot.find('belegung').text)
+                        ),
+                        max=int(lot.find('kapazitaet').text)
+                    )
+                )
