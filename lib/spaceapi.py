@@ -16,9 +16,11 @@ def spaceapi(bot, target=None):
                 resp = yield from session.get(space_url)
                 if resp.status != 200:
                     if target is not None:
-                        bot.privmsg(target, "Error while retrieving spaceapi data" + space_url)
+                        bot.privmsg(
+                            target, 
+                            "Error while retrieving spaceapi data" + space_url)
                     raise Exception()
                 r = yield from resp.read()
                 ret.append(json.loads(r.decode('utf-8')))
-                    
+
     return ret

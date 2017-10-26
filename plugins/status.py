@@ -13,14 +13,14 @@ def status(bot, mask, target, args):
     """
     try:
         data = yield from spaceapi(bot, target)
-        
+
         for space_data in data:
             bot.privmsg(target, 'Space status of ' + space_data['space'] + ':')
             if space_data['state']['open']:
                 bot.privmsg(target, '\tThe space is open!')
             else:
                 bot.privmsg(target, '\tThe space is closed!')
-                
+
     except Exception as e:
         bot.log.error(e)
         bot.privmsg(target, '\tError while retrieving space status')
