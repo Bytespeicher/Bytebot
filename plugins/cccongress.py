@@ -202,8 +202,8 @@ def _get_talk(bot, hall, slot=0):
 
     try:
         json_data = _get_json_data(bot)
-    except:
-        """Silently ignore errors"""
+    except Exception as e:
+        bot.log.error(e)
         return []
 
     now = datetime.datetime.now(pytz.timezone('Europe/Berlin'))
