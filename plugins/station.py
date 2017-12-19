@@ -5,6 +5,7 @@ import io
 import re
 import json
 import aiohttp
+import os
 
 from datetime import datetime
 from dateutil import tz
@@ -13,13 +14,15 @@ from difflib import get_close_matches
 
 URL = "https://evag-live.wla-backend.de/node/v1/departures/{extId}"
 RE_FIX = "(,\\s*|\\s*-\\s*){component}|{component}((,\\s*)|\\s*-\\s*)"
+STATION_FILE = os.path.dirname(os.path.realpath(__file__)) + \
+                   '/../data/stations.latest.json'
 
 
 def lookup_by_id(extId):
     """
     Lookup station by extId and return the pretty concatenation of name, parent
     """
-    with io.open("data/stations.latest.json") as fp:
+    with io.open(STATION_FILE) as fp:
         for obj in json.load(fp):
             if obj["id"] == extId:
                 return "{parent}, {name}".format(**obj)
@@ -29,7 +32,7 @@ def lookup_by_name(name, parent):
     """
     Lookup station by (parent, name) and return its extId.
     """
-    with io.open("data/stations.latest.json") as fp:
+    with io.open(STATION_FILE) as fp:
         data = json.load(fp)
         candidates = [obj["name"] for obj in data if obj["parent"] == parent]
 
