@@ -123,14 +123,20 @@ def _output_single_talk(hall, event, bot, target):
         event: Event information
     """
 
+    hall_length = len(max(_get_halls(bot), key=len))
+
     bot.privmsg(
         target,
-        "[%s] %s %s" % (hall, event['start'], event['title'])
+        "%*s %s %s" % (
+            hall_length+2, '['+hall+']', event['start'], event['title']
+        )
     )
     bot.privmsg(
         target,
         "%s (%s / %s)" % (
-            '{:<14}'.format(''), event['language'], _get_persons(event)
+            '{:<{width}}'.format('', width=hall_length+2),
+            event['language'],
+            _get_persons(event)
         )
     )
 
