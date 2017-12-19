@@ -1,76 +1,51 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-import urllib2
-import json
-
-from plugins.plugin import Plugin
-from time import time
-
-from bytebot_config import BYTEBOT_HTTP_TIMEOUT, BYTEBOT_HTTP_MAXSIZE
-from bytebot_config import BYTEBOT_PLUGIN_CONFIG
+﻿from irc3.plugins.command import command
+from irc3 import asyncio
+import aiohttp
+import xml.etree.ElementTree as ET
 
 
-class parking(Plugin):
-    def __init__(self):
-        pass
+@command(permission="view")
+@asyncio.coroutine
+def parking(bot, mask, target, args):
+    """Show the current parking lot status
 
-    def registerCommand(self, irc):
-        irc.registerCommand('!parking', 'Parken')
+        %%parking
+    """
 
-    def _get_parking_status(self):
-        url = BYTEBOT_PLUGIN_CONFIG['parking']['url']
+    """Load configuration"""
+    config = {'url': 'parking_url'}
+    config.update(bot.config.get(__name__, {}))
 
-        data = urllib2.urlopen(url, timeout=BYTEBOT_HTTP_TIMEOUT).read(
-            BYTEBOT_HTTP_MAXSIZE)
+    if config['url'] == "parking_url":
+        return "I don't have your parking url!"
 
-        data = unicode(data, errors='ignore')
+    with aiohttp.Timeout(10):
+        with aiohttp.ClientSession(loop=bot.loop) as session:
+            resp = yield from session.get(config['url'])
+            if resp.status != 200:
+                bot.privmsg(target, "Error while retrieving parking data")
+                raise Exception()
+            r = yield from resp.read()
 
-        ret = json.loads(data)
+    try:
+        root = ET.fromstring(r)
 
-        return ret
+        """Sort XML by element longname"""
+        root[:] = sorted(root, key=lambda key: key.findtext("longname"))
 
-    def onPrivmsg(self, irc, msg, channel, user):
-        if msg.find('!parking') == -1:
-            return
+        bot.privmsg(target, 'Parkhausbelegung:')
 
-        self.irc = irc
-        self.channel = channel
-
-        try:
-            last_parking = irc.last_parking
-        except Exception as e:
-            last_parking = 0
-
-        if last_parking < (time() - 60):
-            try:
-                data = self._get_parking_status()
-
-                irc.msg(channel, 'Free parking lots:')
-
-                for x in range(1, len(data)):
-
-                    name = data[x][u'name'].encode('ascii', 'ignore')
-                    occupied = int(data[x][u'belegt'].encode('ascii',
-                                                             'ignore'))
-                    spaces = int(data[x][u'maximal'].encode('ascii', 'ignore'))
-
-                    if(occupied < 0):
-                        occupied = 0
-
-                    if(spaces <= 0):
-                        print_str = '{:25s}: not available'.format(name)
-                    else:
-                        print_str = '{:25s}: '.format(name) + \
-                                    '{:3.0f} / '.format(spaces - occupied) + \
-                                    '{:3.0f}'.format(spaces)
-
-                    irc.msg(channel, print_str)
-
-                irc.last_parking = time()
-
-            except Exception as e:
-                print(e)
-                irc.msg(channel, 'Error while fetching data.')
-        else:
-            irc.msg(channel, "Don't overdo it ;)")
+        for lot in root.findall('ph'):
+            bot.privmsg(
+                target,
+                "    {name:32}{use:3} von {max:3} frei".format(
+                    name=lot.find('longname').text,
+                    use=(
+                        int(lot.find('kapazitaet').text) -
+                        int(lot.find('belegung').text)
+                    ),
+                    max=int(lot.find('kapazitaet').text)
+                )
+            )
+    except Exception:
+        bot.privmsg(target, "Error while parsing parking data")
