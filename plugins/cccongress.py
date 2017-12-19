@@ -149,7 +149,7 @@ def _schedule_information(bot, target):
 
     try:
         json_data = _get_json_data(bot)
-    except Exception:
+    except Exception as e:
         bot.privmsg(target, "Schedule information unavailable.")
         return
 
@@ -208,7 +208,7 @@ def _get_talk(bot, hall, slot=0):
 
     try:
         json_data = _get_json_data(bot)
-    except:
+    except Exception as e:
         """Silently ignore errors"""
         return []
 
