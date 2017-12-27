@@ -7,7 +7,6 @@ import re
 import json
 import aiohttp
 import os
-import pytz
 import datetime
 
 from dateutil import tz
