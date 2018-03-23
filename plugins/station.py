@@ -204,7 +204,7 @@ def station(bot, mask, target, args):
 
 @cron('23 0 * * *')
 @asyncio.coroutine
-def cccongress_update_cron(bot):
+def station_update_cron(bot):
     """Update station list once a day"""
 
     yield from _update_cache(bot, 1)
