@@ -133,8 +133,14 @@ clarifai_app_id = yourappid
 clarifai_app_secret = yourappsecret
 
 [plugins.station]
-city = Erfurt
-id = 151213
+# city = Erfurt
+# id from station list json
+# id = 151213
+# announce_minutes = 30
+url_stationlist = https://evag-live.wla-backend.de/stations/latest.json
+# {extId} will be replaced by station id
+url_departures = https://evag-live.wla-backend.de/node/v1/departures/{extId}
+# cache = /tmp/station.cache
 
 [plugins.weather]
 api_key = your_apikey
